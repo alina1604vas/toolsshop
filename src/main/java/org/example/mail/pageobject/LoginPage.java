@@ -1,7 +1,6 @@
 package org.example.mail.pageobject;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import org.example.mail.driver.DriverSingleton;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -15,7 +14,7 @@ import java.time.Duration;
 public class LoginPage {
 
     private final String url = Dotenv.load().get("BASE_URL") + "/auth/login";
-    private WebDriver driver = DriverSingleton.getInstance();//це треба?
+    private final WebDriver driver;
 
     @FindBy(id = "email")
     private WebElement email;
@@ -27,9 +26,17 @@ public class LoginPage {
     private WebElement buttonLogin;
 
     @FindBy(className = "help-block")
-    private WebElement errorMessage;
+    private WebElement errorMessageForInvalidCredentials;
+
+    @FindBy(id = "email-error")
+    private WebElement errorMessageForEmptyEmail;
+
+    @FindBy(id = "password-error")
+    private WebElement errorMessageForEmptyPassword;
 
     public LoginPage(WebDriver driver) {
+        this.driver = driver;
+
         driver.get(url);
         PageFactory.initElements(driver, this);
     }
@@ -53,9 +60,22 @@ public class LoginPage {
         return url;
     }
 
-    public String getErrorMessage() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));//драйвер був червоний
-        wait.until(ExpectedConditions.visibilityOf(errorMessage));
-        return errorMessage.getText();
+    public String getErrorMessageForInvalidCredentials() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOf(errorMessageForInvalidCredentials));
+        return errorMessageForInvalidCredentials.getText();
     }
+
+    public String getErrorMessageForEmptyEmail() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOf(errorMessageForEmptyEmail));
+        return errorMessageForEmptyEmail.getText();
+    }
+
+    public String getErrorMessageForEmptyPassword() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOf(errorMessageForEmptyPassword));
+        return errorMessageForEmptyPassword.getText();
+    }
+
 }

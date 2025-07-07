@@ -40,11 +40,11 @@ public class RegistrationTest extends BaseTest {
     }
 
     @Test
-    @DisplayName("User should be redirected to Login page") // чому імена тестів не відображаються при рані
+    @DisplayName("User should be redirected to Login page")
     public void testRedirectionToLogin() {
         LoginPage loginPage = new LoginPage(driver);
         String expectedUrl = loginPage.getUrl();
-        String actualUrl = driver.getCurrentUrl(); //why driver can be accessed
+        String actualUrl = driver.getCurrentUrl();
         assertEquals(expectedUrl,actualUrl);
     }
 }
