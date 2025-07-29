@@ -21,11 +21,13 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
+    implementation 'net.datafaker:datafaker:2.4.3'
+
     implementation 'io.github.bonigarcia:webdrivermanager:5.9.3'
     implementation 'io.github.cdimascio:java-dotenv:5.2.2'
 
-    testImplementation 'org.seleniumhq.selenium:selenium-java:4.33.0'
-    implementation 'org.seleniumhq.selenium:selenium-java:4.33.0'
+    testImplementation 'org.seleniumhq.selenium:selenium-java:4.34.0'
+    implementation 'org.seleniumhq.selenium:selenium-java:4.34.0'
 
     implementation('org.slf4j:slf4j-simple:2.0.16')
 

@@ -2,17 +2,17 @@ package org.example.mail.driver;
 
 public class Customer {
 
-    private String firstName = "Alina";
-    private String lastName = "Test";
-    private String dateOfBirth = "16041992";
-    private String street = "Zelena";
-    private String postalCode = "12345";
-    private String city = "Vinnytsia";
-    private String state = "Vinnytsia";
-    private String country = "Ukraine";
-    private String phone = "123456789010";
-    private String email = "alina1604vas@gmail.com";
-    private String password = "Dwelon1234!";
+    private String firstName = "Jane";
+    private String lastName = "Doe";
+    private String dateOfBirth;
+    private String street;
+    private String postalCode;
+    private String city;
+    private String state;
+    private String country;
+    private String phone;
+    private String email = "customer@practicesoftwaretesting.com";
+    private String password = "welcome01";
 
     public Customer() {
     }

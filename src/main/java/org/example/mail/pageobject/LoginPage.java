@@ -26,13 +26,13 @@ public class LoginPage {
     private WebElement buttonLogin;
 
     @FindBy(className = "help-block")
-    private WebElement errorMessageForInvalidCredentials;
+    private WebElement helpBlockError;
 
     @FindBy(id = "email-error")
-    private WebElement errorMessageForEmptyEmail;
+    private WebElement emailError;
 
     @FindBy(id = "password-error")
-    private WebElement errorMessageForEmptyPassword;
+    private WebElement passwordError;
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
@@ -60,22 +60,27 @@ public class LoginPage {
         return url;
     }
 
-    public String getErrorMessageForInvalidCredentials() {
+    public String getHelpBlockError() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOf(errorMessageForInvalidCredentials));
-        return errorMessageForInvalidCredentials.getText();
+        wait.until(ExpectedConditions.visibilityOf(helpBlockError));
+        return helpBlockError.getText();
     }
+    //Invalid email or password
 
-    public String getErrorMessageForEmptyEmail() {
+    public String getEmailError() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOf(errorMessageForEmptyEmail));
-        return errorMessageForEmptyEmail.getText();
+        wait.until(ExpectedConditions.visibilityOf(emailError));
+        return emailError.getText();
     }
+    //Email is required - є
+    //Email format is invalid =є
 
-    public String getErrorMessageForEmptyPassword() {
+    public String getPasswordError() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOf(errorMessageForEmptyPassword));
-        return errorMessageForEmptyPassword.getText();
+        wait.until(ExpectedConditions.visibilityOf(passwordError));
+        return passwordError.getText();
     }
+    //Password is required - є
+    //Password length is invalid = є
 
 }

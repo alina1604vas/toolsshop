@@ -1,4 +1,5 @@
 package org.example.mail;
+
 import org.example.mail.pageobject.LoginPage;
 import org.example.mail.pageobject.RegistrationPage;
 import org.junit.jupiter.api.AfterEach;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RegistrationTest extends BaseTest {
+
     private RegistrationPage registrationPage;
 
     @BeforeEach
@@ -23,19 +25,19 @@ public class RegistrationTest extends BaseTest {
 
     @Test
     @DisplayName("User registration with valid data")
-    public void testUserRegistation() {
+    public void testUserRegistration() {
         registrationPage
-                .setFirstName("Alina")
-                .setLastName("User")
-                .setBirthDate("16041992")
-                .setStreet("Zelena")
-                .setPostCode("21306")
-                .setCity("Vinnytsia")
-                .setState("Vinnytsia")
-                .setCountry("Ukraine")
-                .setPhone("1234567890")
-                .setEmail("alina1604vas@gmail.com")
-                .setPassword("Dwelon1234!")
+                .setFirstName(faker.name().firstName())
+                .setLastName(faker.name().lastName())
+                .setBirthDate(birthdayString)
+                .setStreet(faker.address().streetName())
+                .setPostCode(faker.address().zipCode())
+                .setCity(faker.address().cityName())
+                .setState(faker.address().cityName())
+                .setCountry(faker.address().country())
+                .setPhone(faker.phoneNumber().phoneNumber())
+                .setEmail(faker.internet().emailAddress())
+                .setPassword(faker.internet().password(8, 10, true, true))
                 .clickRegisterButton();
     }
 
@@ -47,4 +49,5 @@ public class RegistrationTest extends BaseTest {
         String actualUrl = driver.getCurrentUrl();
         assertEquals(expectedUrl,actualUrl);
     }
+
 }
