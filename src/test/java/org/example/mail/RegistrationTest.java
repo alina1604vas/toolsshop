@@ -2,10 +2,7 @@ package org.example.mail;
 
 import org.example.mail.pageobject.LoginPage;
 import org.example.mail.pageobject.RegistrationPage;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -24,6 +21,7 @@ public class RegistrationTest extends BaseTest {
     }
 
     @Test
+    @Tag("sprint4")
     @DisplayName("User registration with valid data")
     public void testUserRegistration() {
         registrationPage
@@ -42,6 +40,7 @@ public class RegistrationTest extends BaseTest {
     }
 
     @Test
+    @Tag("sprint4")
     @DisplayName("User should be redirected to Login page")
     public void testRedirectionToLogin() {
         LoginPage loginPage = new LoginPage(driver);

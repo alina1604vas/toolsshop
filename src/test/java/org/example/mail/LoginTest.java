@@ -3,10 +3,7 @@ package org.example.mail;
 import org.example.mail.driver.Customer;
 import org.example.mail.pageobject.LoginPage;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.List;
 import java.util.Random;
@@ -29,6 +26,7 @@ public class LoginTest extends BaseTest {
     }
 
     @Test
+    @Tag("sprint4")
     @DisplayName("Logging with valid credentials")
     public void testLoginWithValidCredentials() {
         Customer customer = new Customer();
@@ -39,6 +37,7 @@ public class LoginTest extends BaseTest {
     }
 
     @Test
+    @Tag("sprint4")
     @DisplayName("Logging with invalid format of credentials")
     public void testLoginWithInvalidFormatOfCredentials() {
         String validEmail = faker.internet().emailAddress();
@@ -69,6 +68,7 @@ public class LoginTest extends BaseTest {
     }
 
     @Test
+    @Tag("sprint4")
     @DisplayName("Logging with empty credentials")
     public void testLoginWithEmptyCredentials() {
         loginPage

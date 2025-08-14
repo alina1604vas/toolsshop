@@ -7,6 +7,7 @@ import static org.example.mail.BaseTest.driver;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HeaderTest {
+
     private static Header header;
 
     @BeforeAll
@@ -20,18 +21,21 @@ public class HeaderTest {
     }
 
     @Test
+    @Tag("sprint1")
     @DisplayName("Home is visible in the header")
     public void testIfHomeIsVisible() {
         assertTrue(header.isHomeVisible(), "Home should be visible in the header");
     }
 
     @Test
+    @Tag("sprint1")
     @DisplayName("Categories is visible in the header")
     public void testIfCategoriesIsVisible() {
         assertTrue(header.isCategoriesVisible(), "Categories should be visible in the header");
     }
 
     @Test
+    @Tag("sprint1")
     @DisplayName("Contact is visible in the header")
     public void testIfContactIsVisible() {
         assertTrue(header.isContactVisible(), "Contact should be visible in the header");

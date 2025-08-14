@@ -27,6 +27,7 @@ public class ContactTest extends BaseTest {
     }
 
     @Test
+    @Tag("sprint1")
     @DisplayName("Contact form can be submitted successfully")
     public void testSuccessfulContactFormSubmission() {
         contactPage
@@ -42,6 +43,7 @@ public class ContactTest extends BaseTest {
     }
 
     @Test
+    @Tag("sprint1")
     @DisplayName("Subject length should be more than 50")
     public void testSubjectLength() {
         contactPage.setMessage(faker.lorem().characters(49));
@@ -52,6 +54,7 @@ public class ContactTest extends BaseTest {
     }
 
     @Test
+    @Tag("sprint1")
     @DisplayName("Subject should be required")
     public void testSubjectIsRequired() {
         String expectedErrorMessage = "Subject is required";
@@ -61,6 +64,7 @@ public class ContactTest extends BaseTest {
     }
 
     @Test
+    @Tag("sprint1")
     @DisplayName("Message should be required")
     public void testMessageIsRequired() {
         String expectedMessage = "Message is required";
@@ -70,7 +74,8 @@ public class ContactTest extends BaseTest {
     }
 
     @Test
-    @DisplayName("Email should be of valid format")
+    @Tag("sprint1")
+    @DisplayName("Error is displayed for invalid email format")
     public void testEmailFormatValidation() {
         String expectedMessage = "Email format is invalid";
 
@@ -92,10 +97,5 @@ public class ContactTest extends BaseTest {
         String actualMessage = contactPage.getInvalidEmailErrorMessage();
         assertEquals(expectedMessage, actualMessage);
     }
-
-//    Subject is required+
-//    Message is required+
-//    Message must be minimal 50 characters+
-//    Email format is invalid+
 
 }
