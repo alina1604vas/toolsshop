@@ -8,7 +8,7 @@ import org.openqa.selenium.support.PageFactory;
 
 public class Header {
 
-    private final String url = Dotenv.load().get("BASE_URL");
+    private final String url = Dotenv.load().get("BASE_URL") + "/#";
 
     @FindBy(linkText = "Home")
     private WebElement homeNavigationItem;

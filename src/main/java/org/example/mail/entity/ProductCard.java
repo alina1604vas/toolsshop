@@ -20,6 +20,8 @@ public class ProductCard {
         return image;
     }
 
+
+    //String
     public String getPrice() {
         return price;
     }

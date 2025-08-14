@@ -17,7 +17,7 @@ import java.util.Random;
 
 public class ContactPage {
 
-    private final String url = Dotenv.load().get("BASE_URL") + "contact";
+    private final String url = Dotenv.load().get("BASE_URL") + "/contact";
     private WebDriver driver;
 
     @FindBy(id = "first_name")
