@@ -8,8 +8,6 @@ public class HomeData {
     private List<Brand> brands;
     private ProductsPerPage productsPerPage;
 
- // TODO: add grid elements
-
     public List<Category> getCategories() {
         return categories;
     }
@@ -33,6 +31,5 @@ public class HomeData {
     public void setProductsPerPage(ProductsPerPage products) {
         this.productsPerPage = products;
     }
-
 
 }

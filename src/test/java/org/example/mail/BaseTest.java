@@ -2,6 +2,7 @@ package org.example.mail;
 
 import net.datafaker.Faker;
 import org.example.mail.driver.DriverSingleton;
+import org.junit.jupiter.api.AfterAll;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.devtools.DevTools;
 import org.openqa.selenium.devtools.HasDevTools;
@@ -26,9 +27,9 @@ public abstract class BaseTest {
 //        driver.get(envBaseURL);
 //    }
 
-//    @AfterAll
-//    public static void tearDown() {
-//        DriverSingleton.closeDriver();
-//    }
+    @AfterAll
+    public static void tearDown() {
+        DriverSingleton.closeDriver();
+    }
 
 }

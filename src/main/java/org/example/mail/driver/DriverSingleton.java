@@ -44,20 +44,3 @@ public class DriverSingleton {
         }
     }
 }
-
-//System.out.println("➡ URL: " + response.getUrl());
-//        System.out.println("   Status: " + response.getStatus());
-//        System.out.println("   MIME Type: " + response.getMimeType());
-//        System.out.println("-----------------------------------------");
-
-//➡ URL: https://api-v2.practicesoftwaretesting.com/categories/tree
-//Status: 200
-//MIME Type: application/json
-//-----------------------------------------
-//        ➡ URL: https://api-v2.practicesoftwaretesting.com/brands
-//Status: 200
-//MIME Type: application/json
-//-----------------------------------------
-//        ➡ URL: https://api-v2.practicesoftwaretesting.com/products?page=1
-//Status: 200
-//MIME Type: application/json
