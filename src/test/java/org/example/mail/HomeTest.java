@@ -1,6 +1,7 @@
 package org.example.mail;
 
-import org.example.mail.entity.ProductCard;
+import com.google.gson.reflect.TypeToken;
+import org.example.mail.pageobject.entity.UiProduct;
 import org.example.mail.network.api.Endpoints;
 import org.example.mail.network.entity.*;
 import org.example.mail.pageobject.HomePage;
@@ -28,21 +29,20 @@ public class HomeTest extends BaseTest {
     public static void setUpHomePage() {
         responseListener.subscribe(
                 Endpoints.GET_BRANDS,
-                Brand.class,
-                brands -> homeData.setBrands(brands));
+                TypeToken.getParameterized(List.class, Brand.class).getType(),
+                response -> homeData.setBrands((List<Brand>) response));
 
         responseListener.subscribe(
                 Endpoints.GET_CATEGORIES,
-                Category.class,
-                categories -> homeData.setCategories(categories));
+                TypeToken.getParameterized(List.class, Category.class).getType(),
+                response -> homeData.setCategories((List<Category>) response));
 
         responseListener.subscribe(
                 Endpoints.GET_PRODUCTS,
-                ProductsPerPage.class,
-                products -> homeData.setProductsPerPage(products),
-                "");
+                TypeToken.get(ProductsPerPage.class).getType(),
+                response -> homeData.setProductsPerPage((ProductsPerPage) response));
 
-        homePage = new HomePage(driver);
+        homePage = new HomePage(driver).open();
     }
 
     @AfterAll
@@ -50,7 +50,6 @@ public class HomeTest extends BaseTest {
         responseListener.unSubscribe();
         homePage = null;
     }
-
 
     //    TODO: make 2nd part dynamic
     @Test
@@ -72,7 +71,6 @@ public class HomeTest extends BaseTest {
         assertEquals(expectedUrl, actualUrl, "Home Page URLs do not match");
     }
 
-
     //TODO: remove hardcoded values
     @Test
     @Tag("sprint1")
@@ -87,8 +85,8 @@ public class HomeTest extends BaseTest {
     @Tag("sprint1")
     @DisplayName("Check name, image and price of cards")
     public void testProductCards() {
-        ArrayList<ProductCard> products = homePage.getAllProducts();
-        for (ProductCard card : products) {
+        ArrayList<UiProduct> products = homePage.getAllProducts();
+        for (UiProduct card : products) {
             String cardName = card.getName();
             String cardImage = card.getImage();
             String cardPrice = card.getPrice();
@@ -144,13 +142,12 @@ public class HomeTest extends BaseTest {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div[data-test='search_completed'] .card")));
 
-        ArrayList<ProductCard> products = homePage.getAllProducts();
-        for (ProductCard product : products) {
+        ArrayList<UiProduct> products = homePage.getAllProducts();
+        for (UiProduct product : products) {
             boolean isNamePresent = product.getName().toLowerCase().contains(searchTerm.toLowerCase());
             assertTrue(isNamePresent, "Searched value is not present in the results");
         }
     }
-
 
     //TODO: what about pagination?
     @Test
@@ -159,10 +156,10 @@ public class HomeTest extends BaseTest {
     public void testSortingByAlphabetAZ() {
         homePage.sortAZ();
 
-        ArrayList<ProductCard> products = homePage.getAllProducts();
+        ArrayList<UiProduct> products = homePage.getAllProducts();
 
         ArrayList<String> actualNames = new ArrayList<>();
-        for (ProductCard product : products) {
+        for (UiProduct product : products) {
             String actualName = product.getName();
             actualNames.add(actualName);
         }
@@ -179,10 +176,10 @@ public class HomeTest extends BaseTest {
     public void testSortingByAlphabetZA() {
         homePage.sortZA();
 
-        ArrayList<ProductCard> products = homePage.getAllProducts();
+        ArrayList<UiProduct> products = homePage.getAllProducts();
 
         ArrayList<String> actualNames = new ArrayList<>();
-        for (ProductCard product : products) {
+        for (UiProduct product : products) {
             String actualName = product.getName();
             actualNames.add(actualName);
         }
@@ -199,10 +196,10 @@ public class HomeTest extends BaseTest {
     public void testSortingByPriceHighToLow() {
         homePage.sortByPriceHighToLow();
 
-        ArrayList<ProductCard> products = homePage.getAllProducts();
+        ArrayList<UiProduct> products = homePage.getAllProducts();
 
         ArrayList<Double> actualPrices = new ArrayList<>();
-        for (ProductCard product : products) {
+        for (UiProduct product : products) {
             String actualPrice = product.getPrice().replaceAll("[^\\d.]", "").replace(",", "");
             actualPrices.add(Double.parseDouble(actualPrice));
         }
@@ -220,10 +217,10 @@ public class HomeTest extends BaseTest {
     public void testSortingByPriceLowToHigh() {
         homePage.sortByPriceLowToHigh();
 
-        ArrayList<ProductCard> products = homePage.getAllProducts();
+        ArrayList<UiProduct> products = homePage.getAllProducts();
 
         ArrayList<Double> actualPrices = new ArrayList<>();
-        for (ProductCard product : products) {
+        for (UiProduct product : products) {
             String actualPrice = product.getPrice().replaceAll("[^\\d.]", "").replace(",", "");
             actualPrices.add(Double.parseDouble(actualPrice));
         }

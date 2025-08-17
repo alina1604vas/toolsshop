@@ -1,7 +1,7 @@
 package org.example.mail.pageobject;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import org.example.mail.entity.ProductCard;
+import org.example.mail.pageobject.entity.UiProduct;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
@@ -11,13 +11,17 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class HomePage {
 
+    private static final Logger log = LoggerFactory.getLogger(HomePage.class);
     private final String url = Dotenv.load().get("BASE_URL") + "/#";
     private WebDriver driver;
 
@@ -54,15 +58,21 @@ public class HomePage {
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
-        driver.get(url);
-        PageFactory.initElements(driver, this);
+//        driver.get(url);
+//        PageFactory.initElements(driver, this);
     }
 
-    public ArrayList<ProductCard> getAllProducts() {
+    public HomePage open() {
+        driver.get(url);
+        PageFactory.initElements(driver, this);
+        return this;
+    }
+
+    public ArrayList<UiProduct> getAllProducts() {
         List<WebElement> productElements = driver.findElements(
                 By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
         );
-        ArrayList<ProductCard> result = new ArrayList<>();
+        ArrayList<UiProduct> result = new ArrayList<>();
 
         for (WebElement element : productElements) {
 
@@ -70,7 +80,7 @@ public class HomePage {
             String name = element.findElement(By.cssSelector("[data-test='product-name']")).getText();
             String price = element.findElement(By.cssSelector("[data-test='product-price']")).getText();
 
-            result.add(new ProductCard(name, image, price));
+            result.add(new UiProduct(name, image, price));
         }
 
         return result;
@@ -79,7 +89,6 @@ public class HomePage {
 
     //TODO: get rid of products
     public int getNumberOfProducts() {
-
         new WebDriverWait(driver, Duration.ofSeconds(10))
                 .until(ExpectedConditions.numberOfElementsToBeMoreThan(
                         By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]"), 0));
@@ -90,9 +99,7 @@ public class HomePage {
         WebElement f = driver.findElement(By.id("filters"));
 
         try {
-            f.findElement(By.xpath(
-                    ".//label[contains(text(), '" + categoryName + "')]"
-            ));
+            f.findElement(By.xpath(".//label[contains(text(), '" + categoryName + "')]"));
             return true;
         } catch (NoSuchElementException e) {
             return false;
@@ -103,9 +110,7 @@ public class HomePage {
         WebElement b = driver.findElement(By.id("filters"));
 
         try {
-            b.findElement(By.xpath(
-                    ".//label[contains(text(), '" + brandName + "')]"
-            ));
+            b.findElement(By.xpath(".//label[contains(text(), '" + brandName + "')]"));
             return true;
         } catch (java.util.NoSuchElementException e) {
             return false;
@@ -180,4 +185,28 @@ public class HomePage {
                 By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
         ));
     }
+
+    public UiProduct openRandomProduct() {
+        ArrayList<UiProduct> products = getAllProducts();
+
+        Random random = new Random();
+        int randomIndex = random.nextInt(products.size());
+        UiProduct randomUIProduct = products.get(randomIndex);
+
+        WebElement productElement = driver.findElement(By.xpath(
+                "//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]" +
+                        "[.//*[@data-test='product-name' and normalize-space(text())='" + randomUIProduct.getName() + "']]"
+        ));
+        productElement.click();
+
+        return randomUIProduct;
+    }
+
+//    public String getRandomProductId() {
+//        openRandomProduct();
+//        String currentUrl = driver.getCurrentUrl();
+//        String[] parts = currentUrl.split("/product/");
+//        return parts[1];
+//    }
+
 }

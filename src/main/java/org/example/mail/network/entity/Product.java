@@ -16,6 +16,12 @@ public class Product {
     @SerializedName("price")
     private Double price;
 
+    @SerializedName("is_location_offer")
+    private boolean is_location_offer;
+
+    @SerializedName("is_rental")
+    private boolean is_rental;
+
     @SerializedName("product_image")
     private ProductImage productImage;
 
@@ -41,6 +47,14 @@ public class Product {
         return price;
     }
 
+    public boolean isIs_location_offer() {
+        return is_location_offer;
+    }
+
+    public boolean isIs_rental() {
+        return is_rental;
+    }
+
     public ProductImage getProductImage() {
         return productImage;
     }
@@ -52,4 +66,5 @@ public class Product {
     public Brand getBrand() {
         return brand;
     }
+
 }

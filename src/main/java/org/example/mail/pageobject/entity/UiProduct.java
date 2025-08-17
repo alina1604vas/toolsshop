@@ -1,12 +1,12 @@
-package org.example.mail.entity;
+package org.example.mail.pageobject.entity;
 
-public class ProductCard {
+public class UiProduct {
 
-    private String name;
-    private String image;
-    private String price;
+    private final String name;
+    private final String image;
+    private final String price;
 
-    public ProductCard(String name, String image, String price) {
+    public UiProduct(String name, String image, String price) {
         this.name = name;
         this.image = image;
         this.price = price;
@@ -20,8 +20,6 @@ public class ProductCard {
         return image;
     }
 
-
-    //String
     public String getPrice() {
         return price;
     }
