@@ -126,6 +126,8 @@ public class HomePage {
     public void searchByValue(String value) {
         searchInputField.sendKeys(value);
         buttonSearch.click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div[data-test='search_completed'] .card")));
     }
 
     //TODO: get rid of locators

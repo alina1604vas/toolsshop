@@ -11,15 +11,15 @@ import org.example.tools.pageobject.HomePage;
 import org.example.tools.pageobject.entity.UiProduct;
 import org.example.tools.infra.EnabledForSprint;
 import org.junit.jupiter.api.*;
-import org.openqa.selenium.By;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import java.time.Duration;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 
 @EnabledForSprint(3)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -138,17 +138,12 @@ public class HomeTest extends BaseTest {
         }
     }
 
-    //TODO: get rid of locators the test method
-    @Test
+    @ParameterizedTest
     @Tag("sprint2")
+    @ValueSource(strings = {"hammer", "screwdriver", "pliers", "wrench"})
     @DisplayName("Check that search results contain the search term in product names")
-    public void testSearchByValue() {
-        String searchTerm = "hammer";
+    public void testSearchByValue(String searchTerm) {
         homePage.searchByValue(searchTerm);
-
-        // TODO: move to PO
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div[data-test='search_completed'] .card")));
 
         ArrayList<UiProduct> products = homePage.getAllProducts();
         for (UiProduct product : products) {
