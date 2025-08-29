@@ -9,7 +9,7 @@ import org.openqa.selenium.support.ui.Select;
 
 public class RegistrationPage {
 
-    private final String url = SystemConfig.getBaseUrl() + "/auth/register";
+    private final String url = SystemConfig.getBaseUrl() + "auth/register";
 
     @FindBy(id = "first_name")
     private WebElement firstName;

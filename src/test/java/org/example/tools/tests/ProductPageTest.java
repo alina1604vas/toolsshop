@@ -9,6 +9,8 @@ import org.example.tools.pageobject.ProductPage;
 import org.example.tools.pageobject.entity.UiProduct;
 import org.junit.jupiter.api.*;
 
+import javax.xml.catalog.CatalogResolver;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnabledForSprint(3)
@@ -39,8 +41,8 @@ public class ProductPageTest extends BaseTest {
 
     @Test
     @Tag("sprint3")
-    @DisplayName("fggg")
-    public void testProductAttributes() {
+    @DisplayName("Check that Image, Name and Price coincide")
+    public void testProductImageNamePrice() {
         UiProduct uiProduct = homePage.openRandomProduct();
 
         String expectedImage = uiProduct.getImage();
@@ -53,11 +55,13 @@ public class ProductPageTest extends BaseTest {
 
         assertEquals(expectedImage, actualImage, "Images do not coincide");
         assertEquals(expectedName, actualName, "Names do not coincide");
-        assertEquals(expectedPrice, actualPrice, "Prices do not coincide");
+        assertEquals(expectedPrice, actualPrice, "Prices do not coincide"); //to cut of currency sign
     }
 
     @Test
-    public void ggg() {
+    @Tag("sprint3")
+    @DisplayName("Check Product description")
+    public void testProductDescription() {
         responseListener.subscribe(
                 Endpoints.GET_PRODUCT,
                 TypeToken.get(Product.class).getType(),
@@ -72,4 +76,59 @@ public class ProductPageTest extends BaseTest {
         assertEquals(expectedDescription, actualDescription);
     }
 
+    @Test
+    @Tag("sprint3")
+    @DisplayName("Check product category and brand labels")
+    public void testProductCategoryLabel() {
+        responseListener.subscribe(
+                Endpoints.GET_PRODUCT,
+                TypeToken.get(Product.class).getType(),
+                response -> expectedProduct = (Product) response);
+
+        UiProduct uiProduct = homePage.openRandomProduct();
+
+        productPage.waitUntilPageIsLoaded();
+
+        String expectedCategoryLabel = expectedProduct.getCategory().getName();
+        String actualCategoryLabel = productPage.getProductCategoryLabel();
+
+        assertEquals(expectedCategoryLabel, actualCategoryLabel, "Category labels do not match");
+    }
+
+    @Test
+    @Tag("sprint3")
+    @DisplayName("Check brand labels of a product")
+    public void testProductBrandLabel() {
+        responseListener.subscribe(
+                Endpoints.GET_PRODUCT,
+                TypeToken.get(Product.class).getType(),
+                response -> expectedProduct = (Product) response);
+
+        UiProduct uiProduct = homePage.openRandomProduct();
+
+        productPage.waitUntilPageIsLoaded();
+
+        String expectedBrandLabel = expectedProduct.getBrand().getBrandName();
+        String actualBrandLabel = productPage.getProductBrandLabel();
+
+        assertEquals(expectedBrandLabel, actualBrandLabel, "Brand labels do not coincide");
+    }
+
+    @Test
+    @Tag("sprint3")
+    //Дописати
+    @DisplayName("Check related products are present")
+    public void testRelatedProductsArePresent() {
+        responseListener.subscribe(
+                Endpoints.GET_PRODUCT_RELATED,
+                TypeToken.get(Product.class).getType(),
+                response -> expectedProduct = (Product) response);
+
+        UiProduct uiProduct = homePage.openRandomProduct();
+
+        productPage.waitUntilPageIsLoaded();
+    }
 }
+
+
+

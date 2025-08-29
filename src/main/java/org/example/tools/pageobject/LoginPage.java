@@ -13,7 +13,7 @@ import java.time.Duration;
 
 public class LoginPage {
 
-    private final String url = SystemConfig.getBaseUrl() + "/auth/login";
+    private final String url = SystemConfig.getBaseUrl() + "auth/login";
     private final WebDriver driver;
 
     @FindBy(id = "email")

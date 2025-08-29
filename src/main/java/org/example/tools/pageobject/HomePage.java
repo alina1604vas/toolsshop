@@ -49,8 +49,8 @@ public class HomePage {
 //    @FindBy(xpath = "//button[@type='submit']")
 //    private WebElement searchButton;
 
-    @FindBy(id = "filters")
-    private WebElement filters;
+//    @FindBy(id = "filters")
+//    private WebElement filters;
 
     @FindBy(css = "[data-test='search-submit']")
     private WebElement buttonSearch;
@@ -63,6 +63,15 @@ public class HomePage {
         driver.get(url);
         PageFactory.initElements(driver, this);
         return this;
+    }
+
+    public String getHomePageTitle() {
+        String title = driver.getTitle().trim();
+        return title.replaceFirst("\\s-\\s*v[0-9.]+$", "").trim();
+    }
+
+    public String getHomePageURl() {
+        return driver.getCurrentUrl();
     }
 
     public ArrayList<UiProduct> getAllProducts() {
@@ -199,11 +208,5 @@ public class HomePage {
         return randomUIProduct;
     }
 
-//    public String getRandomProductId() {
-//        openRandomProduct();
-//        String currentUrl = driver.getCurrentUrl();
-//        String[] parts = currentUrl.split("/product/");
-//        return parts[1];
-//    }
 
 }

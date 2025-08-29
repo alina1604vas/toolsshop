@@ -17,7 +17,7 @@ public class Brand {
         return id;
     }
 
-    public String getName() {
+    public String getBrandName() {
         return name;
     }
 

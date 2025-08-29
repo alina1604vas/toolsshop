@@ -1,21 +1,20 @@
 package org.example.tools.pageobject;
 
 import org.example.tools.SystemConfig;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.example.tools.utils.TestUtils;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 import java.time.Duration;
 import java.util.List;
-import java.util.Random;
 
 public class ContactPage {
 
-    private final String url = SystemConfig.getBaseUrl() + "/contact";
+    private final String url = SystemConfig.getBaseUrl() + "contact";
     private WebDriver driver;
 
     @FindBy(id = "first_name")
@@ -35,21 +34,6 @@ public class ContactPage {
 
     @FindBy(className = "btnSubmit")
     private WebElement buttonSend;
-
-    @FindBy(xpath = "//div[@role='alert']")
-    private WebElement successMessage;
-
-    @FindBy(id = "subject_alert")
-    private WebElement subjectEmptyError;
-
-    @FindBy(id = "message_alert")
-    private WebElement messageEmptyError;
-
-    @FindBy(xpath = "//div[contains(text(), 'Message must be minimal 50 characters')]")
-    private WebElement messageLengthError;
-
-    @FindBy(id = "email_alert")
-    private WebElement emailFormatError;
 
     public ContactPage(WebDriver driver) {
         this.driver = driver;
@@ -87,11 +71,11 @@ public class ContactPage {
         return this;
     }
 
-    public ContactPage setSubject() {
+    public ContactPage setRandomSubject() {
         subject.click();
         Select select = new Select(subject);
         List<WebElement> subjectOptions = select.getOptions();
-        int randomIndex = new Random().nextInt(subjectOptions.size());
+        int randomIndex = TestUtils.getRandomInt(1, subjectOptions.size() - 1);
         select.selectByIndex(randomIndex);
         return this;
     }
@@ -101,10 +85,24 @@ public class ContactPage {
         return this;
     }
 
+    public boolean isMessageLengthErrorContainerPresent() {
+        return isElementPresent(By.xpath("//div[contains(text(), 'Message must be minimal 50 characters')]"));
+    }
+
     public String getMessageLengthError() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-        wait.until(ExpectedConditions.visibilityOf(messageLengthError));
-        return messageLengthError.getText();
+        boolean isElementPresent = isElementPresent(
+                By.xpath("//div[contains(text(), 'Message must be minimal 50 characters')]")
+        );
+
+        if (isElementPresent) {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+            return wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(
+                            By.xpath("//div[contains(text(), 'Message must be minimal 50 characters')]"))
+            ).getText();
+        } else {
+            return "";
+        }
     }
 
     public ContactPage submitContactForm() {
@@ -112,28 +110,56 @@ public class ContactPage {
         return this;
     }
 
+    public boolean isEmptySubjectErrorContainerPresent() {
+        return isElementPresent(By.id("subject_alert"));
+    }
+
     public String getEmptySubjectError() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-        wait.until(ExpectedConditions.visibilityOf(subjectEmptyError));
-        return subjectEmptyError.getText();
+        boolean isElementPresent = isElementPresent(By.id("subject_alert"));
+        if (isElementPresent) {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("subject_alert"))).getText();
+        } else {
+            return "";
+        }
+    }
+
+    public boolean isEmptyMessageErrorContainerPresent() {
+        return isElementPresent(By.id("message_alert"));
     }
 
     public String getEmptyMessageError() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-        wait.until(ExpectedConditions.visibilityOf(messageEmptyError));
-        return messageEmptyError.getText();
+        boolean isElementPresent = isElementPresent(By.id("message_alert"));
+        if (isElementPresent) {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("message_alert"))).getText();
+        } else {
+            return "";
+        }
+    }
+
+    private boolean isElementPresent(By locator) {
+        return !driver.findElements(locator).isEmpty();
+    }
+
+    public boolean isEmailErrorContainerPresent() {
+        return isElementPresent(By.cssSelector("[data-test='email-error']"));
     }
 
     public String getInvalidEmailErrorMessage() {
-        // TODO: find element dynamically
-
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-        wait.until(ExpectedConditions.visibilityOf(emailFormatError));
-        return emailFormatError.getText();
+        boolean isElementPresent = isElementPresent(By.cssSelector("[data-test='email-error']"));
+        if (isElementPresent) {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+            WebElement errorMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-test='email-error']")));
+            return errorMessage.getText();
+        } else {
+            return "";
+        }
     }
 
     public String getSuccessMessage() {
-        return successMessage.getText();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@role='alert']"))).getText();
     }
 
 }

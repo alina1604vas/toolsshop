@@ -10,10 +10,11 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.ArrayList;
 
 public class ProductPage {
 
-    private final String url = SystemConfig.getBaseUrl() + "/product/";
+    private final String url = SystemConfig.getBaseUrl() + "product/";
     private WebDriver driver;
 
     @FindBy(css = ".figure-img.img-fluid")
@@ -48,6 +49,7 @@ public class ProductPage {
 
     public ProductPage(WebDriver driver) {
         this.driver = driver;
+        PageFactory.initElements(driver, this);
     }
 
     public void openProductPage(String id) {
@@ -55,19 +57,16 @@ public class ProductPage {
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("description")));
-
-        PageFactory.initElements(driver, this);
     }
 
     public void waitUntilPageIsLoaded() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("description")));
-        PageFactory.initElements(driver, this);
     }
 
     public String getImage() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".figure-img.img-fluid")));
+        wait.until(ExpectedConditions.visibilityOf(productImage));
 
         return productImage.getAttribute("src");
     }
@@ -93,4 +92,22 @@ public class ProductPage {
         return productDescription.getText();
     }
 
+    public String getProductCategoryLabel() {
+        WebDriverWait wait =  new WebDriverWait(driver,Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOf(productCategory));
+
+        return productCategory.getText();
+    }
+
+    public String getProductBrandLabel() {
+        WebDriverWait wait =  new WebDriverWait(driver,Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOf(productBrand));
+
+        return productBrand.getText();
+
+    }
+
+//    public ArrayList<UiProduct> getRelatedProducts() {
+//
+//    }
 }

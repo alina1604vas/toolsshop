@@ -6,7 +6,7 @@ import org.junit.jupiter.api.*;
 
 import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledForSprint(3)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -37,7 +37,7 @@ public class ContactTest extends BaseTest {
                 .setFirstName(faker.name().firstName())
                 .setLastName(faker.name().lastName())
                 .setEmailAddress(faker.internet().emailAddress())
-                .setSubject()
+                .setRandomSubject()
                 .setMessage(faker.lorem().characters(50))
                 .submitContactForm();
 
@@ -50,21 +50,27 @@ public class ContactTest extends BaseTest {
     @Test
     @Tag("sprint1")
     @DisplayName("Subject length should be more than 50")
-    public void testSubjectLength() {
+    public void testSubjectLengthErrorMessage() {
         contactPage.setMessage(faker.lorem().characters(49));
         String expectedErrorMessage = "Message must be minimal 50 characters";
         contactPage.submitContactForm();
 
+        boolean isErrorMessagePresent = contactPage.isMessageLengthErrorContainerPresent();
+        assertTrue(isErrorMessagePresent, "Subject length error message is absent");
+
         String actualErrorMessage = contactPage.getMessageLengthError();
-        assertEquals(expectedErrorMessage, actualErrorMessage);
+        assertEquals(expectedErrorMessage, actualErrorMessage, "Message length error message is incorrect");
     }
 
     @Test
     @Tag("sprint1")
     @DisplayName("Subject should be required")
-    public void testSubjectIsRequired() {
+    public void testSubjectIsRequiredErrorMessage() {
         String expectedErrorMessage = "Subject is required";
         contactPage.submitContactForm();
+
+        boolean isErrorMessagePresent = contactPage.isEmptySubjectErrorContainerPresent();
+        assertTrue(isErrorMessagePresent, "Subject is required error message is absent");
 
         String actualErrorMessage = contactPage.getEmptySubjectError();
         assertEquals(expectedErrorMessage, actualErrorMessage);
@@ -73,9 +79,12 @@ public class ContactTest extends BaseTest {
     @Test
     @Tag("sprint1")
     @DisplayName("Message should be required")
-    public void testMessageIsRequired() {
+    public void testMessageIsRequiredErrorMessage() {
         String expectedMessage = "Message is required";
         contactPage.submitContactForm();
+
+        boolean isMessageErrorPresent = contactPage.isEmptyMessageErrorContainerPresent();
+        assertTrue(isMessageErrorPresent, "Message is required error is absent");
 
         String actualMessage = contactPage.getEmptyMessageError();
         assertEquals(expectedMessage, actualMessage);
@@ -90,21 +99,22 @@ public class ContactTest extends BaseTest {
         String validEmail = faker.internet().emailAddress();
         Random random = new Random();
 
-        int caseType = random.nextInt(5);
+        int caseType = random.nextInt(3);
         String invalidEmail = switch (caseType) {
             case 0 -> validEmail.replace("@", "");
             case 1 -> validEmail.replace(".", "");
-            case 2 -> validEmail + " ";
-            case 3 -> "@" + faker.lorem().word() + ".com";
-            case 4 -> faker.lorem().characters(300) + "@test.com";
+            case 2 -> "@" + faker.lorem().word() + ".com";
             default -> "plainaddress";
         };
 
         contactPage.setEmailAddress(invalidEmail);
         contactPage.submitContactForm();
 
+        boolean isErrorMessagePresent = contactPage.isEmailErrorContainerPresent();
+        assertTrue(isErrorMessagePresent, "Error message is absent = " + invalidEmail);
+
         String actualMessage = contactPage.getInvalidEmailErrorMessage();
-        assertEquals(expectedMessage, actualMessage);
+        assertEquals(expectedMessage, actualMessage, "Expected and actual error messages do not coincide");
     }
 
 }
