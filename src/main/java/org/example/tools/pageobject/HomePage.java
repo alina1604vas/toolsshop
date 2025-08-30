@@ -31,14 +31,14 @@ public class HomePage {
     @FindBy(xpath = "//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
     private List<WebElement> products;
 
-    @FindBy(css = "img.card-img-top")
-    private WebElement cardImage;
-
-    @FindBy(css = "[data-test='product-name']")
-    private WebElement cardTitle;
-
-    @FindBy(css = "[data-test='product-price']")
-    private WebElement cardPrice;
+//    @FindBy(css = "img.card-img-top")
+//    private WebElement cardImage;
+//
+//    @FindBy(css = "[data-test='product-name']")
+//    private WebElement cardTitle;
+//
+//    @FindBy(css = "[data-test='product-price']")
+//    private WebElement cardPrice;
 
     @FindBy(className = "form-select")
     private WebElement sortDropdown;
@@ -94,10 +94,20 @@ public class HomePage {
 
 
     //TODO: get rid of products
+//    public int getNumberOfProducts() {
+//        new WebDriverWait(driver, Duration.ofSeconds(3))
+//                .until(ExpectedConditions.numberOfElementsToBeMoreThan(
+//                        By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]"), 0));
+//        return products.size();
+//    }
     public int getNumberOfProducts() {
-        new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.numberOfElementsToBeMoreThan(
-                        By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]"), 0));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        List<WebElement> products = wait.until(
+                ExpectedConditions.numberOfElementsToBeMoreThan(
+                        By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]"),
+                        0
+                )
+        );
         return products.size();
     }
 
