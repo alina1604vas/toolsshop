@@ -1,24 +1,18 @@
 package org.example.tools.tests;
 
 import com.google.gson.reflect.TypeToken;
-import org.awaitility.Awaitility;
 import org.example.tools.infra.EnabledForSprint;
 import org.example.tools.network.api.Endpoints;
-import org.example.tools.network.entity.Brand;
-import org.example.tools.network.entity.Category;
 import org.example.tools.network.entity.Product;
-import org.example.tools.network.entity.ProductsPerPage;
 import org.example.tools.pageobject.HomePage;
 import org.example.tools.pageobject.ProductPage;
 import org.example.tools.pageobject.entity.UiProduct;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.devtools.v136.layertree.model.StickyPositionConstraint;
+import org.junit.jupiter.params.provider.CsvFileSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -163,8 +157,20 @@ public class ProductPageTest extends BaseTest {
         homePage.openRandomProduct();
         productPage.setButtonIncreaseQuantity(3);
         productPage.clickAddToCart();
-        String actualMessage = productPage.confirmationAlertIsPresent();
+        String actualMessage = productPage.getShoppingSuccessMessage();
         assertEquals("Product added to shopping cart.", actualMessage, "Shopping cart messages do not coincide");
+    }
+
+    @DisplayName("Check products quantity in the shopping cart")
+    @ParameterizedTest
+    @CsvFileSource(resources = "/Qty.csv", numLinesToSkip = 1)
+    public void testProductQtyInShoppingCart(int qtyToAdd, int expectedTotal) {
+        //homePage.open();
+        homePage.openRandomProduct();
+        productPage.setButtonIncreaseQuantity(qtyToAdd);
+        productPage.clickAddToCart();
+        int actualTotal  = productPage.getItemsQtyInCart();
+        assertEquals(expectedTotal, actualTotal);
     }
 }
 

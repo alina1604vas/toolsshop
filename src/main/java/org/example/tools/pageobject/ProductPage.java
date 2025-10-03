@@ -136,10 +136,23 @@ public class ProductPage {
         buttonAddToCart.click();
     }
 
-    public String confirmationAlertIsPresent() {
+    public String getShoppingSuccessMessage() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         WebElement toast = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(text(), 'Product added to shopping cart')]")));
         String message = toast.getText();
         return message;
+    }
+
+    public void clickShoppingCartIcon() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement cart = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@class='nav-link' and @href='#/checkout']")));
+        cart.click();
+    }
+
+    public int getItemsQtyInCart() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement qtyIcon = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("lblCartCount")));
+        String qtyText = qtyIcon.getText();
+        return Integer.parseInt(qtyText);
     }
 }
