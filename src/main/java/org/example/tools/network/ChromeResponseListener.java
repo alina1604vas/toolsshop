@@ -1,4 +1,4 @@
-package org.example.tools.utils.network;
+package org.example.tools.network;
 
 import com.google.gson.Gson;
 import org.openqa.selenium.devtools.DevTools;
@@ -8,39 +8,69 @@ import org.openqa.selenium.devtools.v137.network.model.Response;
 
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class ChromeResponseListener {
 
     private final DevTools devTools;
+    private final Map<String, ObserverData<?>> observers = new LinkedHashMap<>();
 
     public ChromeResponseListener(DevTools devTools) {
         this.devTools = devTools;
 
         devTools.createSession();
         devTools.send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty()));
-    }
 
-    public <T> void subscribe(String endpointPattern, Type type, Consumer<T> onResponse) {
         devTools.addListener(Network.responseReceived(), responseReceived -> {
             Response response = responseReceived.getResponse();
+            if (response.getMimeType().contains("application/json") && response.getStatus() == HttpURLConnection.HTTP_OK) {
+                String url = response.getUrl();
 
-            if (response.getUrl().matches(endpointPattern) && response.getMimeType().contains("application/json") &&
-                    response.getStatus() == HttpURLConnection.HTTP_OK) {
-                RequestId requestId = responseReceived.getRequestId();
-                Network.GetResponseBodyResponse bodyResponse = devTools.send(Network.getResponseBody(requestId));
-                String body = bodyResponse.getBody();
+                for (Map.Entry<String, ObserverData<?>> entry : observers.entrySet()) {
+                    String pattern = entry.getKey();
+                    ObserverData<?> observerData = entry.getValue();
 
-                T parsed = new Gson().fromJson(body, type);
+                    if (url.matches(pattern)) {
+                        RequestId requestId = responseReceived.getRequestId();
+                        Network.GetResponseBodyResponse bodyResponse = devTools.send(Network.getResponseBody(requestId));
+                        String body = bodyResponse.getBody();
 
-                onResponse.accept(parsed);
+                        Object parsed = new Gson().fromJson(body, observerData.type);
+                        observerData.call(parsed);
+                    }
+                }
             }
         });
     }
 
-    public void unSubscribe() {
+    public <T> void addObserver(String endpointPattern, Type type, Consumer<T> onResponse) {
+        observers.put(endpointPattern, new ObserverData<>(type, onResponse));
+    }
+
+    public void removeObserver(String endpointPattern) {
+        observers.remove(endpointPattern);
+    }
+
+    public void destroy() {
         devTools.clearListeners();
+        observers.clear();
+    }
+
+    private static class ObserverData<T> {
+
+        private final Type type;
+        private final Consumer<T> callback;
+
+        public ObserverData(Type type, Consumer<T> callback) {
+            this.type = type;
+            this.callback = callback;
+        }
+
+        @SuppressWarnings("unchecked")
+        public void call(Object parsed) {
+            callback.accept((T) parsed);
+        }
     }
 
 }

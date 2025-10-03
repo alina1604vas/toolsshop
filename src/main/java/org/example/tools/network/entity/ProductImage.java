@@ -8,10 +8,10 @@ public class ProductImage {
     private Long id;
 
     @SerializedName("by_name")
-    private String  byName;
+    private String byName;
 
     @SerializedName("by_url")
-    private  String byUrl;
+    private String byUrl;
 
     @SerializedName("source_name")
     private String sourceName;
@@ -23,7 +23,7 @@ public class ProductImage {
     private String fileName;
 
     @SerializedName("title")
-    private  String title;
+    private String title;
 
     public Long getId() {
         return id;

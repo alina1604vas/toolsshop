@@ -31,26 +31,11 @@ public class HomePage {
     @FindBy(xpath = "//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
     private List<WebElement> products;
 
-//    @FindBy(css = "img.card-img-top")
-//    private WebElement cardImage;
-//
-//    @FindBy(css = "[data-test='product-name']")
-//    private WebElement cardTitle;
-//
-//    @FindBy(css = "[data-test='product-price']")
-//    private WebElement cardPrice;
-
     @FindBy(className = "form-select")
     private WebElement sortDropdown;
 
     @FindBy(xpath = "//input[@data-test='search-query']")
     private WebElement searchInputField;
-
-//    @FindBy(xpath = "//button[@type='submit']")
-//    private WebElement searchButton;
-
-//    @FindBy(id = "filters")
-//    private WebElement filters;
 
     @FindBy(css = "[data-test='search-submit']")
     private WebElement buttonSearch;
@@ -85,30 +70,40 @@ public class HomePage {
         for (WebElement element : productElements) {
             String image = element.findElement(By.cssSelector("img.card-img-top")).getAttribute("src");
             String name = element.findElement(By.cssSelector("[data-test='product-name']")).getText();
-            String price = element.findElement(By.cssSelector("[data-test='product-price']")).getText();
+            String price = element.findElement(By.cssSelector("[data-test='product-price']")).getText().replaceAll("[^0-9.,]", "");
 
             result.add(new UiProduct(name, image, price));
         }
         return result;
     }
 
+    public int getTotalNumberOfProducts() {
+        int totalProducts = 0;
+        int numberOfPages = driver.findElements(By.xpath("//ul[contains(@class,'ngx-pagination')]/li[not(contains(@class,'pagination-previous')) and not(contains(@class,'pagination-next')) and not(contains(@class, 'small-screen'))]")).size();
 
-    //TODO: get rid of products
-//    public int getNumberOfProducts() {
-//        new WebDriverWait(driver, Duration.ofSeconds(3))
-//                .until(ExpectedConditions.numberOfElementsToBeMoreThan(
-//                        By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]"), 0));
-//        return products.size();
-//    }
-    public int getNumberOfProducts() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-        List<WebElement> products = wait.until(
-                ExpectedConditions.numberOfElementsToBeMoreThan(
-                        By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]"),
-                        0
-                )
-        );
-        return products.size();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+        for (int i = 1; i <= numberOfPages; i++) {
+
+            List<WebElement> oldProducts = driver.findElements(By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]"));
+
+            String pageSelector = String.format("//ul[contains(@class,'ngx-pagination')]/li[not(contains(@class,'pagination-previous')) and not(contains(@class,'pagination-next')) and not(contains(@class, 'small-screen'))][%d]", i);
+            WebElement pageLink = driver.findElement(By.xpath(pageSelector));
+            pageLink.click();
+
+            if (totalProducts != 0) {
+                wait.until(ExpectedConditions.stalenessOf(oldProducts.get(0)));
+            }
+
+            List<WebElement> newProducts = wait.until(
+                    ExpectedConditions.presenceOfAllElementsLocatedBy(
+                            By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
+                    )
+            );
+            totalProducts = totalProducts + newProducts.size();
+        }
+
+        return totalProducts;
     }
 
     public boolean isCategoryPresent(String categoryName) {
@@ -140,7 +135,6 @@ public class HomePage {
         wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div[data-test='search_completed'] .card")));
     }
 
-    //TODO: get rid of locators
     public void sortAZ() {
         WebElement firstProductBeforeSort = driver.findElement(
                 By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
@@ -156,7 +150,6 @@ public class HomePage {
         ));
     }
 
-    //TODO: get rid of locators
     public void sortZA() {
         WebElement firstProductBeforeSort = driver.findElement(
                 By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
@@ -172,7 +165,6 @@ public class HomePage {
         ));
     }
 
-    //TODO: get rid of locators
     public void sortByPriceHighToLow() {
         WebElement firstProductBeforeSort = driver.findElement(
                 By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
@@ -188,7 +180,6 @@ public class HomePage {
         ));
     }
 
-    //TODO: get rid of locators
     public void sortByPriceLowToHigh() {
         WebElement firstProductBeforeSort = driver.findElement(
                 By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")

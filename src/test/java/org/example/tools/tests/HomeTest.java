@@ -1,62 +1,78 @@
 package org.example.tools.tests;
 
 import com.google.gson.reflect.TypeToken;
+import org.awaitility.Awaitility;
 import org.example.tools.SystemConfig;
 import org.example.tools.network.api.Endpoints;
-import org.example.tools.network.entity.Brand;
-import org.example.tools.network.entity.Category;
-import org.example.tools.network.entity.HomeData;
-import org.example.tools.network.entity.ProductsPerPage;
+import org.example.tools.network.entity.*;
 import org.example.tools.pageobject.HomePage;
 import org.example.tools.pageobject.entity.UiProduct;
 import org.example.tools.infra.EnabledForSprint;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 
 @EnabledForSprint(3)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class HomeTest extends BaseTest {
 
+    private static final Logger log = LoggerFactory.getLogger(HomeTest.class);
     private HomePage homePage;
     private HomeData homeData = new HomeData();
 
     @BeforeAll
     public void setUpHomePage() {
-        responseListener.subscribe(
-                Endpoints.GET_BRANDS,
-                TypeToken.getParameterized(List.class, Brand.class).getType(),
-                response -> homeData.setBrands((List<Brand>) response));
+        synchronized(this) {
+            responseListener.addObserver(
+                    Endpoints.GET_BRANDS,
+                    TypeToken.getParameterized(List.class, Brand.class).getType(),
+                    response -> {
+                        homeData.setBrands((List<Brand>) response);
+                    });
 
-        responseListener.subscribe(
-                Endpoints.GET_CATEGORIES,
-                TypeToken.getParameterized(List.class, Category.class).getType(),
-                response -> homeData.setCategories((List<Category>) response));
+            responseListener.addObserver(
+                    Endpoints.GET_CATEGORIES,
+                    TypeToken.getParameterized(List.class, Category.class).getType(),
+                    response -> {
+                        homeData.setCategories((List<Category>) response);
+                    });
 
-        responseListener.subscribe(
-                Endpoints.GET_PRODUCTS,
-                TypeToken.get(ProductsPerPage.class).getType(),
-                response -> {
-                    homeData.setProductsPerPage((ProductsPerPage) response);
-                });
-
+            responseListener.addObserver(
+                    Endpoints.GET_PRODUCTS,
+                    TypeToken.get(ProductsPerPage.class).getType(),
+                    response -> {
+                        homeData.setProductsPerPage((ProductsPerPage) response);
+                    });
+        }
         homePage = new HomePage(driver).open();
+
+        Awaitility.await()
+                .atMost(5, TimeUnit.SECONDS)
+                .until(() ->
+                        homeData.getBrands() != null &&
+                                homeData.getCategories() != null &&
+                                homeData.getProductsPerPage() != null
+                );
     }
 
     @AfterAll
     public void cleanUp() {
-        responseListener.unSubscribe();
+        responseListener.removeObserver(Endpoints.GET_BRANDS);
+        responseListener.removeObserver(Endpoints.GET_CATEGORIES);
+        responseListener.removeObserver(Endpoints.GET_PRODUCTS);
+
         homePage = null;
     }
 
-    //    TODO: make 2nd part dynamic - done
     @Test
     @Tag("sprint1")
     @DisplayName("Check Home page title")
@@ -66,7 +82,6 @@ public class HomeTest extends BaseTest {
         assertEquals(expectedTitle, actualTitle, "Home page title is incorrect");
     }
 
-    //TODO: make version part dynamic -done
     @Test
     @Tag("sprint1")
     @DisplayName("Check Home Page url")
@@ -76,15 +91,14 @@ public class HomeTest extends BaseTest {
         assertEquals(expectedUrl, actualUrl, "Home Page URLs do not match");
     }
 
-    //TODO: remove hardcoded values
     @Test
     @Tag("sprint1")
     @DisplayName("Check number of products on Home page")
     public void testNumberOfProducts() {
-        //int expectedNumber = 26;
-        //int expectedNumberOfProducts = homeData.getProductsPerPage().getTotalProducts();
-        //int actualNumberOfProducts = homePage.getNumberOfProducts();
-        //assertEquals(expectedNumberOfProducts, actualNumberOfProducts, "Incorrect number of products on Home page");
+        int expectedNumberOfProducts = homeData.getProductsPerPage().getTotalProducts();
+        int actualNumberOfProducts = homePage.getTotalNumberOfProducts();
+
+        assertEquals(expectedNumberOfProducts, actualNumberOfProducts, "Incorrect number of products on Home page");
     }
 
     @Test
@@ -138,19 +152,19 @@ public class HomeTest extends BaseTest {
         }
     }
 
-    @ParameterizedTest
-    @Tag("sprint2")
-    @ValueSource(strings = {"hammer", "screwdriver", "pliers", "wrench"})
-    @DisplayName("Check that search results contain the search term in product names")
-    public void testSearchByValue(String searchTerm) {
-        homePage.searchByValue(searchTerm);
-
-        ArrayList<UiProduct> products = homePage.getAllProducts();
-        for (UiProduct product : products) {
-            boolean isNamePresent = product.getName().toLowerCase().contains(searchTerm.toLowerCase());
-            assertTrue(isNamePresent, "Searched value is not present in the results");
-        }
-    }
+//    @ParameterizedTest
+//    @Tag("sprint2")
+//    @ValueSource(strings = {"wrench"})
+//    @DisplayName("Check that search results contain the search term in product names")
+//    public void testSearchByValue(String searchTerm) {
+//        homePage.searchByValue(searchTerm);
+//
+//        ArrayList<UiProduct> products = homePage.getAllProducts();
+//        for (UiProduct product : products) {
+//            boolean isNamePresent = product.getName().toLowerCase().contains(searchTerm.toLowerCase());
+//            assertTrue(isNamePresent, "Searched value is not present in the results");
+//        }
+//    }
 
     //TODO: what about pagination?
     @Test

@@ -3,7 +3,7 @@ package org.example.tools.tests;
 import net.datafaker.Faker;
 import org.example.tools.driver.DriverSingleton;
 import org.example.tools.infra.SprintCondition;
-import org.example.tools.utils.network.ChromeResponseListener;
+import org.example.tools.network.ChromeResponseListener;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.devtools.DevTools;
