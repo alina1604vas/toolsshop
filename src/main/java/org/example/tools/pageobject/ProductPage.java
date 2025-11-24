@@ -40,8 +40,8 @@ public class ProductPage {
     @FindBy(id = "btn-decrease-quantity")
     private WebElement buttonDecreaseQuantity;
 
-    @FindBy(id = "btn-increase-quantity")
-    private WebElement buttonIncreaseQuantity;
+//    @FindBy(id = "btn-increase-quantity")
+//    private WebElement buttonIncreaseQuantity;
 
     @FindBy(xpath = "//input[@data-test='quantity']")
     private WebElement productQuantity;
@@ -118,17 +118,23 @@ public class ProductPage {
             WebElement card = relatedWebElements.get(i);
             String relatedProductCardTitle = card.findElement(By.cssSelector(".card-title")).getText();
             String relatedProductCardImage = card.findElement(By.cssSelector(".card-img-top")).getAttribute("src");
-            relatedProducts.add(new UiProduct(relatedProductCardTitle, relatedProductCardImage));
+            relatedProducts.add(UiProduct.withImage(relatedProductCardTitle, relatedProductCardImage));
         }
         return relatedProducts;
     }
 
-    public void setButtonIncreaseQuantity(int quantity) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("btn-increase-quantity")));
+    public void setButtonIncreaseQuantity(int desiredQuantity) {
+        WebElement qtyInput = driver.findElement(By.xpath("//input[@data-test='quantity']"));
+        int initialQty = Integer.parseInt(qtyInput.getAttribute("value"));
+        int clicksNeeded = desiredQuantity - initialQty;
 
-        for (int i = 1; i < quantity; i++) {
-            buttonIncreaseQuantity.click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        for (int i = 0; i < clicksNeeded; i++) {
+            wait.until(ExpectedConditions.elementToBeClickable(
+                    By.id("btn-increase-quantity"))
+            ).click();
+            int expectedQty = initialQty + i + 1;
+            wait.until(d -> Integer.parseInt(qtyInput.getAttribute("value")) == expectedQty);
         }
     }
 
@@ -155,4 +161,5 @@ public class ProductPage {
         String qtyText = qtyIcon.getText();
         return Integer.parseInt(qtyText);
     }
+
 }

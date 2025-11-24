@@ -49,6 +49,16 @@ public class HomePage {
         PageFactory.initElements(driver, this);
         return this;
     }
+    public void waitUntilPageIsLoaded() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15)); // increase timeout
+        wait.until(driver -> {
+            // wait for container to exist
+            WebElement container = driver.findElement(By.cssSelector(".col-md-9 .container"));
+            // wait for at least one product inside container
+            List<WebElement> products = container.findElements(By.xpath(".//a[contains(@class,'card') and starts-with(@data-test,'product-')]"));
+            return products.size() > 0;
+        });
+    }
 
     public String getHomePageTitle() {
         String title = driver.getTitle().trim();
@@ -58,7 +68,7 @@ public class HomePage {
     public String getHomePageURl() {
         return driver.getCurrentUrl();
     }
-
+//чи вертаю цей метод всы продукти зы всых сторынок??
     public ArrayList<UiProduct> getAllProducts() {
         String productsXpath = "//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]";
 
@@ -210,6 +220,5 @@ public class HomePage {
 
         return randomUIProduct;
     }
-
 
 }

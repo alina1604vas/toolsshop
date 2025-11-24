@@ -150,27 +150,46 @@ public class ProductPageTest extends BaseTest {
         }
 
     }
-    @Test
+
     @Tag("sprint3")
-    @DisplayName("Check that a product can be added to a shopping cart")
-    public void testAddToCart() {
+    @ParameterizedTest(name = "Run {index}: qtyToAdd = {0}")
+    @ValueSource(ints = {1, 3, 5})
+    @DisplayName("Check that a product can be added to a shopping cart and success message is shown")
+    public void testAddToCart(int qtyToAdd) {
         homePage.openRandomProduct();
-        productPage.setButtonIncreaseQuantity(3);
+        productPage.waitUntilPageIsLoaded();
+        productPage.setButtonIncreaseQuantity(qtyToAdd);
         productPage.clickAddToCart();
         String actualMessage = productPage.getShoppingSuccessMessage();
         assertEquals("Product added to shopping cart.", actualMessage, "Shopping cart messages do not coincide");
     }
 
-    @DisplayName("Check products quantity in the shopping cart")
+    @DisplayName("Check products quantity in the shopping cart and success message when product is added")
     @ParameterizedTest
     @CsvFileSource(resources = "/Qty.csv", numLinesToSkip = 1)
     public void testProductQtyInShoppingCart(int qtyToAdd, int expectedTotal) {
-        //homePage.open();
         homePage.openRandomProduct();
+        productPage.waitUntilPageIsLoaded();
         productPage.setButtonIncreaseQuantity(qtyToAdd);
         productPage.clickAddToCart();
+        String actualMessage = productPage.getShoppingSuccessMessage();
+        assertEquals("Product added to shopping cart.", actualMessage, "Shopping cart messages do not coincide");
         int actualTotal  = productPage.getItemsQtyInCart();
         assertEquals(expectedTotal, actualTotal);
+    }
+
+    @Test
+    @Tag("sprint3")
+    @DisplayName("Check redirection to checkout")
+    public void testRedirectionToCheckout() {
+        homePage.openRandomProduct();
+        productPage.waitUntilPageIsLoaded();
+        productPage.setButtonIncreaseQuantity(3);
+        productPage.clickAddToCart();
+        productPage.clickShoppingCartIcon();
+        String actualUrl = driver.getCurrentUrl();
+        assertTrue(actualUrl.contains("checkout"),
+                "Expected URL to contain 'checkout' but was: " + actualUrl);
     }
 }
 
