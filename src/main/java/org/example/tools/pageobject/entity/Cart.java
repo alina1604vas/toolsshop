@@ -6,9 +6,10 @@ public class Cart {
 
     private List<UiCartElement> items = new ArrayList<>();
 
-    public void add(UiCartElement cartElement) {
+   public void add(UiCartElement cartElement) {
         items.add(cartElement);
     }
+
 
     public List<UiCartElement> getItems() {
         return items;

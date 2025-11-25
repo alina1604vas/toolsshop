@@ -64,4 +64,6 @@ public class UiCartElement {
     public double getSubtotal() {
         return subtotal;
     }
+
+
 }

@@ -46,20 +46,39 @@ public class CheckoutCartPage {
             int qty = Integer.parseInt(row.findElement(By.cssSelector("td:nth-child(3) input.quantity")).getAttribute("value"));
             double subtotal = Double.parseDouble(row.findElement(By.cssSelector("td:nth-child(5)")).getText().replace("$", "").trim());
             UiProduct uiProduct = withPrice(title, price);
-            UiCartElement cartElement = new UiCartElement(uiProduct,qty,subtotal);
+            UiCartElement cartElement = new UiCartElement(uiProduct, qty, subtotal);
             uiProducts.add(cartElement);
         }
         return uiProducts;
     }
 
-    public double getCartTotal () {
+    public double getCartTotal() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-       WebElement totalRow = wait.until(
-               ExpectedConditions.visibilityOfElementLocated(
-                       By.cssSelector(".table tfoot tr td:nth-child(5)")));
+        WebElement totalRow = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(
+                        By.cssSelector(".table tfoot tr td:nth-child(5)")));
 
         String totalPrice = totalRow.getText().replace("$", "").trim();
         return Double.parseDouble(totalPrice);
     }
-     }
+
+    //add clear Cart (проклікувати всі красні)
+    public void clearCart() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        By deleteButton = By.cssSelector(".btn-danger");
+
+        while (!driver.findElements(deleteButton).isEmpty()) {
+            driver.findElement(deleteButton).click();
+            wait.until(ExpectedConditions.stalenessOf(driver.findElement(deleteButton)));
+        }
+    }
+//    public void emptyCart() {
+//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+//        List<WebElement> deleteButtons = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.cssSelector(".btn-danger")));
+//
+//        for (WebElement deleteButton : deleteButtons) {
+//            deleteButton.click();
+//        }
+//    }
+}
 

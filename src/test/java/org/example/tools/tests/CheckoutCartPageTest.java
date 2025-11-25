@@ -116,7 +116,7 @@ public class CheckoutCartPageTest extends BaseTest {
     @Test
     @Tag("sprint3")
     @DisplayName("Verify total price per cart (for several different products)")
-    public void testTotal() {
+    public void testTotalCartPrice() {
         homePage.open();
         double expectedCartTotal = 0.0;
         int numberOfProductsToAdd = new Random().nextInt(5) + 1;
@@ -124,19 +124,19 @@ public class CheckoutCartPageTest extends BaseTest {
             UiProduct product = homePage.openRandomProduct();
             productPage.waitUntilPageIsLoaded();
             double itemPrice = Double.parseDouble(product.getPrice().replace("$", "").trim());
+//            double itemPrice = Double.parseDouble(productPage.getPrice().replace("$", "").trim());
             int quantity = new Random().nextInt(5) + 1;
-            productPage.setButtonIncreaseQuantity(quantity - 1);
+            productPage.setButtonIncreaseQuantity(quantity);
             productPage.clickAddToCart();
-            expectedCartTotal += itemPrice * quantity;
-            //double itemSubtotal = itemPrice * quantity;
-            //expectedCartTotal = expectedCartTotal + itemSubtotal;
+            expectedCartTotal = expectedCartTotal + (itemPrice * quantity);
 
-            driver.navigate().back();
+            homePage.open();
             homePage.waitUntilPageIsLoaded();
         }
+
         checkoutCartPage.open();
         double actualCartTotal = checkoutCartPage.getCartTotal();
-        assertEquals(expectedCartTotal, actualCartTotal);
+        assertEquals(expectedCartTotal, actualCartTotal, 0.01);
 
     }
 
