@@ -62,23 +62,21 @@ public class CheckoutCartPage {
         return Double.parseDouble(totalPrice);
     }
 
-    //add clear Cart (проклікувати всі красні)
     public void clearCart() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         By deleteButton = By.cssSelector(".btn-danger");
 
-        while (!driver.findElements(deleteButton).isEmpty()) {
-            driver.findElement(deleteButton).click();
-            wait.until(ExpectedConditions.stalenessOf(driver.findElement(deleteButton)));
+        while (true) {
+            List<WebElement> deleteButtons = driver.findElements(deleteButton);
+            if (deleteButtons.isEmpty()) {
+                break;
+            }
+
+            WebElement button = deleteButtons.get(0);
+            button.click();
+            wait.until(ExpectedConditions.stalenessOf(button));
         }
     }
-//    public void emptyCart() {
-//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-//        List<WebElement> deleteButtons = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.cssSelector(".btn-danger")));
-//
-//        for (WebElement deleteButton : deleteButtons) {
-//            deleteButton.click();
-//        }
-//    }
+
 }
 

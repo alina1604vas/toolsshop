@@ -117,6 +117,7 @@ public class CheckoutCartPageTest extends BaseTest {
     @Tag("sprint3")
     @DisplayName("Verify total price per cart (for several different products)")
     public void testTotalCartPrice() {
+        checkoutCartPage.clearCart();
         homePage.open();
         double expectedCartTotal = 0.0;
         int numberOfProductsToAdd = new Random().nextInt(5) + 1;
