@@ -157,10 +157,14 @@ public class CheckoutCartPageTest extends BaseTest {
         List<UiCartElement> productsBeforeDeletion = checkoutCartPage.getUIProductsInCart();
         int randomIndex = new Random().nextInt(productsBeforeDeletion.size());
         UiCartElement randomProduct = productsBeforeDeletion.get(randomIndex);
-        String name = randomProduct.getProduct().getName(); //?
+        String name = randomProduct.getProduct().getName();
         checkoutCartPage.deleteCartProduct(randomProduct);
         List<UiCartElement> productsAfterDeletion = checkoutCartPage.getUIProductsInCart();
-        assertFalse(productsAfterDeletion.contains(randomProduct), "Product " + randomProduct.getProduct().getName() + " was not deleted from the cart");
+        assertFalse(
+                productsAfterDeletion.stream()
+                        .anyMatch(p -> p.getProduct().getName().equals(name)),
+                "Product " + name + " was not deleted from the cart"
+        );
 
     }
 }
