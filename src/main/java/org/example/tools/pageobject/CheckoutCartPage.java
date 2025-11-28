@@ -1,5 +1,6 @@
 package org.example.tools.pageobject;
 
+import org.apache.commons.io.output.BrokenWriter;
 import org.example.tools.SystemConfig;
 import org.example.tools.pageobject.entity.UiCartElement;
 import org.example.tools.pageobject.entity.UiProduct;
@@ -17,6 +18,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import static org.example.tools.pageobject.entity.UiProduct.withPrice;
 
@@ -60,6 +62,16 @@ public class CheckoutCartPage {
 
         String totalPrice = totalRow.getText().replace("$", "").trim();
         return Double.parseDouble(totalPrice);
+    }
+
+    public void deleteCartProduct(UiCartElement element) {
+        String productName = element.getProduct().getName();
+//        WebElement pr = driver.findElement(By.xpath("//span[contains(@class,'product-title') and contains(normalize-space(), '" + productName + "')]"));
+        WebElement deleteButton = driver.findElement(By.xpath(
+                "//tr[.//span[contains(@class,'product-title') and contains(normalize-space(), '" + productName + "')]]" +
+                        "//a[contains(@class,'btn-danger')]"
+        ));
+        deleteButton.click();
     }
 
     public void clearCart() {

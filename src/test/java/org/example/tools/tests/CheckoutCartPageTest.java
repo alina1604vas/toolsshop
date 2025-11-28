@@ -112,7 +112,7 @@ public class CheckoutCartPageTest extends BaseTest {
         assertTrue(missedProducts.isEmpty(), "There are missed products: " + missedProducts);
     }
 
-    //дописати логіку для тотал
+
     @Test
     @Tag("sprint3")
     @DisplayName("Verify total price per cart (for several different products)")
@@ -125,7 +125,6 @@ public class CheckoutCartPageTest extends BaseTest {
             UiProduct product = homePage.openRandomProduct();
             productPage.waitUntilPageIsLoaded();
             double itemPrice = Double.parseDouble(product.getPrice().replace("$", "").trim());
-//            double itemPrice = Double.parseDouble(productPage.getPrice().replace("$", "").trim());
             int quantity = new Random().nextInt(5) + 1;
             productPage.setButtonIncreaseQuantity(quantity);
             productPage.clickAddToCart();
@@ -142,10 +141,27 @@ public class CheckoutCartPageTest extends BaseTest {
     }
 
     //додати в список-> вибрати зы списка продукт рандомно-> видалити його -> знову взяти список продукти ы перевырити чи того продукта нема
-//    @Test
-//    @Tag("sprint3")
-//    @DisplayName("Verify that a product can be deleted from a cart")
-//    public void testProductDeletion () {
+    @Test
+    @Tag("sprint3")
+    @DisplayName("Verify that after product is deleted, list of products in the cart is updated")
+    public void testProductDeletion() {
+        homePage.open();
+        homePage.waitUntilPageIsLoaded();
+        homePage.openRandomProduct();
+        productPage.waitUntilPageIsLoaded();
+        int quantity = new Random().nextInt(5) + 1;
+        productPage.setButtonIncreaseQuantity(quantity);
+        productPage.clickAddToCart();
+        checkoutCartPage.open();
 
+        List<UiCartElement> productsBeforeDeletion = checkoutCartPage.getUIProductsInCart();
+        int randomIndex = new Random().nextInt(productsBeforeDeletion.size());
+        UiCartElement randomProduct = productsBeforeDeletion.get(randomIndex);
+        String name = randomProduct.getProduct().getName(); //?
+        checkoutCartPage.deleteCartProduct(randomProduct);
+        List<UiCartElement> productsAfterDeletion = checkoutCartPage.getUIProductsInCart();
+        assertFalse(productsAfterDeletion.contains(randomProduct), "Product " + randomProduct.getProduct().getName() + " was not deleted from the cart");
+
+    }
 }
 
