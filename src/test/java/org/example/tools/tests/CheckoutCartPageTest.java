@@ -82,7 +82,6 @@ public class CheckoutCartPageTest extends BaseTest {
     public void testMissedProducts() {
         homePage.open();
         Cart expectedCart = new Cart();
-        //checkoutCartPage = new CheckoutCartPage(driver);
 
         int numberOfProductsToAdd = new Random().nextInt(5) + 1;
         for (int i = 0; i < numberOfProductsToAdd; i++) {
@@ -166,6 +165,23 @@ public class CheckoutCartPageTest extends BaseTest {
         );
 
     }
+
+//    @Test
+//    @Tag("sprint3")
+//    @DisplayName("Verify that after clicking proceed to checkout button, user is redirected to Address and Name page")
+//    public void testRedirectionToNameAndAddressPage() {
+//        homePage.open();
+//        homePage.waitUntilPageIsLoaded();
+//        homePage.openRandomProduct();
+//        productPage.waitUntilPageIsLoaded();
+//        int quantity = new Random().nextInt(5) + 1;
+//        productPage.setButtonIncreaseQuantity(quantity);
+//        productPage.clickAddToCart();
+//        checkoutCartPage.open();
+//        checkoutCartPage.clickProceedToCheckout();
+//
+//    }
+    //add end to end test
 
     }
 }
