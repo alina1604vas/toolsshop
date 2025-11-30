@@ -140,7 +140,6 @@ public class CheckoutCartPageTest extends BaseTest {
 
     }
 
-    //додати в список-> вибрати зы списка продукт рандомно-> видалити його -> знову взяти список продукти ы перевырити чи того продукта нема
     @Test
     @Tag("sprint3")
     @DisplayName("Verify that after product is deleted, list of products in the cart is updated")
@@ -165,6 +164,8 @@ public class CheckoutCartPageTest extends BaseTest {
                         .anyMatch(p -> p.getProduct().getName().equals(name)),
                 "Product " + name + " was not deleted from the cart"
         );
+
+    }
 
     }
 }

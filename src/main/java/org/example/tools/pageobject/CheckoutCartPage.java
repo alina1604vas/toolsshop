@@ -66,7 +66,6 @@ public class CheckoutCartPage {
 
     public void deleteCartProduct(UiCartElement element) {
         String productName = element.getProduct().getName();
-//        WebElement pr = driver.findElement(By.xpath("//span[contains(@class,'product-title') and contains(normalize-space(), '" + productName + "')]"));
         WebElement deleteButton = driver.findElement(By.xpath(
                 "//tr[.//span[contains(@class,'product-title') and contains(normalize-space(), '" + productName + "')]]" +
                         "//a[contains(@class,'btn-danger')]"
@@ -89,6 +88,11 @@ public class CheckoutCartPage {
             wait.until(ExpectedConditions.stalenessOf(button));
         }
     }
-
+     public void clickProceedToCheckout() {
+         By proceedToCheckoutBtn = By.cssSelector("button[data-test='proceed-1']");
+         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+         WebElement button = wait.until(ExpectedConditions.elementToBeClickable(proceedToCheckoutBtn));
+         button.click();
+     }
 }
 
