@@ -40,4 +40,9 @@ public class CheckoutNameAddressPage {
         PageFactory.initElements(driver, this);
         return this;
     }
-}
+
+//    public void waitUntilPageIsLoaded () {
+//
+//    }
+
+    }
