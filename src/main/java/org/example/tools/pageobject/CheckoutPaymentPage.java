@@ -17,7 +17,16 @@ public class CheckoutPaymentPage {
     @FindBy(xpath = "//h3[text()=\"Payment\"]")
     private WebElement paymentHeader;
 
-    public CheckoutPaymentPage (WebDriver driver) {
+    @FindBy(id = "payment-method")
+    private WebElement paymentMethod;
+
+    @FindBy(id = "account-name")
+    private WebElement accountName;
+
+    @FindBy(id = "account-number")
+    private WebElement accountNumber;
+
+    public CheckoutPaymentPage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
