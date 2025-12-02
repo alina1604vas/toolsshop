@@ -1,12 +1,15 @@
 package org.example.tools.pageobject;
-
-import jdk.incubator.vector.VectorOperators;
 import org.example.tools.SystemConfig;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.example.tools.utils.TestData;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 public class CheckoutNameAddressPage {
     private final String url = SystemConfig.getBaseUrl() + "checkout";
@@ -36,6 +39,9 @@ public class CheckoutNameAddressPage {
     @FindBy(id = "postcode")
     private WebElement postcode;
 
+    @FindBy(xpath = "//button[@data-test=\"proceed-3\"]")
+    private WebElement proceedToCheckoutBtn;
+
     public CheckoutNameAddressPage(WebDriver driver) {
         this.driver = driver;
     }
@@ -46,9 +52,10 @@ public class CheckoutNameAddressPage {
         return this;
     }
 
-//    public void waitUntilPageIsLoaded () {
-//
-//    }
+    public void waitUntilPageIsLoaded() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOf(firstName));
+    }
 
     public void enterFirstName() {
         firstName.sendKeys(TestData.validFirstName());
@@ -81,4 +88,11 @@ public class CheckoutNameAddressPage {
     public void enterPostCode() {
         postcode.sendKeys(TestData.validPostCode());
     }
+
+    public CheckoutPaymentPage clickProceedToCheckoutButton() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.elementToBeClickable(proceedToCheckoutBtn)).click();
+        return new CheckoutPaymentPage(driver);
+    }
+
 }

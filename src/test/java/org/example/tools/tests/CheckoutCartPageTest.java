@@ -184,5 +184,5 @@ public class CheckoutCartPageTest extends BaseTest {
     //add end to end test
 
     }
-}
+
 
