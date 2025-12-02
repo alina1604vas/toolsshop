@@ -56,8 +56,8 @@ public class CheckoutNameAddressTest extends BaseTest {
 
     @Test
     @Tag("sprint3")
-    @DisplayName("Verify form can be filled with valid data. User can proceed to checkout")
-    public void testFormSubmission() {
+    @DisplayName("Verify that a form can be filled with valid data. User can proceed to checkout")
+    public void testNameAddressFormSubmission() {
         nameAddressPage.enterFirstName();
         nameAddressPage.enterLastName();
         nameAddressPage.enterEmail();
@@ -67,7 +67,7 @@ public class CheckoutNameAddressTest extends BaseTest {
         nameAddressPage.enterCountry();
         nameAddressPage.enterPostCode();
         nameAddressPage.clickProceedToCheckoutButton();
-        assertTrue(paymentPage.isLoaded(), "Payment page is not loaded");
+        assertTrue(paymentPage.isLoaded(), "Payment page has not been loaded");
     }
 
 }
