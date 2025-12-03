@@ -94,6 +94,6 @@ public class CheckoutPaymentPage {
     public OrderConfirmationPage confirmOrder() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         wait.until(ExpectedConditions.elementToBeClickable(confirmButton)).click();
-        return new OrderConfirmationPage();
+        return new OrderConfirmationPage(driver);
     }
 }
