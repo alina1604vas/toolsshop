@@ -40,8 +40,6 @@ public class ProductPage {
     @FindBy(id = "btn-decrease-quantity")
     private WebElement buttonDecreaseQuantity;
 
-//    @FindBy(id = "btn-increase-quantity")
-//    private WebElement buttonIncreaseQuantity;
 
     @FindBy(xpath = "//input[@data-test='quantity']")
     private WebElement productQuantity;

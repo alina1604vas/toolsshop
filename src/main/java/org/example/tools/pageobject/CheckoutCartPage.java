@@ -1,6 +1,4 @@
 package org.example.tools.pageobject;
-
-import org.apache.commons.io.output.BrokenWriter;
 import org.example.tools.SystemConfig;
 import org.example.tools.pageobject.entity.UiCartElement;
 import org.example.tools.pageobject.entity.UiProduct;
@@ -13,13 +11,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
-
 import static org.example.tools.pageobject.entity.UiProduct.withPrice;
 
 public class CheckoutCartPage {

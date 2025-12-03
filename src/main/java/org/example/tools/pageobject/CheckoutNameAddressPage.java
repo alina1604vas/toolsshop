@@ -46,6 +46,7 @@ public class CheckoutNameAddressPage {
         this.driver = driver;
     }
 
+    //do i need this method?
     public CheckoutNameAddressPage open() {
         driver.get(url);
         PageFactory.initElements(driver, this);

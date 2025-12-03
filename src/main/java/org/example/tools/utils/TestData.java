@@ -32,7 +32,17 @@ public class TestData {
     public static String validCountry() {
         return faker.address().country();
     }
+
     public static String validPostCode() {
         return faker.address().postcode();
     }
+
+    public static String validAccountName() {
+        return faker.name().fullName();
+    }
+
+    public static String validAccountNumber() {
+        return faker.number().digits(10);
+    }
 }
+
