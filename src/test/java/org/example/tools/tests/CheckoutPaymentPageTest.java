@@ -62,7 +62,7 @@ public class CheckoutPaymentPageTest extends BaseTest {
 
     @Test
     @Tag("sprint3")
-    @DisplayName("Verify payment is confirmed")
+    @DisplayName("Verify payment confirmation")
     public void testPaymentConfirmation() {
         assertTrue(paymentPage.isLoaded(), "Payment page has not been loaded");
         paymentPage.setPaymentMethodDropdown("Credit Card");
@@ -72,5 +72,11 @@ public class CheckoutPaymentPageTest extends BaseTest {
         paymentPage.waitConfirmationMesg();
         assertTrue(paymentPage.isConfirmationMsgPresent(), "Payment confirmation message is NOT shown");
         assertEquals("Payment was successful", paymentPage.getPaymentConfirmationMsg(), "Confirmation payment message is NOT correct");
+    }
+    @Test
+    @Tag("sprint3")
+    @DisplayName("Verify that a user is redirected to Order Confirmation page after clicking Confirm button")
+    public void testOrderConfirmation() {
+
     }
 }

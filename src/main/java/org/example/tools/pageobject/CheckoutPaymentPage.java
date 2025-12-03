@@ -67,7 +67,6 @@ public class CheckoutPaymentPage {
         accountNumber.sendKeys(TestData.validAccountNumber());
     }
 
-    //confirmOrder??
     public void confirmPayment() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         wait.until(ExpectedConditions.elementToBeClickable(confirmButton)).click();
@@ -90,5 +89,11 @@ public class CheckoutPaymentPage {
     public String getPaymentConfirmationMsg() {
         waitConfirmationMesg();
         return paymentConfirmation.getText();
+    }
+
+    public OrderConfirmationPage confirmOrder() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.elementToBeClickable(confirmButton)).click();
+        return new OrderConfirmationPage();
     }
 }
