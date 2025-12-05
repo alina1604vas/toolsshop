@@ -96,4 +96,5 @@ public class CheckoutPaymentPage {
         wait.until(ExpectedConditions.elementToBeClickable(confirmButton)).click();
         return new OrderConfirmationPage(driver);
     }
+
 }

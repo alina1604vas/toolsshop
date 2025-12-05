@@ -15,6 +15,7 @@ public class CheckoutPaymentPageTest extends BaseTest {
     private CheckoutCartPage checkoutCartPage;
     private CheckoutNameAddressPage nameAddressPage;
     private CheckoutPaymentPage paymentPage;
+    private OrderConfirmationPage orderConfirmationPage;
 
     @BeforeAll
     public void setUp() {
@@ -46,6 +47,7 @@ public class CheckoutPaymentPageTest extends BaseTest {
         nameAddressPage.clickProceedToCheckoutButton();
 
         paymentPage = new CheckoutPaymentPage(driver);
+        orderConfirmationPage = new OrderConfirmationPage(driver);
     }
 
     @AfterAll
@@ -57,7 +59,7 @@ public class CheckoutPaymentPageTest extends BaseTest {
 
     @Test
     @Tag("sprint3")
-    @DisplayName("Verify payment confirmation")
+    @DisplayName("Verify successful payment and order confirmation")
     public void testPaymentConfirmation() {
         assertTrue(paymentPage.isLoaded(), "Payment page has not been loaded");
         paymentPage.setPaymentMethodDropdown("Credit Card");
@@ -67,11 +69,9 @@ public class CheckoutPaymentPageTest extends BaseTest {
         paymentPage.waitConfirmationMesg();
         assertTrue(paymentPage.isConfirmationMsgPresent(), "Payment confirmation message is NOT shown");
         assertEquals("Payment was successful", paymentPage.getPaymentConfirmationMsg(), "Confirmation payment message is NOT correct");
-    }
-    @Test
-    @Tag("sprint3")
-    @DisplayName("Verify that a user is redirected to Order Confirmation page after clicking Confirm button")
-    public void testOrderConfirmation() {
-
+        paymentPage.confirmOrder();
+        assertTrue((orderConfirmationPage.isOrderConfirmationLoaded()), "Order Confirmation page is not loaded");
+        String actualMsg = orderConfirmationPage.getOrderConfirmationMsg();
+        assertTrue(actualMsg.contains("Thanks for your order! Your invoice number is"), "OrderConfirmation message is incorrect");
     }
 }
