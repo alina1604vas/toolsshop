@@ -42,7 +42,6 @@ public class CheckoutNameAddressTest extends BaseTest {
 
         checkoutCartPage.open();
         checkoutCartPage.clickProceedToCheckout();
-        nameAddressPage.open();
         nameAddressPage.waitUntilPageIsLoaded();
     }
 

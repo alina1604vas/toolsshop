@@ -44,18 +44,13 @@ public class CheckoutNameAddressPage {
 
     public CheckoutNameAddressPage(WebDriver driver) {
         this.driver = driver;
+        PageFactory.initElements(driver, this);
     }
 
-    //do i need this method?
-    public CheckoutNameAddressPage open() {
-        driver.get(url);
-        PageFactory.initElements(driver, this);
-        return this;
-    }
 
     public void waitUntilPageIsLoaded() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOf(firstName));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("first_name")));
     }
 
     public void enterFirstName() {
