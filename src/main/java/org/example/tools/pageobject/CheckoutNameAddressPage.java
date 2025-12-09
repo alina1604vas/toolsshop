@@ -91,4 +91,16 @@ public class CheckoutNameAddressPage {
         return new CheckoutPaymentPage(driver);
     }
 
+    public WebElement waitError(By locator) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    public By errorForField(String controlName) {
+        return By.xpath("//input[@formcontrolname='" + controlName + "']/parent::div/following-sibling::div[contains(@class,'alert-danger')]");
+    }
+
+    public String getErrorText(By locator) {
+        return waitError(locator).getText();
+}
 }
