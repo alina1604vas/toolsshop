@@ -1,6 +1,7 @@
 package org.example.tools.pageobject;
 import org.example.tools.SystemConfig;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -14,6 +15,9 @@ import java.time.Duration;
 public class CheckoutNameAddressPage {
     private final String url = SystemConfig.getBaseUrl() + "checkout";
     private WebDriver driver;
+
+    @FindBy(xpath = "//h3[text()='Name']")
+    private WebElement header;
 
     @FindBy(id = "first_name")
     private WebElement firstName;
@@ -91,16 +95,45 @@ public class CheckoutNameAddressPage {
         return new CheckoutPaymentPage(driver);
     }
 
-    public WebElement waitError(By locator) {
+    public WebElement waitError(String fieldName) {
+        WebElement field = getFieldByName(fieldName);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+         return wait.until(ExpectedConditions.visibilityOf(field));
     }
 
-    public By errorForField(String controlName) {
-        return By.xpath("//input[@formcontrolname='" + controlName + "']/parent::div/following-sibling::div[contains(@class,'alert-danger')]");
+    public By errorLocator(String fieldName) {
+        return By.xpath("//input[@formcontrolname='" + fieldName + "']/parent::div/following-sibling::div[contains(@class,'alert-danger')]");
     }
 
-    public String getErrorText(By locator) {
-        return waitError(locator).getText();
+    public String getErrorText(String fieldName) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(errorLocator(fieldName)));
+        return error.getText();
 }
+//    public void focusField(String fieldName) {
+//        WebElement field = getFieldByName(fieldName);
+//        ((JavascriptExecutor) driver).executeScript("arguments[0].focus();", field);
+//    }
+//    public void blurField(String fieldName) {
+//        WebElement field = getFieldByName(fieldName);
+//        JavascriptExecutor js = (JavascriptExecutor) driver;
+//        js.executeScript("arguments[0].blur();", field);
+//    }
+public void triggerValidation(String fieldName) {
+    WebElement field = getFieldByName(fieldName);
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+    wait.until(ExpectedConditions.visibilityOf(field));
+
+    JavascriptExecutor js = (JavascriptExecutor) driver;
+    js.executeScript("arguments[0].focus();", field);
+    js.executeScript("arguments[0].blur();", field);
+}
+    private WebElement getFieldByName(String fieldName) {
+        switch (fieldName) {
+            case "first_name": return firstName;
+            case "last_name": return lastName;
+            default: throw new IllegalArgumentException("Unknown field: " + fieldName);
+        }
+    }
+
 }

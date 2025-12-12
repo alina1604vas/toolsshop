@@ -2,9 +2,9 @@ package org.example.tools.network;
 
 import com.google.gson.Gson;
 import org.openqa.selenium.devtools.DevTools;
-import org.openqa.selenium.devtools.v137.network.Network;
-import org.openqa.selenium.devtools.v137.network.model.RequestId;
-import org.openqa.selenium.devtools.v137.network.model.Response;
+import org.openqa.selenium.devtools.v143.network.Network;
+import org.openqa.selenium.devtools.v143.network.model.RequestId;
+import org.openqa.selenium.devtools.v143.network.model.Response;
 
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
@@ -20,7 +20,13 @@ public class ChromeResponseListener {
         this.devTools = devTools;
 
         devTools.createSession();
-        devTools.send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty()));
+        devTools.send(Network.enable(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty())
+        );
 
         devTools.addListener(Network.responseReceived(), responseReceived -> {
             Response response = responseReceived.getResponse();

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.*;
 
 import java.util.Random;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @EnabledForSprint(3)
@@ -68,5 +69,15 @@ public class CheckoutNameAddressTest extends BaseTest {
         nameAddressPage.clickProceedToCheckoutButton();
         assertTrue(paymentPage.isLoaded(), "Payment page has not been loaded");
     }
+//    @Test
+//    @Tag("sprint3")
+//    @DisplayName("Verify that validation error messages are present for empty fields")
+//    public void testEmptyFieldValidation() {
+//        //nameAddressPage.waitUntilPageIsLoaded();
+//        nameAddressPage.triggerValidation("first_name");
+//        nameAddressPage.waitError("first_name");
+//        String actualFirstNameError = nameAddressPage.getErrorText("first_name");
+//        assertEquals("First name is required.", actualFirstNameError, "First Name error message for empty field does not match");
+//    }
 
 }
