@@ -56,7 +56,7 @@ public class CheckoutNameAddressTest extends BaseTest {
 
     @Test
     @Tag("sprint3")
-    @DisplayName("Verify that a form can be filled with valid data. User can proceed to checkout")
+    @DisplayName("Verify that a form can be filled with valid data. Customer can proceed to checkout")
     public void testNameAddressFormSubmission() {
         nameAddressPage.enterFirstName();
         nameAddressPage.enterLastName();

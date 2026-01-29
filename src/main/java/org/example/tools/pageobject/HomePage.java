@@ -68,7 +68,7 @@ public class HomePage {
     public String getHomePageURl() {
         return driver.getCurrentUrl();
     }
-//чи вертаю цей метод всы продукти зы всых сторынок??
+//чи вертає цей метод всы продукти зы всых сторынок??
     public ArrayList<UiProduct> getAllProducts() {
         String productsXpath = "//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]";
 

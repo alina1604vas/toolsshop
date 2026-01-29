@@ -110,15 +110,7 @@ public class CheckoutNameAddressPage {
         WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(errorLocator(fieldName)));
         return error.getText();
 }
-//    public void focusField(String fieldName) {
-//        WebElement field = getFieldByName(fieldName);
-//        ((JavascriptExecutor) driver).executeScript("arguments[0].focus();", field);
-//    }
-//    public void blurField(String fieldName) {
-//        WebElement field = getFieldByName(fieldName);
-//        JavascriptExecutor js = (JavascriptExecutor) driver;
-//        js.executeScript("arguments[0].blur();", field);
-//    }
+
 public void triggerValidation(String fieldName) {
     WebElement field = getFieldByName(fieldName);
     WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));

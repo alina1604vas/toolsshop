@@ -1,22 +1,30 @@
 package org.example.tools.tests;
 
+import org.example.tools.driver.DriverSingleton;
 import org.example.tools.infra.EnabledForSprint;
+import org.example.tools.pageobject.AccountPage;
 import org.example.tools.pageobject.LoginPage;
+import org.example.tools.utils.Credentials;
 import org.junit.jupiter.api.*;
-import java.util.List;
-import java.util.Random;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
+import org.openqa.selenium.WebDriver;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledForSprint(4)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class LoginTest extends BaseTest {
 
     private LoginPage loginPage;
 
     @BeforeEach
     public void setUpLoginPage() {
-        loginPage = new LoginPage(driver);
+        WebDriver driver = DriverSingleton.getDriver();
+        driver.manage().deleteAllCookies();
+        driver.navigate().refresh();
+        loginPage = new LoginPage();
+        loginPage.openLogin();
     }
 
     @AfterEach
@@ -26,59 +34,43 @@ public class LoginTest extends BaseTest {
 
     @Test
     @Tag("sprint4")
-    @DisplayName("Logging with valid credentials")
-    public void testLoginWithValidCredentials() {
-        loginPage
-                .setEmail("email@gmail.com")
-                .setPassword("12345678")
-                .clickLogin();
+    @DisplayName("Logging with registered user")
+    public void testLoginWithRegisteredUser() {
+        AccountPage accountPage = loginPage
+                        .logIn(Credentials.email(), Credentials.password());
+        assertTrue(accountPage.isPageLoaded(), "User cannot log in");
     }
 
-    @Test
+    @ParameterizedTest(name = "[{index}] email={0}")
+    @CsvFileSource(
+            resources = "/login_invalid_email.csv",
+            numLinesToSkip = 1,
+            emptyValue = "''"
+    )
+
     @Tag("sprint4")
-    @DisplayName("Logging with invalid format of credentials")
-    public void testLoginWithInvalidFormatOfCredentials() {
-        String validEmail = faker.internet().emailAddress();
-        int type = new Random().nextInt(5);
-
-        String invalidEmail = switch (type) {
-            case 0 -> validEmail.replace("@", "");
-            case 1 -> validEmail.replace(".", "");
-            case 2 -> validEmail + " ";
-            case 3 -> "@" + faker.lorem().word() + ".com";
-            case 4 -> faker.lorem().characters(300) + "@test.com";
-            default -> "plainaddress";
-        };
-        String invalidPassword = faker.internet().password(1, 2);
+    @DisplayName("Logging with invalid or empty email")
+    public void testLoginWithInvalidEmail (String email, String expectedEmailError) {
         loginPage
-                .setEmail(invalidEmail)
-                .setPassword(invalidPassword)
+                .setEmailInput(email)
                 .clickLogin();
-
-        List<String> expectedMessages = List.of(
-                "Email format is invalid",
-                "Password length is invalid"
-        );
-        String actualEmailErrorMessage = loginPage.getEmailError();
-        String actualPasswordErrorMessage = loginPage.getPasswordError();
-        assertTrue(expectedMessages.contains(actualEmailErrorMessage));
-        assertTrue(expectedMessages.contains(actualPasswordErrorMessage));
+        String actualEmailError = loginPage.getEmailError();
+        assertEquals(expectedEmailError, actualEmailError, "Incorrect email error message");
     }
 
-    @Test
+    @ParameterizedTest(name = "[{index}] password={0}")
+    @CsvFileSource(
+            resources = "/login_invalid_password.csv",
+            numLinesToSkip = 1,
+            emptyValue = "''"
+    )
     @Tag("sprint4")
-    @DisplayName("Logging with empty credentials")
-    public void testLoginWithEmptyCredentials() {
+    @DisplayName("Logging with invalid or empty password")
+    public void testLoginWithInvalidPassword (String password, String expectedPasswordError) {
         loginPage
-                .setEmail("")
-                .setPassword("")
+                .setPasswordInput(password)
                 .clickLogin();
-        String expectedErrorMessageForEmptyEmail = "Email is required";
-        String expectedErrorMessageForEmptyPassword = "Password is required";
-        String actualErrorMessageForEmptyEmail = loginPage.getEmailError();
-        String actualErrorMessageForEmptyPassword = loginPage.getPasswordError();
-        assertEquals(expectedErrorMessageForEmptyEmail, actualErrorMessageForEmptyEmail);
-        assertEquals(expectedErrorMessageForEmptyPassword, actualErrorMessageForEmptyPassword);
+        String actualPasswordError = loginPage.getPasswordError();
+        assertEquals(expectedPasswordError, actualPasswordError, "Incorrect password error message");
     }
-
 }

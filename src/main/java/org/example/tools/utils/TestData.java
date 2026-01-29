@@ -1,6 +1,9 @@
 package org.example.tools.utils;
 
 import net.datafaker.Faker;
+import org.example.tools.pageobject.entity.BillingAddress;
+
+import java.text.SimpleDateFormat;
 
 public class TestData {
     private static final Faker faker = new Faker();
@@ -44,5 +47,28 @@ public class TestData {
     public static String validAccountNumber() {
         return faker.number().digits(10);
     }
+
+    public static String validPhone() {
+        return faker.numerify("##########");
+    }
+
+    public static String validPassword() {
+        return faker.internet().password(8, 12, true, true);
+    }
+
+    public static String validBirthday() {
+        return new SimpleDateFormat("yyyy-MM-dd").format(faker.date().birthday(18, 65));
+    }
+
+    public static BillingAddress validBillingAddress(String selectedCountry) {
+        return new BillingAddress(
+                faker.address().streetAddress(),
+                faker.address().cityName(),
+                faker.address().state(),
+                (selectedCountry != null && !selectedCountry.isEmpty()) ? selectedCountry : faker.address().country(),
+                faker.address().postcode());
+    }
+    public static Customer lastRegisteredUser;
+
 }
 

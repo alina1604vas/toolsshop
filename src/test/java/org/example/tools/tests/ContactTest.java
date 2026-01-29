@@ -49,8 +49,8 @@ public class ContactTest extends BaseTest {
 
     @Test
     @Tag("sprint1")
-    @DisplayName("Subject length should be more than 50")
-    public void testSubjectLengthErrorMessage() {
+    @DisplayName("Message field length should be more than 50")
+    public void testMessageFieldLengthErrorMessage() {
         contactPage.setMessage(faker.lorem().characters(49));
         String expectedErrorMessage = "Message must be minimal 50 characters";
         contactPage.submitContactForm();

@@ -1,6 +1,7 @@
 package org.example.tools.pageobject;
 
 import org.example.tools.SystemConfig;
+import org.example.tools.driver.DriverSingleton;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -17,37 +18,50 @@ public class LoginPage {
     private final WebDriver driver;
 
     @FindBy(id = "email")
-    private WebElement email;
+    private WebElement emailInput;
 
     @FindBy(id = "password")
-    private WebElement password;
+    private WebElement passwordInput;
 
     @FindBy(className = "btnSubmit")
     private WebElement buttonLogin;
 
-    @FindBy(className = "help-block")
-    private WebElement helpBlockError;
-
-    @FindBy(id = "email-error")
+    @FindBy(xpath = "//div[@data-test='email-error']")
     private WebElement emailError;
 
-    @FindBy(id = "password-error")
+    @FindBy(xpath = "//div[@data-test='password-error']")
     private WebElement passwordError;
 
-    public LoginPage(WebDriver driver) {
-        this.driver = driver;
-
-        driver.get(url);
+    public LoginPage() {
+        this.driver = DriverSingleton.getDriver();
         PageFactory.initElements(driver, this);
     }
 
-    public LoginPage setPassword(String pass) {
-        password.sendKeys(pass);
+    public LoginPage openLogin() {
+        driver.get(url);
         return this;
     }
 
-    public LoginPage setEmail(String mail) {
-        email.sendKeys(mail);
+    public AccountPage logIn(String email, String password) {
+        emailInput.sendKeys(email);
+        passwordInput.sendKeys(password);
+        clickLogin();
+        return new AccountPage();
+    }
+
+    public LoginPage setPasswordInput(String password) {
+        if (password != null) {
+            passwordInput.clear();
+            passwordInput.sendKeys(password);
+        }
+        return this;
+    }
+
+    public LoginPage setEmailInput(String email) {
+        if (email != null) {
+            emailInput.clear();
+            emailInput.sendKeys(email);
+        }
         return this;
     }
 
@@ -60,27 +74,15 @@ public class LoginPage {
         return url;
     }
 
-    public String getHelpBlockError() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOf(helpBlockError));
-        return helpBlockError.getText();
-    }
-    //Invalid email or password
-
     public String getEmailError() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.visibilityOf(emailError));
         return emailError.getText();
     }
-    //Email is required - є
-    //Email format is invalid =є
 
     public String getPasswordError() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.visibilityOf(passwordError));
         return passwordError.getText();
     }
-    //Password is required - є
-    //Password length is invalid = є
-
 }

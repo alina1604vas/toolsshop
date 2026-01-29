@@ -1,17 +1,27 @@
 package org.example.tools.pageobject;
 
 import org.example.tools.SystemConfig;
+import org.example.tools.driver.DriverSingleton;
+import org.example.tools.utils.Customer;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Random;
 
 public class RegistrationPage {
 
+    private final WebDriver driver;
     private final String url = SystemConfig.getBaseUrl() + "auth/register";
 
-    @FindBy(id = "first_name")
+    @FindBy(css = "input[data-test='first-name']")
     private WebElement firstName;
 
     @FindBy(css = "input[placeholder='Your last name *']")
@@ -20,13 +30,13 @@ public class RegistrationPage {
     @FindBy(id = "dob")
     private WebElement calendar;
 
-    @FindBy(css = "input[placeholder='Your Street *']")
-    private WebElement street;
+    @FindBy(css = "input[placeholder='Your address *']")
+    private WebElement address;
 
-    @FindBy(xpath = "//input[@formcontrolname='postal_code']")
+    @FindBy(xpath = "//input[@formcontrolname='postcode']")
     private WebElement postCode;
 
-    @FindBy(xpath = "//input[@placeholder='Your City *']")
+    @FindBy(xpath = "//input[@placeholder='Your city *']")
     private WebElement city;
 
     @FindBy(id = "state")
@@ -47,12 +57,22 @@ public class RegistrationPage {
     @FindBy(xpath = "//button[@type='submit']")
     private WebElement buttonRegister;
 
-    public RegistrationPage(WebDriver driver) {
-        driver.get(url);
+    @FindBy(xpath = "//h1[@data-test='page-title']")
+    private WebElement accountHeader;
+
+    public RegistrationPage() {
+        this.driver = DriverSingleton.getDriver();
         PageFactory.initElements(driver, this);
     }
 
+    public RegistrationPage open() {
+        driver.get(url);
+        return this;
+    }
+
     public RegistrationPage setFirstName(String name) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("input[data-test='first-name']")));
         firstName.sendKeys(name);
         return this;
     }
@@ -68,8 +88,8 @@ public class RegistrationPage {
         return this;
     }
 
-    public RegistrationPage setStreet(String streetName) {
-        street.sendKeys(streetName);
+    public RegistrationPage setAddress(String address) {
+        this.address.sendKeys(address);
         return this;
     }
 
@@ -85,14 +105,6 @@ public class RegistrationPage {
 
     public RegistrationPage setState(String stateName) {
         state.sendKeys(stateName);
-        return this;
-    }
-
-    public RegistrationPage setCountry(String countryName) {
-        country.click();
-        Select select = new Select(country);
-        country.click();
-        select.selectByVisibleText(countryName);
         return this;
     }
 
@@ -115,4 +127,41 @@ public class RegistrationPage {
         buttonRegister.click();
         return this;
     }
+
+    public LoginPage registerUser(Customer user) {
+        this.setFirstName(user.getFirstName())
+                .setLastName(user.getLastName())
+                .setBirthDate(user.getBirthDate())
+                .setAddress(user.getBillingAddress().getStreetAddress())
+                .setPostCode(user.getBillingAddress().getPostCode())
+                .setCity(user.getBillingAddress().getCity())
+                .setState(user.getBillingAddress().getState())
+                .setPhone(user.getPhone())
+                .setEmail(user.getEmail())
+                .setPassword(user.getPassword())
+                .clickRegisterButton();
+        return new LoginPage();
+    }
+
+    public boolean isRegistrationSuccessful() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        return wait.until(ExpectedConditions.urlContains("/auth/login"));
+    }
+
+    public List<WebElement> getAvailableCountries() {
+        Select select = new Select(country);
+        return select.getOptions()
+                .stream()
+                .filter(option -> !option.getText().equals("Select your country *"))
+                .toList();
+    }
+
+    public String chooseRandomCountry(List<WebElement> dropdownOptions) {
+        Random random = new Random();
+        int randomIndex = random.nextInt(dropdownOptions.size());
+        WebElement selectedOption = dropdownOptions.get(randomIndex);
+        new Select(country).selectByVisibleText(selectedOption.getText());
+        return selectedOption.getText();
+    }
+
 }

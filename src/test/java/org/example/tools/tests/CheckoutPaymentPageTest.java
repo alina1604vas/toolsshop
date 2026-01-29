@@ -3,24 +3,35 @@ package org.example.tools.tests;
 import org.example.tools.infra.EnabledForSprint;
 import org.example.tools.pageobject.*;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import java.util.Random;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @EnabledForSprint(3)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class CheckoutPaymentPageTest extends BaseTest {
-    private HomePage homePage;
-    private ProductPage productPage;
-    private CheckoutCartPage checkoutCartPage;
-    private CheckoutNameAddressPage nameAddressPage;
+
+    private static HomePage homePage;
+    private static ProductPage productPage;
+    private static CheckoutCartPage checkoutCartPage;
+    private static CheckoutNameAddressPage nameAddressPage;
     private CheckoutPaymentPage paymentPage;
     private OrderConfirmationPage orderConfirmationPage;
 
     @BeforeAll
-    public void setUp() {
+    static void setUpAll() {
         homePage = new HomePage(driver);
         homePage.open();
+    }
+
+    @BeforeEach
+    void setUpEach() {
+        driver.manage().deleteAllCookies();
+        homePage.open();
+
         homePage.openRandomProduct();
 
         productPage = new ProductPage(driver);
@@ -48,30 +59,48 @@ public class CheckoutPaymentPageTest extends BaseTest {
 
         paymentPage = new CheckoutPaymentPage(driver);
         orderConfirmationPage = new OrderConfirmationPage(driver);
+
+        assertTrue(paymentPage.isLoaded(), "Payment page has not been loaded");
     }
 
     @AfterAll
-    public void tearDown() {
+    static void tearDownAll() {
         if (driver != null) {
             driver.quit();
         }
     }
 
-    @Test
+    @ParameterizedTest(name = "Verify payment with method: {0}")
+    @ValueSource(strings = {
+            "Bank Transfer",
+            "Cash on Delivery",
+            "Credit Card",
+            "Buy Now Pay Later",
+            "Gift Card"
+    })
     @Tag("sprint3")
     @DisplayName("Verify successful payment and order confirmation")
-    public void testPaymentConfirmation() {
-        assertTrue(paymentPage.isLoaded(), "Payment page has not been loaded");
-        paymentPage.setPaymentMethodDropdown("Credit Card");
+    void testPaymentConfirmation(String paymentMethod) {
+        paymentPage.setPaymentMethodDropdown(paymentMethod);
         paymentPage.enterValidAccountName();
         paymentPage.enterValidAccountNumber();
         paymentPage.confirmPayment();
         paymentPage.waitConfirmationMesg();
-        assertTrue(paymentPage.isConfirmationMsgPresent(), "Payment confirmation message is NOT shown");
-        assertEquals("Payment was successful", paymentPage.getPaymentConfirmationMsg(), "Confirmation payment message is NOT correct");
+
+        assertTrue(paymentPage.isConfirmationMsgPresent(),
+                "Payment confirmation message is NOT shown");
+
+        assertEquals("Payment was successful",
+                paymentPage.getPaymentConfirmationMsg(),
+                "Confirmation payment message is NOT correct");
+
         paymentPage.confirmOrder();
-        assertTrue((orderConfirmationPage.isOrderConfirmationLoaded()), "Order Confirmation page is not loaded");
+
+        assertTrue(orderConfirmationPage.isOrderConfirmationLoaded(),
+                "Order Confirmation page is not loaded");
+
         String actualMsg = orderConfirmationPage.getOrderConfirmationMsg();
-        assertTrue(actualMsg.contains("Thanks for your order! Your invoice number is"), "OrderConfirmation message is incorrect");
+        assertTrue(actualMsg.contains("Thanks for your order! Your invoice number is"),
+                "OrderConfirmation message is incorrect");
     }
 }
