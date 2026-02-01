@@ -11,6 +11,7 @@ import java.time.Duration;
 
 public class OrderConfirmationPage {
     private WebDriver driver;
+
     @FindBy(id = "order-confirmation")
     private WebElement orderConfirmationMsg;
 
