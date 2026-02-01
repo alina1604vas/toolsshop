@@ -29,6 +29,7 @@ public class ContactTest extends BaseTest {
         contactPage = null;
     }
 
+    //add param tests
     @Test
     @Tag("sprint1")
     @DisplayName("Contact form can be submitted successfully")
@@ -46,7 +47,7 @@ public class ContactTest extends BaseTest {
 
         assertEquals(expectedSuccessMessage, actualSuccessMessage);
     }
-
+    //add param tests
     @Test
     @Tag("sprint1")
     @DisplayName("Message field length should be more than 50")
@@ -61,7 +62,7 @@ public class ContactTest extends BaseTest {
         String actualErrorMessage = contactPage.getMessageLengthError();
         assertEquals(expectedErrorMessage, actualErrorMessage, "Message length error message is incorrect");
     }
-
+    //add param tests
     @Test
     @Tag("sprint1")
     @DisplayName("Subject should be required")
@@ -75,7 +76,7 @@ public class ContactTest extends BaseTest {
         String actualErrorMessage = contactPage.getEmptySubjectError();
         assertEquals(expectedErrorMessage, actualErrorMessage);
     }
-
+    //add param tests
     @Test
     @Tag("sprint1")
     @DisplayName("Message should be required")
@@ -89,7 +90,7 @@ public class ContactTest extends BaseTest {
         String actualMessage = contactPage.getEmptyMessageError();
         assertEquals(expectedMessage, actualMessage);
     }
-
+    //add param tests
     @Test
     @Tag("sprint1")
     @DisplayName("Error is displayed for invalid email format")
