@@ -7,20 +7,6 @@ public class UiCartElement {
     private int quantity;
     private double subtotal;
 
-//decided to get rid of the quantity as cart UI merges duplicate products and my expected list stores duplicates as separate entries.
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true; // check if it's the same object first
-//        if (!(o instanceof UiCartElement that)) return false; // use pattern matching for cleaner code
-//        return quantity == that.quantity &&
-//                Objects.equals(product, that.product);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(product, quantity);
-//    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
