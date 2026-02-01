@@ -51,10 +51,9 @@ public class CheckoutNameAddressPage {
         PageFactory.initElements(driver, this);
     }
 
-
     public void waitUntilPageIsLoaded() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("first_name")));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("address")));//was first name-> because of billing address PO
     }
 
     public void enterFirstName() {
