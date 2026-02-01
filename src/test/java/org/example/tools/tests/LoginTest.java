@@ -20,7 +20,7 @@ public class LoginTest extends BaseTest {
 
     @BeforeEach
     public void setUpLoginPage() {
-        WebDriver driver = DriverSingleton.getDriver();
+      WebDriver driver = DriverSingleton.getDriver();
         driver.manage().deleteAllCookies();
         driver.navigate().refresh();
         loginPage = new LoginPage();

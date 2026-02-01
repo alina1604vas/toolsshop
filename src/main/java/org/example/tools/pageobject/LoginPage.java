@@ -2,6 +2,8 @@ package org.example.tools.pageobject;
 
 import org.example.tools.SystemConfig;
 import org.example.tools.driver.DriverSingleton;
+import org.example.tools.utils.LoginScreen;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -12,7 +14,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 
-public class LoginPage {
+public class LoginPage implements LoginScreen {
 
     private final String url = SystemConfig.getBaseUrl() + "auth/login";
     private final WebDriver driver;
@@ -36,9 +38,12 @@ public class LoginPage {
         this.driver = DriverSingleton.getDriver();
         PageFactory.initElements(driver, this);
     }
-
+//TODO: remove duplication - PageFactory.initElements(driver, this);???
     public LoginPage openLogin() {
         driver.get(url);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email")));
+        PageFactory.initElements(driver, this);
         return this;
     }
 
