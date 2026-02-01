@@ -5,23 +5,25 @@ import org.example.tools.pageobject.*;
 import org.example.tools.pageobject.entity.Cart;
 import org.example.tools.pageobject.entity.UiCartElement;
 import org.example.tools.pageobject.entity.UiProduct;
+import org.example.tools.utils.Credentials;
 import org.junit.jupiter.api.*;
-
 import java.util.Random;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@EnabledForSprint(3)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@EnabledForSprint(4)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class CheckoutNameAddressTest extends BaseTest {
     private HomePage homePage;
     private ProductPage productPage;
     private CheckoutCartPage checkoutCartPage;
+    private LoginPage loginPage;
+    private AccountPage accountPage;
     private CheckoutNameAddressPage nameAddressPage;
     private CheckoutPaymentPage paymentPage;
+    private CustomerLogin customerLogin;
+    private SuccessCustomerLogin successCustomerLogin;
 
-    @BeforeAll
+    @BeforeEach
     public void setUp() {
         homePage = new HomePage(driver);
         productPage = new ProductPage(driver);
@@ -43,24 +45,25 @@ public class CheckoutNameAddressTest extends BaseTest {
 
         checkoutCartPage.open();
         checkoutCartPage.clickProceedToCheckout();
+        customerLogin = new CustomerLogin(driver);
+        customerLogin.openCustomerLogin();
+        customerLogin.isCustomerLoginLoaded();
+        successCustomerLogin = customerLogin.logIn(Credentials.email(), Credentials.password());
+        successCustomerLogin.isSuccessCustomerLoginLoaded();
+        successCustomerLogin.clickProceedToCheckout();
+       // checkoutCartPage.open();
+        //checkoutCartPage.clickProceedToCheckout();
         nameAddressPage.waitUntilPageIsLoaded();
     }
 
-    @AfterAll
-    public void cleanUp() {
-        homePage = null;
-        productPage = null;
-        checkoutCartPage = null;
-        nameAddressPage = null;
-    }
-
+    //this test may be applicable for guest - thing how to differentiate Guest flow VS Logged user flow
     @Test
     @Tag("sprint3")
-    @DisplayName("Verify that a form can be filled with valid data. Customer can proceed to checkout")
+    @DisplayName("Verify when a form is filled with valid data, customer can proceed to checkout")
     public void testNameAddressFormSubmission() {
-        nameAddressPage.enterFirstName();
-        nameAddressPage.enterLastName();
-        nameAddressPage.enterEmail();
+//        nameAddressPage.enterFirstName();
+//        nameAddressPage.enterLastName();
+//        nameAddressPage.enterEmail();
         nameAddressPage.enterAddress();
         nameAddressPage.enterCity();
         nameAddressPage.enterState();
