@@ -1,4 +1,5 @@
 package org.example.tools.pageobject;
+
 import org.example.tools.SystemConfig;
 import org.example.tools.pageobject.entity.UiCartElement;
 import org.example.tools.pageobject.entity.UiProduct;
@@ -11,9 +12,11 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+
 import static org.example.tools.pageobject.entity.UiProduct.withPrice;
 
 public class CheckoutCartPage {
@@ -24,6 +27,7 @@ public class CheckoutCartPage {
     @FindBy(css = ".table tbody tr")
     private List<WebElement> uniqueProducts;
 
+    //TODO: maybe add wait provider
     public CheckoutCartPage(WebDriver driver) {
         this.driver = driver;
     }
@@ -82,11 +86,13 @@ public class CheckoutCartPage {
             wait.until(ExpectedConditions.stalenessOf(button));
         }
     }
-     public void clickProceedToCheckout() {
-         By proceedToCheckoutBtn = By.cssSelector("button[data-test='proceed-1']");
-         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-         WebElement button = wait.until(ExpectedConditions.elementToBeClickable(proceedToCheckoutBtn));
-         button.click();
-     }
+
+    public void clickProceedToCheckout() {
+        By proceedToCheckoutBtn = By.cssSelector("button[data-test='proceed-1']");
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        WebElement button = wait.until(ExpectedConditions.elementToBeClickable(proceedToCheckoutBtn));
+        button.click();
+    }
+
 }
 
