@@ -1,0 +1,12 @@
+key,expectedMsg
+first-name,First name is required.
+last-name,Last name is required.
+dob,"Please enter a valid date in YYYY-MM-DD format. Date of Birth is required."
+address,Address is required.
+postcode,Postcode is required.
+city,City is required.
+state,State is required.
+country,Country is required.
+phone,Phone is required.
+email,E-mail is required.
+password,Password is required.

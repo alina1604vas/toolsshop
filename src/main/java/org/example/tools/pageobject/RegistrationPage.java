@@ -162,4 +162,14 @@ public class RegistrationPage {
         new Select(country).selectByVisibleText(selectedOption.getText());
         return selectedOption.getText();
     }
+
+    public String getValidationErrorForField(String fieldKey) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(errorLocatorForField(fieldKey)));
+        return error.getText().replaceAll("\\s+", " ").trim();
+    }
+
+    private By errorLocatorForField(String fieldKey) {
+        return By.cssSelector("div[data-test='" + fieldKey + "-error']");
+    }
 }

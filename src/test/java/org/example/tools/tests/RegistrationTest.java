@@ -6,8 +6,10 @@ import org.example.tools.utils.TestData;
 import org.example.tools.utils.User;
 import org.example.tools.utils.UserFactory;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @EnabledForSprint(4)
@@ -39,5 +41,15 @@ public class RegistrationTest extends BaseTest {
         assertTrue(registrationPage.isRegistrationSuccessful(), "Customer was not registered");
         TestData.lastRegisteredUser = randomUser;
     }
-// add param tests
+
+    @ParameterizedTest
+    @CsvFileSource(
+            resources = "/registration_empty_fields.csv",
+            numLinesToSkip = 1
+    )
+    public void errorMsg_present_for_empty_fields(String key, String expectedMsg) {
+        registrationPage.open();
+        registrationPage.clickRegisterButton();
+        assertEquals(expectedMsg, registrationPage.getValidationErrorForField(key));
+    }
 }
