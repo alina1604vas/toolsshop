@@ -172,4 +172,13 @@ public class RegistrationPage {
     private By errorLocatorForField(String fieldKey) {
         return By.cssSelector("div[data-test='" + fieldKey + "-error']");
     }
+    private By inputLocator(String fieldKey) {
+        return By.cssSelector("input[data-test='" + fieldKey + "']");
+    }
+
+    public void clearInputField (String fieldKey) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement field = wait.until(ExpectedConditions.visibilityOfElementLocated(inputLocator(fieldKey)));
+        field.clear();
+    }
 }

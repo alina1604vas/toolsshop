@@ -44,13 +44,27 @@ public class RegistrationTest extends BaseTest {
 
     @ParameterizedTest
     @CsvFileSource(
-            resources = "/registration_empty_fields.csv",
+            resources = "/registration_empty_fields_input.csv",
             numLinesToSkip = 1
     )
     @Tag("sprint4")
     public void errorMsg_present_for_empty_fields(String key, String expectedMsg) {
         registrationPage.open();
         registrationPage.clickRegisterButton();
+        assertEquals(expectedMsg, registrationPage.getValidationErrorForField(key));
+    }
+
+    @ParameterizedTest
+    @CsvFileSource(
+            resources = "/registration_phone_invalid_input.csv",
+            numLinesToSkip = 1
+    )
+    @Tag("sprint4")
+    public void test(String key, String input, String expectedMsg) {
+        registrationPage.open();
+        registrationPage.setPhone(input);
+        registrationPage.clickRegisterButton();
+        registrationPage.clearInputField(key);
         assertEquals(expectedMsg, registrationPage.getValidationErrorForField(key));
     }
 }
