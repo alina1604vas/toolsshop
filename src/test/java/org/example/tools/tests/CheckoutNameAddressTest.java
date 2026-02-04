@@ -59,7 +59,7 @@ public class CheckoutNameAddressTest extends BaseTest {
         nameAddressPage.waitUntilPageIsLoaded();
     }
 
-    //this test may be applicable for guest - thing how to differentiate Guest flow VS Logged user flow
+    //this test may be applicable for guest - think how to differentiate Guest flow VS Logged user flow
     @Test
     @Tag("sprint3")
     @DisplayName("Verify when a form is filled with valid data, customer can proceed to checkout")
