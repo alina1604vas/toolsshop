@@ -39,7 +39,7 @@ public class LoginTest extends BaseTest {
 
     @ParameterizedTest(name = "[{index}] email={0}")
     @CsvFileSource(
-            resources = "/login_invalid_email.csv",
+            resources = "/login_invalid_email_input.csv",
             numLinesToSkip = 1,
             emptyValue = "''"
     )
@@ -54,7 +54,7 @@ public class LoginTest extends BaseTest {
 
     @ParameterizedTest(name = "[{index}] password={0}")
     @CsvFileSource(
-            resources = "/login_invalid_password.csv",
+            resources = "/login_invalid_password_input.csv",
             numLinesToSkip = 1,
             emptyValue = "''"
     )
