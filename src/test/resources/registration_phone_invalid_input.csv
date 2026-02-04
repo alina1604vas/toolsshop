@@ -1,0 +1,8 @@
+fieldKey,input,expectedMsg
+phone,abc,Only numbers are allowed.
+phone,ABC,Only numbers are allowed.
+phone,abc123,Only numbers are allowed.
+phone,123abc,Only numbers are allowed.
+phone,"12 34",Only numbers are allowed.
+phone,+123,Only numbers are allowed.
+phone,123-456,Only numbers are allowed.
