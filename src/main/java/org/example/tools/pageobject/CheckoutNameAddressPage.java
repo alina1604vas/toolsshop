@@ -1,4 +1,5 @@
 package org.example.tools.pageobject;
+
 import org.example.tools.SystemConfig;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -13,6 +14,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 public class CheckoutNameAddressPage {
+
     private final String url = SystemConfig.getBaseUrl() + "checkout";
     private WebDriver driver;
 
@@ -97,7 +99,7 @@ public class CheckoutNameAddressPage {
     public WebElement waitError(String fieldName) {
         WebElement field = getFieldByName(fieldName);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-         return wait.until(ExpectedConditions.visibilityOf(field));
+        return wait.until(ExpectedConditions.visibilityOf(field));
     }
 
     public By errorLocator(String fieldName) {
@@ -108,22 +110,26 @@ public class CheckoutNameAddressPage {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(errorLocator(fieldName)));
         return error.getText();
-}
+    }
 
-public void triggerValidation(String fieldName) {
-    WebElement field = getFieldByName(fieldName);
-    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-    wait.until(ExpectedConditions.visibilityOf(field));
+    public void triggerValidation(String fieldName) {
+        WebElement field = getFieldByName(fieldName);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.visibilityOf(field));
 
-    JavascriptExecutor js = (JavascriptExecutor) driver;
-    js.executeScript("arguments[0].focus();", field);
-    js.executeScript("arguments[0].blur();", field);
-}
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].focus();", field);
+        js.executeScript("arguments[0].blur();", field);
+    }
+
     private WebElement getFieldByName(String fieldName) {
         switch (fieldName) {
-            case "first_name": return firstName;
-            case "last_name": return lastName;
-            default: throw new IllegalArgumentException("Unknown field: " + fieldName);
+            case "first_name":
+                return firstName;
+            case "last_name":
+                return lastName;
+            default:
+                throw new IllegalArgumentException("Unknown field: " + fieldName);
         }
     }
 

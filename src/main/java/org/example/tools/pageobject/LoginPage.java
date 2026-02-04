@@ -1,7 +1,6 @@
 package org.example.tools.pageobject;
 
 import org.example.tools.SystemConfig;
-import org.example.tools.driver.DriverSingleton;
 import org.example.tools.utils.LoginScreen;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -12,7 +11,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-
 
 public class LoginPage implements LoginScreen {
 
@@ -34,11 +32,13 @@ public class LoginPage implements LoginScreen {
     @FindBy(xpath = "//div[@data-test='password-error']")
     private WebElement passwordError;
 
-    public LoginPage() {
-        this.driver = DriverSingleton.getDriver();
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
         PageFactory.initElements(driver, this);
     }
-//TODO: remove duplication - PageFactory.initElements(driver, this);???
+
+    //TODO: remove duplication - PageFactory.initElements(driver, this);???
+//    TODO: separate wait method
     public LoginPage openLogin() {
         driver.get(url);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -51,7 +51,7 @@ public class LoginPage implements LoginScreen {
         emailInput.sendKeys(email);
         passwordInput.sendKeys(password);
         clickLogin();
-        return new AccountPage();
+        return new AccountPage(driver);
     }
 
     public LoginPage setPasswordInput(String password) {

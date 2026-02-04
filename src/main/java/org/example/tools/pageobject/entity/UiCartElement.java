@@ -3,6 +3,7 @@ package org.example.tools.pageobject.entity;
 import java.util.Objects;
 
 public class UiCartElement {
+
     private UiProduct product;
     private int quantity;
     private double subtotal;
@@ -27,13 +28,13 @@ public class UiCartElement {
                 '}';
     }
 
-    public UiCartElement (UiProduct product, int quantity ) {
+    public UiCartElement(UiProduct product, int quantity) {
         this.product = product;
         this.quantity = quantity;
 
     }
 
-    public UiCartElement (UiProduct product, int quantity, double subtotal) {
+    public UiCartElement(UiProduct product, int quantity, double subtotal) {
         this.product = product;
         this.quantity = quantity;
         this.subtotal = subtotal;
@@ -50,6 +51,5 @@ public class UiCartElement {
     public double getSubtotal() {
         return subtotal;
     }
-
 
 }

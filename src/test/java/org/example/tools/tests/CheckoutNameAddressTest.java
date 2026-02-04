@@ -2,17 +2,20 @@ package org.example.tools.tests;
 
 import org.example.tools.infra.EnabledForSprint;
 import org.example.tools.pageobject.*;
+import org.example.tools.utils.TestData;
 import org.example.tools.pageobject.entity.Cart;
 import org.example.tools.pageobject.entity.UiCartElement;
 import org.example.tools.pageobject.entity.UiProduct;
-import org.example.tools.utils.Credentials;
 import org.junit.jupiter.api.*;
+
 import java.util.Random;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @EnabledForSprint(4)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class CheckoutNameAddressTest extends BaseTest {
+
     private HomePage homePage;
     private ProductPage productPage;
     private CheckoutCartPage checkoutCartPage;
@@ -48,10 +51,10 @@ public class CheckoutNameAddressTest extends BaseTest {
         customerLogin = new CustomerLogin(driver);
         customerLogin.openCustomerLogin();
         customerLogin.isCustomerLoginLoaded();
-        successCustomerLogin = customerLogin.logIn(Credentials.email(), Credentials.password());
+        successCustomerLogin = customerLogin.logIn(TestData.realUserCreds.email(), TestData.realUserCreds.password());
         successCustomerLogin.isSuccessCustomerLoginLoaded();
         successCustomerLogin.clickProceedToCheckout();
-       // checkoutCartPage.open();
+        // checkoutCartPage.open();
         //checkoutCartPage.clickProceedToCheckout();
         nameAddressPage.waitUntilPageIsLoaded();
     }

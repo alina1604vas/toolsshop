@@ -42,7 +42,6 @@ public class ProductPageTest extends BaseTest {
         }
 
         homePage = new HomePage(driver).open();
-
     }
 
     @AfterEach
@@ -148,7 +147,6 @@ public class ProductPageTest extends BaseTest {
             assertEquals(expectedProductName, target.getName(), "Names do not coincide");
             assertTrue(target.getImage().endsWith(expectedProductImage), "Images do not coincide");
         }
-
     }
 
     @Tag("sprint3")
@@ -174,7 +172,7 @@ public class ProductPageTest extends BaseTest {
         productPage.clickAddToCart();
         String actualMessage = productPage.getShoppingSuccessMessage();
         assertEquals("Product added to shopping cart.", actualMessage, "Shopping cart messages do not coincide");
-        int actualTotal  = productPage.getItemsQtyInCart();
+        int actualTotal = productPage.getItemsQtyInCart();
         assertEquals(expectedTotal, actualTotal);
     }
 
@@ -188,10 +186,6 @@ public class ProductPageTest extends BaseTest {
         productPage.clickAddToCart();
         productPage.clickShoppingCartIcon();
         String actualUrl = driver.getCurrentUrl();
-        assertTrue(actualUrl.contains("checkout"),
-                "Expected URL to contain 'checkout' but was: " + actualUrl);
+        assertTrue(actualUrl.contains("checkout"), "Expected URL to contain 'checkout' but was: " + actualUrl);
     }
 }
-
-
-

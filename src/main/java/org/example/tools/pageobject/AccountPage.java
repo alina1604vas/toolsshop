@@ -1,7 +1,6 @@
 package org.example.tools.pageobject;
 
 import org.example.tools.SystemConfig;
-import org.example.tools.driver.DriverSingleton;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -12,14 +11,15 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 public class AccountPage {
+
     private final String url = SystemConfig.getBaseUrl() + "account";
     private final WebDriver driver;
 
     @FindBy(xpath = "//h1[@data-test='page-title']")
     private WebElement accountHeader;
 
-    public AccountPage() {
-        this.driver = DriverSingleton.getDriver();
+    public AccountPage(WebDriver driver) {
+        this.driver = driver;
         PageFactory.initElements(driver, this);
     }
 

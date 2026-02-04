@@ -2,62 +2,27 @@ package org.example.tools.utils;
 
 import org.example.tools.pageobject.entity.BillingAddress;
 
-public class Customer implements User {
-
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String birthDate;
-    private String phone;
-    private String password;
-    private BillingAddress billingAddress;
+public class Customer extends User {
 
     private Customer(Builder builder) {
-        firstName = builder.firstName;
-        lastName = builder.lastName;
-        email = builder.email;
-        birthDate = builder.birthDate;
-        phone = builder.phone;
-        password = builder.password;
-        billingAddress = builder.billingAddress;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getBirthDate() {
-        return birthDate;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public BillingAddress getBillingAddress() {
-        return billingAddress;
+        super(
+                builder.firstName,
+                builder.lastName,
+                builder.email,
+                builder.birthDate,
+                builder.phone,
+                builder.password,
+                builder.billingAddress
+        );
     }
 
     public static class Builder {
-
         private String firstName = "";
         private String lastName = "";
         private String email = "";
-        private String birthDate;
-        private String phone;
-        private String password;
+        private String birthDate = "";
+        private String phone = "";
+        private String password = "";
         private BillingAddress billingAddress;
 
         public Builder setFirstName(String firstName) {
@@ -70,6 +35,11 @@ public class Customer implements User {
             return this;
         }
 
+        public Builder setEmail(String email) {
+            this.email = email;
+            return this;
+        }
+
         public Builder setBirthDate(String birthDate) {
             this.birthDate = birthDate;
             return this;
@@ -77,11 +47,6 @@ public class Customer implements User {
 
         public Builder setPhone(String phone) {
             this.phone = phone;
-            return this;
-        }
-
-        public Builder setEmail(String email) {
-            this.email = email;
             return this;
         }
 
@@ -98,7 +63,5 @@ public class Customer implements User {
         public Customer build() {
             return new Customer(this);
         }
-
     }
-
 }

@@ -1,39 +1,26 @@
 package org.example.tools.utils;
 
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
 public class Credentials {
-    private static final Properties PROPS = new Properties();
 
-    static {
-        Path path = Path.of("credentials.properties");
+    private final Properties props;
 
-        if (Files.exists(path)) {
-            try (InputStream is = Files.newInputStream(path)) {
-                PROPS.load(is);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to load credentials.properties", e);
-            }
-        }
+    public Credentials() {
+        this(new PropertiesFileReader(), Path.of("credentials.properties"));
     }
 
-    private Credentials() {}
-
-    public static String email() {
-        return firstNonNull(
-                System.getenv("TEST_USER_EMAIL"),
-                PROPS.getProperty("test.user.email")
-        );
+    public Credentials(PropertiesFileReader reader, Path path) {
+        this.props = reader.load(path);
     }
 
-    public static String password() {
-        return firstNonNull(
-                System.getenv("TEST_USER_PASSWORD"),
-                PROPS.getProperty("test.user.password")
-        );
+    public String email() {
+        return firstNonNull(System.getenv("TEST_USER_EMAIL"), props.getProperty("test.user.email"));
+    }
+
+    public String password() {
+        return firstNonNull(System.getenv("TEST_USER_PASSWORD"), props.getProperty("test.user.password"));
     }
 
     private static String firstNonNull(String a, String b) {

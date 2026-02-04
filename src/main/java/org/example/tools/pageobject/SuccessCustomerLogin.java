@@ -2,7 +2,6 @@ package org.example.tools.pageobject;
 
 import org.example.tools.SystemConfig;
 import org.example.tools.utils.LoginScreen;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -13,6 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 public class SuccessCustomerLogin implements LoginScreen {
+
     private final String url = SystemConfig.getBaseUrl() + "checkout";
     private WebDriver driver;
 
@@ -26,11 +26,14 @@ public class SuccessCustomerLogin implements LoginScreen {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
+
     public SuccessCustomerLogin openCustomerLogin() {
         driver.get(url);
         PageFactory.initElements(driver, this);
         return this;
     }
+
+    //TODO: result is not used
     public boolean isSuccessCustomerLoginLoaded() {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
@@ -40,6 +43,7 @@ public class SuccessCustomerLogin implements LoginScreen {
             return false;
         }
     }
+
     public void clickProceedToCheckout() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         WebElement button = wait.until(ExpectedConditions.elementToBeClickable(proceedToCheckoutBtn));

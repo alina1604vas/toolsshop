@@ -7,6 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Random;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -87,8 +88,7 @@ public class CheckoutPaymentPageTest extends BaseTest {
         paymentPage.confirmPayment();
         paymentPage.waitConfirmationMesg();
 
-        assertTrue(paymentPage.isConfirmationMsgPresent(),
-                "Payment confirmation message is NOT shown");
+        assertTrue(paymentPage.isConfirmationMsgPresent(), "Payment confirmation message is NOT shown");
 
         assertEquals("Payment was successful",
                 paymentPage.getPaymentConfirmationMsg(),
@@ -96,11 +96,9 @@ public class CheckoutPaymentPageTest extends BaseTest {
 
         paymentPage.confirmOrder();
 
-        assertTrue(orderConfirmationPage.isOrderConfirmationLoaded(),
-                "Order Confirmation page is not loaded");
+        assertTrue(orderConfirmationPage.isOrderConfirmationLoaded(), "Order Confirmation page is not loaded");
 
         String actualMsg = orderConfirmationPage.getOrderConfirmationMsg();
-        assertTrue(actualMsg.contains("Thanks for your order! Your invoice number is"),
-                "OrderConfirmation message is incorrect");
+        assertTrue(actualMsg.contains("Thanks for your order! Your invoice number is"), "OrderConfirmation message is incorrect");
     }
 }

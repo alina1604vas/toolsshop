@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @EnabledForSprint(4)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class CheckoutCartPageTest extends BaseTest {
+
     private static CheckoutTestHelper checkoutHelper;
 
     @BeforeAll

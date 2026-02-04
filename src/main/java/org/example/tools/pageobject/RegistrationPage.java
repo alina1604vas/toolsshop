@@ -1,8 +1,7 @@
 package org.example.tools.pageobject;
 
 import org.example.tools.SystemConfig;
-import org.example.tools.driver.DriverSingleton;
-import org.example.tools.utils.Customer;
+import org.example.tools.utils.User;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -60,8 +59,8 @@ public class RegistrationPage {
     @FindBy(xpath = "//h1[@data-test='page-title']")
     private WebElement accountHeader;
 
-    public RegistrationPage() {
-        this.driver = DriverSingleton.getDriver();
+    public RegistrationPage(WebDriver driver) {
+        this.driver = driver;
         PageFactory.initElements(driver, this);
     }
 
@@ -128,7 +127,7 @@ public class RegistrationPage {
         return this;
     }
 
-    public LoginPage registerUser(Customer user) {
+    public void registerUser(User user) {
         this.setFirstName(user.getFirstName())
                 .setLastName(user.getLastName())
                 .setBirthDate(user.getBirthDate())
@@ -140,11 +139,11 @@ public class RegistrationPage {
                 .setEmail(user.getEmail())
                 .setPassword(user.getPassword())
                 .clickRegisterButton();
-        return new LoginPage();
     }
 
     public boolean isRegistrationSuccessful() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        //TODO: move to constants
         return wait.until(ExpectedConditions.urlContains("/auth/login"));
     }
 
@@ -163,5 +162,4 @@ public class RegistrationPage {
         new Select(country).selectByVisibleText(selectedOption.getText());
         return selectedOption.getText();
     }
-
 }

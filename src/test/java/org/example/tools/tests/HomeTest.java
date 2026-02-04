@@ -34,7 +34,7 @@ public class HomeTest extends BaseTest {
 
     @BeforeAll
     public void setUpHomePage() {
-        synchronized(this) {
+        synchronized (this) {
             responseListener.addObserver(
                     Endpoints.GET_BRANDS,
                     TypeToken.getParameterized(List.class, Brand.class).getType(),

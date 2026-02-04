@@ -10,6 +10,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 public class OrderConfirmationPage {
+
     private WebDriver driver;
 
     @FindBy(id = "order-confirmation")
@@ -19,6 +20,7 @@ public class OrderConfirmationPage {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
+
     public boolean isOrderConfirmationLoaded() {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
@@ -28,7 +30,8 @@ public class OrderConfirmationPage {
             return false;
         }
     }
-public String getOrderConfirmationMsg() {
+
+    public String getOrderConfirmationMsg() {
         return orderConfirmationMsg.getText();
-}
+    }
 }

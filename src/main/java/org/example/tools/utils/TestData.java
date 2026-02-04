@@ -6,6 +6,7 @@ import org.example.tools.pageobject.entity.BillingAddress;
 import java.text.SimpleDateFormat;
 
 public class TestData {
+
     private static final Faker faker = new Faker();
 
     public static String validFirstName() {
@@ -60,15 +61,22 @@ public class TestData {
         return new SimpleDateFormat("yyyy-MM-dd").format(faker.date().birthday(18, 65));
     }
 
-    public static BillingAddress validBillingAddress(String selectedCountry) {
-        return new BillingAddress(
-                faker.address().streetAddress(),
-                faker.address().cityName(),
-                faker.address().state(),
-                (selectedCountry != null && !selectedCountry.isEmpty()) ? selectedCountry : faker.address().country(),
-                faker.address().postcode());
+    public static BillingAddress validBillingAddress() {
+        return validBillingAddress(null);
     }
-    public static Customer lastRegisteredUser;
+
+    public static BillingAddress validBillingAddress(String country) {
+        return new BillingAddress.Builder()
+                .setStreetAddress(faker.address().streetAddress())
+                .setCity(faker.address().cityName())
+                .setState(faker.address().state())
+                .setCountry(country != null && !country.isEmpty() ? country : faker.address().country())
+                .setPostCode(faker.address().postcode())
+                .build();
+    }
+
+    public static User lastRegisteredUser;
+    public static final Credentials realUserCreds = new Credentials();
 
 }
 

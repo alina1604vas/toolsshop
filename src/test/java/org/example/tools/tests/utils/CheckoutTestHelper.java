@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Random;
 
 public class CheckoutTestHelper {
+
     private final WebDriver driver;
     private final HomePage homePage;
     private final ProductPage productPage;

@@ -2,7 +2,6 @@ package org.example.tools.pageobject;
 
 import org.example.tools.SystemConfig;
 import org.example.tools.utils.TestData;
-import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -15,6 +14,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 public class CheckoutPaymentPage {
+
     private final String url = SystemConfig.getBaseUrl() + "checkout";
     private WebDriver driver;
 

@@ -20,6 +20,7 @@ import java.util.List;
 import static org.example.tools.pageobject.entity.UiProduct.withPrice;
 
 public class CheckoutCartPage {
+
     private static final Logger log = LoggerFactory.getLogger(CheckoutCartPage.class);
     private final String url = SystemConfig.getBaseUrl() + "checkout";
     private WebDriver driver;
@@ -95,4 +96,3 @@ public class CheckoutCartPage {
     }
 
 }
-
