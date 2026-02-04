@@ -1,7 +1,7 @@
 package org.example.tools.pageobject;
 
 import org.example.tools.SystemConfig;
-import org.example.tools.utils.User;
+import org.example.tools.utils.Customer;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -127,7 +127,7 @@ public class RegistrationPage {
         return this;
     }
 
-    public void registerUser(User user) {
+    public void registerUser(Customer user) {
         this.setFirstName(user.getFirstName())
                 .setLastName(user.getLastName())
                 .setBirthDate(user.getBirthDate())

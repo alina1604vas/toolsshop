@@ -66,13 +66,12 @@ public class TestData {
     }
 
     public static BillingAddress validBillingAddress(String country) {
-        return new BillingAddress.Builder()
-                .setStreetAddress(faker.address().streetAddress())
-                .setCity(faker.address().cityName())
-                .setState(faker.address().state())
-                .setCountry(country != null && !country.isEmpty() ? country : faker.address().country())
-                .setPostCode(faker.address().postcode())
-                .build();
+        return new BillingAddress(
+                faker.address().streetAddress(),
+                faker.address().cityName(),
+                faker.address().state(),
+                country != null && !country.isEmpty() ? country : faker.address().country(),
+                faker.address().postcode());
     }
 
     public static User lastRegisteredUser;

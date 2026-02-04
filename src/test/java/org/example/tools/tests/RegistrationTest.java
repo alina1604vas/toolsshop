@@ -3,7 +3,7 @@ package org.example.tools.tests;
 import org.example.tools.infra.EnabledForSprint;
 import org.example.tools.pageobject.RegistrationPage;
 import org.example.tools.utils.TestData;
-import org.example.tools.utils.User;
+import org.example.tools.utils.Customer;
 import org.example.tools.utils.UserFactory;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -36,10 +36,10 @@ public class RegistrationTest extends BaseTest {
     public void testUserRegistration() {
         registrationPage.open();
         String selectedCountry = registrationPage.chooseRandomCountry(registrationPage.getAvailableCountries());
-        User randomUser = userFactory.createRegularWith(selectedCountry);
-        registrationPage.registerUser(randomUser);
+        Customer customer = userFactory.createRegular(selectedCountry);
+        registrationPage.registerUser(customer);
         assertTrue(registrationPage.isRegistrationSuccessful(), "Customer was not registered");
-        TestData.lastRegisteredUser = randomUser;
+        TestData.lastRegisteredUser = customer;
     }
 
     @ParameterizedTest
@@ -47,6 +47,7 @@ public class RegistrationTest extends BaseTest {
             resources = "/registration_empty_fields.csv",
             numLinesToSkip = 1
     )
+    @Tag("sprint4")
     public void errorMsg_present_for_empty_fields(String key, String expectedMsg) {
         registrationPage.open();
         registrationPage.clickRegisterButton();

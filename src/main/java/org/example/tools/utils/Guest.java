@@ -2,48 +2,37 @@ package org.example.tools.utils;
 
 import org.example.tools.pageobject.entity.BillingAddress;
 
-public class Guest extends User {
+public class Guest implements User {
 
-    private Guest(Builder builder) {
-        super(
-                builder.firstName,
-                builder.lastName,
-                builder.email,
-                "",
-                "",
-                "",
-                builder.billingAddress
-        );
+    private final String firstName;
+    private final String lastName;
+    private final String email;
+    private final BillingAddress billingAddress;
+
+    public Guest(String firstName, String lastName, String email, BillingAddress billingAddress) {
+        this.firstName = firstName != null ? firstName : "";
+        this.lastName = lastName != null ? lastName : "";
+        this.email = email != null ? email : "";
+        this.billingAddress = billingAddress;
     }
 
-    public static class Builder {
-        private String firstName = "";
-        private String lastName = "";
-        private String email = "";
-        private BillingAddress billingAddress;
+    @Override
+    public String getFirstName() {
+        return firstName;
+    }
 
-        public Builder setFirstName(String firstName) {
-            this.firstName = firstName;
-            return this;
-        }
+    @Override
+    public String getLastName() {
+        return lastName;
+    }
 
-        public Builder setLastName(String lastName) {
-            this.lastName = lastName;
-            return this;
-        }
+    @Override
+    public String getEmail() {
+        return email;
+    }
 
-        public Builder setEmail(String email) {
-            this.email = email;
-            return this;
-        }
-
-        public Builder setBillingAddress(BillingAddress billingAddress) {
-            this.billingAddress = billingAddress;
-            return this;
-        }
-
-        public Guest build() {
-            return new Guest(this);
-        }
+    @Override
+    public BillingAddress getBillingAddress() {
+        return billingAddress;
     }
 }

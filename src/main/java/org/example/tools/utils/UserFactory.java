@@ -4,41 +4,29 @@ import org.example.tools.pageobject.entity.BillingAddress;
 
 public class UserFactory {
 
-    public User create(Type type) {
-        return switch (type) {
-            case GUEST -> createGuest();
-            case REGULAR -> createRegular(null);
-        };
+    public Guest createGuest() {
+        return new Guest(
+                TestData.validFirstName(),
+                TestData.validLastName(),
+                TestData.validEmail(),
+                billingAddressFor(null)
+        );
     }
 
-    public User createRegularWith(String selectedCountry) {
-        return createRegular(selectedCountry);
-    }
-
-    private Guest createGuest() {
-        return new Guest.Builder()
-                .setFirstName(TestData.validFirstName())
-                .setLastName(TestData.validLastName())
-                .setEmail(TestData.validEmail())
-                .setBillingAddress(billingAddressFor(null))
-                .build();
-    }
-
-    private Customer createRegular(String selectedCountry) {
-        return new Customer.Builder()
-                .setFirstName(TestData.validFirstName())
-                .setLastName(TestData.validLastName())
-                .setBirthDate(TestData.validBirthday())
-                .setBillingAddress(billingAddressFor(selectedCountry))
+    public Customer createRegular(String selectedCountry) {
+        Customer.Builder builder = new Customer.Builder(
+                TestData.validFirstName(),
+                TestData.validLastName(),
+                TestData.validEmail(),
+                billingAddressFor(selectedCountry)
+        );
+        builder.setBirthDate(TestData.validBirthday())
                 .setPhone(TestData.validPhone())
-                .setEmail(TestData.validEmail())
-                .setPassword(TestData.validPassword())
-                .build();
+                .setPassword(TestData.validPassword());
+        return builder.build();
     }
 
     private BillingAddress billingAddressFor(String selectedCountry) {
         return TestData.validBillingAddress(selectedCountry);
     }
-
-    public enum Type { GUEST, REGULAR }
 }

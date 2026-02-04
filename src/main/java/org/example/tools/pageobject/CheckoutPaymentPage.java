@@ -44,7 +44,7 @@ public class CheckoutPaymentPage {
     //do i need this method?
     public CheckoutPaymentPage open() {
         driver.get(url);
-        PageFactory.initElements(driver, this);
+//        PageFactory.initElements(driver, this);
         return this;
     }
 
