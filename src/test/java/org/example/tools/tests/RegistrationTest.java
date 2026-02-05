@@ -42,7 +42,8 @@ public class RegistrationTest extends BaseTest {
         TestData.lastRegisteredUser = customer;
     }
 
-    @ParameterizedTest
+    @DisplayName("Validation error is shown for empty input fields")
+    @ParameterizedTest(name = "Test {index}: key={0}, expected message={1}")
     @CsvFileSource(
             resources = "/registration_empty_fields_input.csv",
             numLinesToSkip = 1
@@ -54,13 +55,14 @@ public class RegistrationTest extends BaseTest {
         assertEquals(expectedMsg, registrationPage.getValidationErrorForField(key));
     }
 
-    @ParameterizedTest
+    @DisplayName("Validation error is shown for invalid phone input")
+    @ParameterizedTest(name = "Test {index}: fieldKey={0}, input = {1}, expected message ={2}")
     @CsvFileSource(
             resources = "/registration_phone_invalid_input.csv",
             numLinesToSkip = 1
     )
     @Tag("sprint4")
-    public void errorMsg_present_for_invalid_input(String key, String input, String expectedMsg) {
+    public void errorMsg_present_for_invalid_phone_input(String key, String input, String expectedMsg) {
         registrationPage.open();
         registrationPage.setPhone(input);
         registrationPage.clickRegisterButton();
