@@ -60,7 +60,7 @@ public class RegistrationTest extends BaseTest {
             numLinesToSkip = 1
     )
     @Tag("sprint4")
-    public void test(String key, String input, String expectedMsg) {
+    public void errorMsg_present_for_invalid_input(String key, String input, String expectedMsg) {
         registrationPage.open();
         registrationPage.setPhone(input);
         registrationPage.clickRegisterButton();
