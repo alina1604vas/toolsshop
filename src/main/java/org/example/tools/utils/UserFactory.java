@@ -13,7 +13,7 @@ public class UserFactory {
         );
     }
 
-    public Customer createRegular(String selectedCountry) {
+    public Customer createCustomer(String selectedCountry) {
         Customer.Builder builder = new Customer.Builder(
                 TestData.validFirstName(),
                 TestData.validLastName(),
