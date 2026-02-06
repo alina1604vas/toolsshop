@@ -2,6 +2,8 @@ package org.example.tools.tests;
 
 import org.example.tools.infra.EnabledForSprint;
 import org.example.tools.pageobject.*;
+import org.example.tools.tests.utils.CheckoutTestHelper;
+import org.example.tools.utils.TestData;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -14,44 +16,46 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @EnabledForSprint(4)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class CheckoutPaymentPageTest extends BaseTest {
+    private static CheckoutTestHelper checkoutHelper;
 
-    private static HomePage homePage;
-    private static ProductPage productPage;
-    private static CheckoutCartPage checkoutCartPage;
-    private static CheckoutNameAddressPage nameAddressPage;
+    private CheckoutNameAddressPage nameAddressPage;
     private CheckoutPaymentPage paymentPage;
     private OrderConfirmationPage orderConfirmationPage;
 
     @BeforeAll
     static void setUpAll() {
-        homePage = new HomePage(driver);
-        homePage.open();
+        checkoutHelper = new CheckoutTestHelper(driver);
     }
-
     @BeforeEach
     void setUpEach() {
         driver.manage().deleteAllCookies();
-        homePage.open();
 
-        homePage.openRandomProduct();
+        checkoutHelper.addRandomProductToCart(10);
 
-        productPage = new ProductPage(driver);
-        productPage.waitUntilPageIsLoaded();
-
-        int quantityToAdd = new Random().nextInt(10) + 1;
-        productPage.setButtonIncreaseQuantity(quantityToAdd);
-        productPage.clickAddToCart();
-
-        checkoutCartPage = new CheckoutCartPage(driver);
-        checkoutCartPage.open();
+        CheckoutCartPage checkoutCartPage = checkoutHelper.openCart();
         checkoutCartPage.clickProceedToCheckout();
+
+        CustomerLogin customerLogin = new CustomerLogin(driver);
+        customerLogin.openCustomerLogin();
+        //customerLogin.isCustomerLoginLoaded();
+        SuccessCustomerLogin successCustomerLogin;
+        if (customerLogin.isCustomerLoginLoaded()) {
+            successCustomerLogin = customerLogin.logIn(
+                    TestData.realUserCreds.email(),
+                    TestData.realUserCreds.password()
+            );
+            successCustomerLogin.isSuccessCustomerLoginLoaded();
+        } else {
+            successCustomerLogin = new SuccessCustomerLogin(driver);
+        }
+        //successCustomerLogin.isSuccessCustomerLoginLoaded();
+        successCustomerLogin.clickProceedToCheckout();
 
         nameAddressPage = new CheckoutNameAddressPage(driver);
         nameAddressPage.waitUntilPageIsLoaded();
-        nameAddressPage.enterFirstName();
-        nameAddressPage.enterLastName();
-        nameAddressPage.enterEmail();
-        nameAddressPage.enterAddress();
+       // nameAddressPage.enterFirstName();
+        //nameAddressPage.enterLastName();
+        //nameAddressPage.enterEmail();nameAddressPage.enterAddress();
         nameAddressPage.enterCity();
         nameAddressPage.enterState();
         nameAddressPage.enterCountry();
@@ -63,14 +67,6 @@ public class CheckoutPaymentPageTest extends BaseTest {
 
         assertTrue(paymentPage.isLoaded(), "Payment page has not been loaded");
     }
-
-    @AfterAll
-    static void tearDownAll() {
-        if (driver != null) {
-            driver.quit();
-        }
-    }
-
     @ParameterizedTest(name = "Verify payment with method: {0}")
     @ValueSource(strings = {
             "Bank Transfer",
@@ -99,6 +95,7 @@ public class CheckoutPaymentPageTest extends BaseTest {
         assertTrue(orderConfirmationPage.isOrderConfirmationLoaded(), "Order Confirmation page is not loaded");
 
         String actualMsg = orderConfirmationPage.getOrderConfirmationMsg();
-        assertTrue(actualMsg.contains("Thanks for your order! Your invoice number is"), "OrderConfirmation message is incorrect");
+        assertTrue(actualMsg.contains("Thanks for your order! Your invoice number is"),
+                "Order Confirmation message is incorrect");
     }
 }

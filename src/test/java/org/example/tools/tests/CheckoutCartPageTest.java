@@ -11,7 +11,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnabledForSprint(4)
+@EnabledForSprint(3)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class CheckoutCartPageTest extends BaseTest {
 
@@ -30,9 +30,9 @@ public class CheckoutCartPageTest extends BaseTest {
         CheckoutCartPage cartPage = checkoutHelper.openCart();
         List<UiCartElement> actualUiProducts = cartPage.getUIProductsInCart();
         checkoutHelper.assertCartSubtotalsMatch(expectedCart, actualUiProducts);
-
     }
 
+    //before each
     @Test
     @Tag("sprint3")
     @DisplayName("Verify if there are missed products in a cart")
