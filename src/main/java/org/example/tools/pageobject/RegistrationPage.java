@@ -29,13 +29,13 @@ public class RegistrationPage {
     @FindBy(id = "dob")
     private WebElement calendar;
 
-    @FindBy(css = "input[placeholder='Your address *']")
+    @FindBy(css = "input[placeholder='Your Street *']")
     private WebElement address;
 
-    @FindBy(xpath = "//input[@formcontrolname='postcode']")
+    @FindBy(xpath = "//input[@placeholder='Your Postcode *']")
     private WebElement postCode;
 
-    @FindBy(xpath = "//input[@placeholder='Your city *']")
+    @FindBy(xpath = "//input[@placeholder='Your City *']")
     private WebElement city;
 
     @FindBy(id = "state")

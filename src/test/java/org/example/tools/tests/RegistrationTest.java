@@ -36,12 +36,13 @@ public class RegistrationTest extends BaseTest {
     public void testUserRegistration() {
         registrationPage.open();
         String selectedCountry = registrationPage.chooseRandomCountry(registrationPage.getAvailableCountries());
-        Customer customer = userFactory.createRegular(selectedCountry);
+        Customer customer = userFactory.createCustomer(selectedCountry);
         registrationPage.registerUser(customer);
         assertTrue(registrationPage.isRegistrationSuccessful(), "Customer was not registered");
         TestData.lastRegisteredUser = customer;
     }
 
+    //TODO: fix password field
     @DisplayName("Validation error is shown for empty input fields")
     @ParameterizedTest(name = "Test {index}: key={0}, expected message={1}")
     @CsvFileSource(
