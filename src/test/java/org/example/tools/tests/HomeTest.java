@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledForSprint(3)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class HomeTest extends BaseTest {
 
     private static final Logger log = LoggerFactory.getLogger(HomeTest.class);
@@ -32,7 +32,7 @@ public class HomeTest extends BaseTest {
     @RegisterExtension
     ScreenshotOnFailureExtension screenshot = new ScreenshotOnFailureExtension(() -> driver);
 
-    @BeforeAll
+    @BeforeEach
     public void setUpHomePage() {
         synchronized (this) {
             responseListener.addObserver(
@@ -57,9 +57,10 @@ public class HomeTest extends BaseTest {
                     });
         }
         homePage = new HomePage(driver).open();
+        homePage.waitUntilPageIsLoaded();
 
         Awaitility.await()
-                .atMost(5, TimeUnit.SECONDS)
+                .atMost(15, TimeUnit.SECONDS)
                 .until(() ->
                         homeData.getBrands() != null &&
                                 homeData.getCategories() != null &&
@@ -67,7 +68,7 @@ public class HomeTest extends BaseTest {
                 );
     }
 
-    @AfterAll
+    @AfterEach
     public void cleanUp() {
         responseListener.removeObserver(Endpoints.GET_BRANDS);
         responseListener.removeObserver(Endpoints.GET_CATEGORIES);
@@ -154,22 +155,6 @@ public class HomeTest extends BaseTest {
             assertTrue(result, String.format("%s is  not present on Home Page", brandName));
         }
     }
-
-//    @ParameterizedTest
-//    @Tag("sprint2")
-//    @ValueSource(strings = {"wrench"})
-//    @DisplayName("Check that search results contain the search term in product names")
-//    public void testSearchByValue(String searchTerm) {
-//        homePage.searchByValue(searchTerm);
-//
-//        ArrayList<UiProduct> products = homePage.getAllProducts();
-//        for (UiProduct product : products) {
-//            boolean isNamePresent = product.getName().toLowerCase().contains(searchTerm.toLowerCase());
-//            assertTrue(isNamePresent, "Searched value is not present in the results");
-//        }
-//    }
-
-    //TODO: what about pagination?
     @Test
     @Tag("sprint2")
     @DisplayName("Check sorting of products by alphabet A-Z")
