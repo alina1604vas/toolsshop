@@ -14,10 +14,12 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.ref.WeakReference;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Comparator;
 
 public class HomePage {
 
@@ -70,47 +72,146 @@ public class HomePage {
     }
 //чи вертає цей метод всы продукти зы всых сторынок??
     public ArrayList<UiProduct> getAllProducts() {
-        String productsXpath = "//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]";
+//        List<WebElement> pages = driver.findElements(By.cssSelector(".page-item > .page-link[aria-label^='Page-']"));
+//        String productsXpath = "//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]";
+//
+//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+//        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(productsXpath)));
+//
+//        List<WebElement> productElements = driver.findElements(By.xpath(productsXpath));
+//
+//        ArrayList<UiProduct> result = new ArrayList<>();
+//        for (WebElement element : productElements) {
+//            String image = element.findElement(By.cssSelector("img.card-img-top")).getAttribute("src");
+//            String name = element.findElement(By.cssSelector("[data-test='product-name']")).getText();
+//            String price = element.findElement(By.cssSelector("[data-test='product-price']")).getText().replaceAll("[^0-9.,]", "");
+//
+//            result.add(new UiProduct(name, image, price));
+//        }
+//        return result;
+            String productsXpath = "//a[contains(@class,'card') and starts-with(@data-test,'product-')]";
+            By pageLinks = By.cssSelector(".page-item > .page-link[aria-label^='Page-']");
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(productsXpath)));
-        List<WebElement> productElements = driver.findElements(By.xpath(productsXpath));
-
         ArrayList<UiProduct> result = new ArrayList<>();
-        for (WebElement element : productElements) {
-            String image = element.findElement(By.cssSelector("img.card-img-top")).getAttribute("src");
-            String name = element.findElement(By.cssSelector("[data-test='product-name']")).getText();
-            String price = element.findElement(By.cssSelector("[data-test='product-price']")).getText().replaceAll("[^0-9.,]", "");
 
-            result.add(new UiProduct(name, image, price));
+        int totalPages = driver.findElements(pageLinks).size();
+
+        for (int i = 0; i < totalPages; i++) {
+            List<WebElement> pages = driver.findElements(pageLinks);
+
+            if (i > 0) {
+                pages.get(i).click();
+            }
+
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(productsXpath)));
+
+            List<WebElement> productElements = driver.findElements(By.xpath(productsXpath));
+
+            for (int j = 0; j < productElements.size(); j++) {
+                UiProduct uiProduct = buildUiProductForIndex(productsXpath, j);
+                if (uiProduct != null) {
+                    result.add(uiProduct);
+                }
+            }
         }
+
+        // Normalize ordering across all pages according to currently selected sort option
+        try {
+            Select currentSort = new Select(sortDropdown);
+            String selected = currentSort.getFirstSelectedOption().getText();
+
+            if ("Name (A - Z)".equalsIgnoreCase(selected)) {
+                result.sort(Comparator.comparing(UiProduct::getName, String.CASE_INSENSITIVE_ORDER));
+            } else if ("Name (Z - A)".equalsIgnoreCase(selected)) {
+                result.sort(Comparator.comparing(UiProduct::getName, String.CASE_INSENSITIVE_ORDER).reversed());
+            } else if ("Price (Low - High)".equalsIgnoreCase(selected)) {
+                result.sort(Comparator.comparingDouble(p -> parsePrice(p.getPrice())));
+            } else if ("Price (High - Low)".equalsIgnoreCase(selected)) {
+                result.sort(Comparator.comparingDouble((UiProduct p) -> parsePrice(p.getPrice())).reversed());
+            }
+        } catch (Exception ignored) {
+            // If dropdown is not present or option text changed, just return collected order.
+        }
+
         return result;
     }
 
+    private double parsePrice(String priceText) {
+        if (priceText == null || priceText.isEmpty()) {
+            return 0.0;
+        }
+        String normalized = priceText.replaceAll("[^0-9.,]", "").replace(",", ".");
+        if (normalized.isEmpty()) {
+            return 0.0;
+        }
+        return Double.parseDouble(normalized);
+    }
+
+    private UiProduct buildUiProductForIndex(String productsXpath, int index) {
+        try {
+            List<WebElement> freshProducts = driver.findElements(By.xpath(productsXpath));
+            if (index >= freshProducts.size()) {
+                return null;
+            }
+            WebElement element = freshProducts.get(index);
+
+            String image = element.findElement(By.cssSelector("img.card-img-top"))
+                    .getAttribute("src");
+            String name = element.findElement(By.cssSelector("[data-test='product-name']"))
+                    .getText();
+            String price = element.findElement(By.cssSelector("[data-test='product-price']"))
+                    .getText()
+                    .replaceAll("[^0-9.,]", "");
+
+            return new UiProduct(name, image, price);
+        } catch (org.openqa.selenium.StaleElementReferenceException e) {
+            // Retry once with a fresh lookup
+            try {
+                List<WebElement> freshProducts = driver.findElements(By.xpath(productsXpath));
+                if (index >= freshProducts.size()) {
+                    return null;
+                }
+                WebElement element = freshProducts.get(index);
+
+                String image = element.findElement(By.cssSelector("img.card-img-top"))
+                        .getAttribute("src");
+                String name = element.findElement(By.cssSelector("[data-test='product-name']"))
+                        .getText();
+                String price = element.findElement(By.cssSelector("[data-test='product-price']"))
+                        .getText()
+                        .replaceAll("[^0-9.,]", "");
+
+                return new UiProduct(name, image, price);
+            } catch (org.openqa.selenium.StaleElementReferenceException ex) {
+                return null;
+            }
+        }
+    }
+
     public int getTotalNumberOfProducts() {
+        String productsXpath = "//a[contains(@class,'card') and starts-with(@data-test,'product-')]";
+        By pageLinks = By.cssSelector(".page-item > .page-link[aria-label^='Page-']");
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
         int totalProducts = 0;
-        int numberOfPages = driver.findElements(By.xpath("//ul[contains(@class,'ngx-pagination')]/li[not(contains(@class,'pagination-previous')) and not(contains(@class,'pagination-next')) and not(contains(@class, 'small-screen'))]")).size();
+        int totalPages = driver.findElements(pageLinks).size();
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        if (totalPages == 0) {
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(productsXpath)));
+            return driver.findElements(By.xpath(productsXpath)).size();
+        }
 
-        for (int i = 1; i <= numberOfPages; i++) {
+        for (int i = 0; i < totalPages; i++) {
+            List<WebElement> pages = driver.findElements(pageLinks);
 
-            List<WebElement> oldProducts = driver.findElements(By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]"));
-
-            String pageSelector = String.format("//ul[contains(@class,'ngx-pagination')]/li[not(contains(@class,'pagination-previous')) and not(contains(@class,'pagination-next')) and not(contains(@class, 'small-screen'))][%d]", i);
-            WebElement pageLink = driver.findElement(By.xpath(pageSelector));
-            pageLink.click();
-
-            if (totalProducts != 0) {
-                wait.until(ExpectedConditions.stalenessOf(oldProducts.get(0)));
+            if (i > 0) {
+                pages.get(i).click();
             }
 
-            List<WebElement> newProducts = wait.until(
-                    ExpectedConditions.presenceOfAllElementsLocatedBy(
-                            By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
-                    )
-            );
-            totalProducts = totalProducts + newProducts.size();
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(productsXpath)));
+            totalProducts += driver.findElements(By.xpath(productsXpath)).size();
         }
 
         return totalProducts;
@@ -146,63 +247,111 @@ public class HomePage {
     }
 
     public void sortAZ() {
-        WebElement firstProductBeforeSort = driver.findElement(
-                By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
-        );
+        String productsXpath = "//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]";
+        WebElement firstProductBeforeSort = driver.findElement(By.xpath(productsXpath));
+        String firstNameBeforeSort = firstProductBeforeSort
+                .findElement(By.cssSelector("[data-test='product-name']"))
+                .getText();
 
         Select selectOption = new Select(sortDropdown);
         selectOption.selectByVisibleText("Name (A - Z)");
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.stalenessOf(firstProductBeforeSort));
-        wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(
-                By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
-        ));
+        wait.until(driver -> {
+            try {
+                List<WebElement> products = driver.findElements(By.xpath(productsXpath));
+                if (products.isEmpty()) {
+                    return false;
+                }
+                String firstNameAfterSort = products.get(0)
+                        .findElement(By.cssSelector("[data-test='product-name']"))
+                        .getText();
+                return !firstNameAfterSort.equals(firstNameBeforeSort);
+            } catch (org.openqa.selenium.StaleElementReferenceException e) {
+                return false;
+            }
+        });
     }
 
     public void sortZA() {
-        WebElement firstProductBeforeSort = driver.findElement(
-                By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
-        );
+        String productsXpath = "//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]";
+        WebElement firstProductBeforeSort = driver.findElement(By.xpath(productsXpath));
+        String firstNameBeforeSort = firstProductBeforeSort
+                .findElement(By.cssSelector("[data-test='product-name']"))
+                .getText();
 
         Select selectOption = new Select(sortDropdown);
         selectOption.selectByVisibleText("Name (Z - A)");
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.stalenessOf(firstProductBeforeSort));
-        wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(
-                By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
-        ));
+        wait.until(driver -> {
+            try {
+                List<WebElement> products = driver.findElements(By.xpath(productsXpath));
+                if (products.isEmpty()) {
+                    return false;
+                }
+                String firstNameAfterSort = products.get(0)
+                        .findElement(By.cssSelector("[data-test='product-name']"))
+                        .getText();
+                return !firstNameAfterSort.equals(firstNameBeforeSort);
+            } catch (org.openqa.selenium.StaleElementReferenceException e) {
+                return false;
+            }
+        });
     }
 
     public void sortByPriceHighToLow() {
-        WebElement firstProductBeforeSort = driver.findElement(
-                By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
-        );
+        String productsXpath = "//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]";
+        WebElement firstProductBeforeSort = driver.findElement(By.xpath(productsXpath));
+        String firstPriceBeforeSort = firstProductBeforeSort
+                .findElement(By.cssSelector("[data-test='product-price']"))
+                .getText();
 
         Select selectOption = new Select(sortDropdown);
         selectOption.selectByVisibleText("Price (High - Low)");
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.stalenessOf(firstProductBeforeSort));
-        wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(
-                By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
-        ));
+        wait.until(driver -> {
+            try {
+                List<WebElement> products = driver.findElements(By.xpath(productsXpath));
+                if (products.isEmpty()) {
+                    return false;
+                }
+                String firstPriceAfterSort = products.get(0)
+                        .findElement(By.cssSelector("[data-test='product-price']"))
+                        .getText();
+                return !firstPriceAfterSort.equals(firstPriceBeforeSort);
+            } catch (org.openqa.selenium.StaleElementReferenceException e) {
+                return false;
+            }
+        });
     }
 
     public void sortByPriceLowToHigh() {
-        WebElement firstProductBeforeSort = driver.findElement(
-                By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
-        );
+        String productsXpath = "//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]";
+        WebElement firstProductBeforeSort = driver.findElement(By.xpath(productsXpath));
+        String firstPriceBeforeSort = firstProductBeforeSort
+                .findElement(By.cssSelector("[data-test='product-price']"))
+                .getText();
 
         Select selectOption = new Select(sortDropdown);
         selectOption.selectByVisibleText("Price (Low - High)");
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.stalenessOf(firstProductBeforeSort));
-        wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(
-                By.xpath("//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]")
-        ));
+        wait.until(driver -> {
+            try {
+                List<WebElement> products = driver.findElements(By.xpath(productsXpath));
+                if (products.isEmpty()) {
+                    return false;
+                }
+                String firstPriceAfterSort = products.get(0)
+                        .findElement(By.cssSelector("[data-test='product-price']"))
+                        .getText();
+                return !firstPriceAfterSort.equals(firstPriceBeforeSort);
+            } catch (org.openqa.selenium.StaleElementReferenceException e) {
+                return false;
+            }
+        });
     }
 
     public UiProduct openRandomProduct() {
