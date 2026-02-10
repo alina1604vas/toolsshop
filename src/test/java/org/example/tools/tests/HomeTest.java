@@ -80,7 +80,7 @@ public class HomeTest extends BaseTest {
     @Test
     @Tag("sprint1")
     @DisplayName("Check Home page title")
-    public void testHomePageTitle() {
+    public void homePageTitle_shouldMatchExpected() {
         String expectedTitle = "Practice Software Testing - Toolshop";
         String actualTitle = homePage.getHomePageTitle();
         assertEquals(expectedTitle, actualTitle, "Home page title is incorrect");
@@ -89,7 +89,7 @@ public class HomeTest extends BaseTest {
     @Test
     @Tag("sprint1")
     @DisplayName("Check Home Page url")
-    public void testHomePageURL() {
+    public void homePageUrl_shouldMatchBaseUrl() {
         String expectedUrl = SystemConfig.getBaseUrl();
         String actualUrl = homePage.getHomePageURl();
         assertEquals(expectedUrl, actualUrl, "Home Page URLs do not match");
@@ -98,7 +98,7 @@ public class HomeTest extends BaseTest {
     @Test
     @Tag("sprint1")
     @DisplayName("Check number of products on Home page")
-    public void testNumberOfProducts() {
+    public void homePage_shouldShowAllProductsFromApi() {
         int expectedNumberOfProducts = homeData.getProductsPerPage().getTotalProducts();
         int actualNumberOfProducts = homePage.getTotalNumberOfProducts();
 
@@ -108,7 +108,7 @@ public class HomeTest extends BaseTest {
     @Test
     @Tag("sprint1")
     @DisplayName("Check name, image and price of cards")
-    public void testProductCards() {
+    public void productCards_shouldHaveNameImageAndPrice() {
         ArrayList<UiProduct> products = homePage.getAllProducts();
         for (UiProduct card : products) {
             String cardName = card.getName();
@@ -124,7 +124,7 @@ public class HomeTest extends BaseTest {
     @Test
     @Tag("sprint2")
     @DisplayName("Check if a given category name is present on Home page")
-    public void testCategoriesPresentInTheFilter() {
+    public void filters_shouldContainAllApiCategoriesAndSubcategories() {
         List<Category> categories = homeData.getCategories();
 
         for (Category category : categories) {
@@ -146,7 +146,7 @@ public class HomeTest extends BaseTest {
     @Test
     @Tag("sprint2")
     @DisplayName("Check if a given brand name is present on Home page")
-    public void testBrandPresentInTheFilter() {
+    public void filters_shouldContainAllApiBrands() {
         List<Brand> brands = homeData.getBrands();
 
         for (Brand brand : brands) {
@@ -158,7 +158,7 @@ public class HomeTest extends BaseTest {
     @Test
     @Tag("sprint2")
     @DisplayName("Check sorting of products by alphabet A-Z")
-    public void testSortingByAlphabetAZ() {
+    public void sortingByNameAZ_shouldOrderProductsAlphabetically() {
         homePage.sortAZ();
 
         ArrayList<UiProduct> products = homePage.getAllProducts();
@@ -178,7 +178,7 @@ public class HomeTest extends BaseTest {
     @Test
     @Tag("sprint2")
     @DisplayName("Check sorting of products by alphabet Z-A in reverse order")
-    public void testSortingByAlphabetZA() {
+    public void sortingByNameZA_shouldOrderProductsReverseAlphabetically() {
         homePage.sortZA();
 
         ArrayList<UiProduct> products = homePage.getAllProducts();
@@ -198,7 +198,7 @@ public class HomeTest extends BaseTest {
     @Test
     @Tag("sprint2")
     @DisplayName("Check sorting of products by price from High to Low")
-    public void testSortingByPriceHighToLow() {
+    public void sortingByPriceHighToLow_shouldOrderProductsByDescendingPrice() {
         homePage.sortByPriceHighToLow();
 
         ArrayList<UiProduct> products = homePage.getAllProducts();
@@ -219,7 +219,7 @@ public class HomeTest extends BaseTest {
     @Test
     @Tag("sprint2")
     @DisplayName("Check sorting of products by price from Low to High")
-    public void testSortingByPriceLowToHigh() {
+    public void sortingByPriceLowToHigh_shouldOrderProductsByAscendingPrice() {
         homePage.sortByPriceLowToHigh();
 
         ArrayList<UiProduct> products = homePage.getAllProducts();
