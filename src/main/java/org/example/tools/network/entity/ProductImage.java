@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 public class ProductImage {
 
     @SerializedName("id")
-    private Long id;
+    private String id;
 
     @SerializedName("by_name")
     private String byName;
@@ -25,7 +25,7 @@ public class ProductImage {
     @SerializedName("title")
     private String title;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

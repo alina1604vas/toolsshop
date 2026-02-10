@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 public class Brand {
 
     @SerializedName("id")
-    private Long id;
+    private String id;
 
     @SerializedName("name")
     private String name;
@@ -13,7 +13,7 @@ public class Brand {
     @SerializedName("slug")
     private String slug;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
