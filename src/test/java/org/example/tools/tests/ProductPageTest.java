@@ -68,7 +68,7 @@ public class ProductPageTest extends BaseTest {
         String expectedPrice = uiProduct.getPrice();
 
         productPage.waitUntilPageIsLoaded();
-
+//TODO: substitute on UIProduct
         String actualImage = productPage.getImage();
         String actualName = productPage.getName();
         String actualPrice = productPage.getPrice();
