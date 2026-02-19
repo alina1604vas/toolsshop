@@ -31,7 +31,6 @@ public class UiCartElement {
     public UiCartElement(UiProduct product, int quantity) {
         this.product = product;
         this.quantity = quantity;
-
     }
 
     public UiCartElement(UiProduct product, int quantity, double subtotal) {

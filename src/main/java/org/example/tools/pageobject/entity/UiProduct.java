@@ -7,6 +7,7 @@ public class UiProduct {
     private String name;
     private String image;
     private String price;
+    //private boolean isInStock;
 
     public UiProduct(String name, String image, String price) {
         this.name = name;
@@ -14,7 +15,7 @@ public class UiProduct {
         this.price = price;
     }
 
-    public static UiProduct withImage(String name, String image) {
+    public static UiProduct withImage(String name, String image ) {
         return new UiProduct(name, image, null);
     }
 
