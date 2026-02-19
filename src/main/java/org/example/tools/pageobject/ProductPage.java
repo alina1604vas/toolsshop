@@ -143,6 +143,14 @@ public class ProductPage {
         );
         button.click();
     }
+    public void waitForAddToCartToast() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+        By toast = By.id("toast-container");
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(toast));
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(toast));
+    }
 
     public String getShoppingSuccessMessage() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
