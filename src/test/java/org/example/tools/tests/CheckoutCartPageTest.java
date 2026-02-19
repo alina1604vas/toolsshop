@@ -32,13 +32,11 @@ public class CheckoutCartPageTest extends BaseTest {
         checkoutHelper.assertCartSubtotalsMatch(expectedCart, actualUiProducts);
     }
 
-    //before each
     @Test
     @Tag("sprint3")
     @DisplayName("Verify if there are missed products in a cart")
     public void cart_containsAll_addedProducts() {
         Cart expectedCart = checkoutHelper.buildCartWithRandomProducts(5, 5);
-
         CheckoutCartPage cartPage = checkoutHelper.openCart();
         List<UiCartElement> actualUiProducts = cartPage.getUIProductsInCart();
         List<UiCartElement> missedProducts = expectedCart.getItems().stream()
@@ -53,9 +51,12 @@ public class CheckoutCartPageTest extends BaseTest {
     @DisplayName("Verify total price per cart")
     public void cartTotal_matchesSumOfItems() {
         Cart expectedCart = checkoutHelper.buildCartWithRandomProducts(5, 5);
+        double expecterCartTotal = checkoutHelper.getExpectedCartTotal(expectedCart);
+        double delta = 0.01;
         CheckoutCartPage cartPage = checkoutHelper.openCart();
-        List<UiCartElement> actualUiProducts = cartPage.getUIProductsInCart();
-        checkoutHelper.assertCartSubtotalsMatch(expectedCart, actualUiProducts);
+        double actualCartTotal = cartPage.getCartTotal();
+
+        assertEquals(expecterCartTotal,actualCartTotal, delta, "ExpecterCartTotal and actualCartTotal do not match");
     }
 
     @Test
@@ -64,6 +65,11 @@ public class CheckoutCartPageTest extends BaseTest {
     public void cart_updatesList_afterProductDeletion() {
         CheckoutCartPage cartPage = checkoutHelper.openCart();
         checkoutHelper.addRandomProductAndAssertDeletion(cartPage, 5);
+
+        //TODO: later
+//        Cart expectedCart = checkoutHelper.buildCartWithRandomProducts(5, 5);
+//        CheckoutCartPage cartPage = checkoutHelper.openCart();
+//        List<UiCartElement> actualUiProducts = cartPage.getUIProductsInCart();
     }
 }
 
