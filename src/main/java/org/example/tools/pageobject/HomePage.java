@@ -51,12 +51,11 @@ public class HomePage {
         PageFactory.initElements(driver, this);
         return this;
     }
+
     public void waitUntilPageIsLoaded() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15)); // increase timeout
         wait.until(driver -> {
-            // wait for container to exist
             WebElement container = driver.findElement(By.cssSelector(".col-md-9 .container"));
-            // wait for at least one product inside container
             List<WebElement> products = container.findElements(By.xpath(".//a[contains(@class,'card') and starts-with(@data-test,'product-')]"));
             return products.size() > 0;
         });
@@ -70,25 +69,8 @@ public class HomePage {
     public String getHomePageURl() {
         return driver.getCurrentUrl();
     }
-//чи вертає цей метод всы продукти зы всых сторынок??
+
     public ArrayList<UiProduct> getAllProducts() {
-//        List<WebElement> pages = driver.findElements(By.cssSelector(".page-item > .page-link[aria-label^='Page-']"));
-//        String productsXpath = "//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]";
-//
-//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-//        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(productsXpath)));
-//
-//        List<WebElement> productElements = driver.findElements(By.xpath(productsXpath));
-//
-//        ArrayList<UiProduct> result = new ArrayList<>();
-//        for (WebElement element : productElements) {
-//            String image = element.findElement(By.cssSelector("img.card-img-top")).getAttribute("src");
-//            String name = element.findElement(By.cssSelector("[data-test='product-name']")).getText();
-//            String price = element.findElement(By.cssSelector("[data-test='product-price']")).getText().replaceAll("[^0-9.,]", "");
-//
-//            result.add(new UiProduct(name, image, price));
-//        }
-//        return result;
             String productsXpath = "//a[contains(@class,'card') and starts-with(@data-test,'product-')]";
             By pageLinks = By.cssSelector(".page-item > .page-link[aria-label^='Page-']");
 
@@ -164,9 +146,10 @@ public class HomePage {
                     .getText()
                     .replaceAll("[^0-9.,]", "");
 
+            boolean inStock = !element.getText().toLowerCase().contains("out of stock");
+
             return new UiProduct(name, image, price);
         } catch (org.openqa.selenium.StaleElementReferenceException e) {
-            // Retry once with a fresh lookup
             try {
                 List<WebElement> freshProducts = driver.findElements(By.xpath(productsXpath));
                 if (index >= freshProducts.size()) {
@@ -181,6 +164,8 @@ public class HomePage {
                 String price = element.findElement(By.cssSelector("[data-test='product-price']"))
                         .getText()
                         .replaceAll("[^0-9.,]", "");
+
+                boolean inStock = !element.getText().toLowerCase().contains("out of stock");
 
                 return new UiProduct(name, image, price);
             } catch (org.openqa.selenium.StaleElementReferenceException ex) {
@@ -355,17 +340,36 @@ public class HomePage {
     }
 
     public UiProduct openRandomProduct() {
-        ArrayList<UiProduct> products = getAllProducts();
+        String productsXpath = "//a[contains(@class,'card') and starts-with(@data-test,'product-')]";
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.xpath(productsXpath)));
+
+        List<WebElement> visibleProducts = driver.findElements(By.xpath(productsXpath));
+        List <WebElement> availableProducts = visibleProducts.stream()
+                .filter(productElement  ->
+                        productElement .findElements(By.xpath(".//span[@data-test='out-of-stock']"))
+                                .isEmpty())
+                .toList();
+
+        if (availableProducts.isEmpty()) {
+            throw new NoSuchElementException("There are no in stock products");
+        }
 
         Random random = new Random();
-        int randomIndex = random.nextInt(products.size());
-        UiProduct randomUIProduct = products.get(randomIndex);
+        int randomIndex = random.nextInt(availableProducts.size());
+        WebElement randomElement = availableProducts.get(randomIndex);
 
-        WebElement productElement = driver.findElement(By.xpath(
-                "//a[contains(@class, 'card') and starts-with(@data-test, 'product-')]" +
-                        "[.//*[@data-test='product-name' and normalize-space(text())='" + randomUIProduct.getName() + "']]"
-        ));
-        productElement.click();
+        String image = randomElement.findElement(By.cssSelector("img.card-img-top"))
+                .getAttribute("src");
+        String name = randomElement.findElement(By.cssSelector("[data-test='product-name']"))
+                .getText();
+        String price = randomElement.findElement(By.cssSelector("[data-test='product-price']"))
+                .getText()
+                .replaceAll("[^0-9.,]", "");
+
+        UiProduct randomUIProduct = new UiProduct(name, image, price);
+
+        randomElement.click();
 
         return randomUIProduct;
     }
