@@ -43,7 +43,6 @@ public class LoginTest extends BaseTest {
             numLinesToSkip = 1,
             emptyValue = "''"
     )
-    @Tag("sprint4")
     @DisplayName("Logging with invalid or empty email")
     public void testLoginWithInvalidEmail(String email, String expectedEmailError) {
         loginPage.setEmailInput(email)

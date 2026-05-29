@@ -32,6 +32,9 @@ public class LoginPage implements LoginScreen {
     @FindBy(xpath = "//div[@data-test='password-error']")
     private WebElement passwordError;
 
+    @FindBy(xpath = "//a[@data-test='forgot-password-link']")
+    private WebElement forgotPasswordLink;
+
     public LoginPage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
@@ -89,5 +92,12 @@ public class LoginPage implements LoginScreen {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.visibilityOf(passwordError));
         return passwordError.getText();
+    }
+
+    public ForgotPasswordPage goToForgotPassword() {
+        forgotPasswordLink.click();
+        ForgotPasswordPage page = new ForgotPasswordPage(driver);
+        page.waitUntilPageIsLoaded();
+        return page;
     }
 }
