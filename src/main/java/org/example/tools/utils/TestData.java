@@ -34,7 +34,7 @@ public class TestData {
     }
 
     public static String validCountry() {
-        return faker.address().country();
+        return faker.address().countryCode();
     }
 
     public static String validPostCode() {
@@ -54,7 +54,7 @@ public class TestData {
     }
 
     public static String validPassword() {
-        return faker.internet().password(8, 12, true, true);
+        return faker.internet().password(8, 16, true, true, true) + "!1Aa";
     }
 
     public static String validBirthday() {
@@ -67,11 +67,13 @@ public class TestData {
 
     public static BillingAddress validBillingAddress(String country) {
         return new BillingAddress(
-                faker.address().streetAddress(),
-                faker.address().cityName(),
-                faker.address().state(),
                 country != null && !country.isEmpty() ? country : faker.address().country(),
-                faker.address().postcode());
+                faker.address().postcode(),
+                faker.address().buildingNumber(),
+                faker.address().streetName(),
+                faker.address().cityName(),
+                faker.address().state()
+        );
     }
 
     public static User lastRegisteredUser;
