@@ -122,17 +122,26 @@ public class ProductPage {
     }
 
     public void setButtonIncreaseQuantity(int desiredQuantity) {
-        WebElement qtyInput = driver.findElement(By.xpath("//input[@data-test='quantity']"));
+        By quantityInputBy = By.xpath("//input[@data-test='quantity']");
+        WebElement qtyInput = driver.findElement(quantityInputBy);
         int initialQty = Integer.parseInt(qtyInput.getAttribute("value"));
         int clicksNeeded = desiredQuantity - initialQty;
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         for (int i = 0; i < clicksNeeded; i++) {
-            wait.until(ExpectedConditions.elementToBeClickable(
-                    By.id("btn-increase-quantity"))
-            ).click();
+            WebElement increaseBtn = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.id("btn-increase-quantity")));
+            increaseBtn.click();
             int expectedQty = initialQty + i + 1;
-            wait.until(d -> Integer.parseInt(qtyInput.getAttribute("value")) == expectedQty);
+            wait.until(d -> {
+                WebElement input = driver.findElement(quantityInputBy);
+                String val = input.getAttribute("value");
+                try {
+                    return Integer.parseInt(val) == expectedQty;
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+            });
         }
     }
 
