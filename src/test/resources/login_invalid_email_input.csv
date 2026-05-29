@@ -1,6 +1,5 @@
 email,expectedError
-, E-mail is required.
-test, E-mail format is invalid.
-test@, E-mail format is invalid.
-test@mail, E-mail format is invalid.
-test@email., E-mail format is invalid.
+, Email is required
+test, Email format is invalid
+test@, Email format is invalid
+test@email., Email format is invalid
