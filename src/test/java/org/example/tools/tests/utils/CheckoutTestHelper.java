@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 public class CheckoutTestHelper {
@@ -75,12 +76,12 @@ public class CheckoutTestHelper {
 
     public double getExpectedCartTotal(Cart cart) {
         List<UiCartElement> items = cart.getItems();
-        double expectedCartTotal  = 0;
+        double expectedCartTotal = 0;
         for (UiCartElement item : items) {
             double itemSubtotal = item.getSubtotal();
-            expectedCartTotal  = expectedCartTotal  + itemSubtotal;
+            expectedCartTotal = expectedCartTotal + itemSubtotal;
         }
-        return expectedCartTotal ;
+        return expectedCartTotal;
     }
 
     private void addOrMergeCartElement(Cart cart, UiCartElement newElement) {
@@ -198,4 +199,42 @@ public class CheckoutTestHelper {
             throw new AssertionError("Product " + name + " was not deleted from the cart");
         }
     }
+
+    public Cart addOneProductFromEachPage(int maxQuantity) {
+        homePage.open();
+        homePage.waitUntilPageIsLoaded();
+
+        Cart cart = new Cart();
+        int numberOfPages = homePage.getNumberOfPages();
+
+        for (int i = 0; i < numberOfPages; i++) {
+            homePage.goToPage(i);
+            homePage.waitUntilPageIsLoaded();
+            homePage.openRandomProduct();
+            productPage.waitUntilPageIsLoaded();
+            int quantity = random.nextInt(maxQuantity) + 1;
+            productPage.setButtonIncreaseQuantity(quantity);
+
+            String name = normalizeProductName(productPage.getName());
+            String price = productPage.getPrice().replace("$", "").trim();
+
+            UiProduct uiProduct = UiProduct.withPrice(name, price);
+            double unitPrice = Double.parseDouble(price);
+            double subtotal = roundToTwoDecimals(unitPrice * quantity);
+            UiCartElement element = new UiCartElement(uiProduct, quantity, subtotal);
+            productPage.clickAddToCart();
+
+
+//            UiProduct uiProduct = UiProduct.withPrice(name, price);
+//            double unitPrice = Double.parseDouble(price);
+//            double subtotal = roundToTwoDecimals(unitPrice * quantity);
+//            UiCartElement element = new UiCartElement(uiProduct, quantity, subtotal);
+            productPage.waitForAddToCartToast();
+            addOrMergeCartElement(cart, element);
+            homePage.open();
+            homePage.waitUntilPageIsLoaded();
+        }
+        return cart;
+    }
 }
+
