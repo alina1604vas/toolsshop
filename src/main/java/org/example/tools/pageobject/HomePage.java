@@ -53,12 +53,18 @@ public class HomePage {
     }
 
     public void waitUntilPageIsLoaded() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15)); // increase timeout
-        wait.until(driver -> {
-            WebElement container = driver.findElement(By.cssSelector(".col-md-9 .container"));
-            List<WebElement> products = container.findElements(By.xpath(".//a[contains(@class,'card') and starts-with(@data-test,'product-')]"));
-            return products.size() > 0;
-        });
+        By productsLocator = By.xpath(
+                "//a[contains(@class,'card') and starts-with(@data-test,'product-')]"
+        );
+
+        new WebDriverWait(driver, Duration.ofSeconds(15))
+                .until(ExpectedConditions.presenceOfElementLocated(productsLocator));
+//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15)); // increase timeout
+//        wait.until(driver -> {
+//            WebElement container = driver.findElement(By.cssSelector(".col-md-9 .container"));
+//            List<WebElement> products = container.findElements(By.xpath(".//a[contains(@class,'card') and starts-with(@data-test,'product-')]"));
+//            return products.size() > 0;
+//        });
     }
 
     public String getHomePageTitle() {
@@ -340,6 +346,51 @@ public class HomePage {
     }
 
     public UiProduct openRandomProduct() {
+//        By availableProductsLocator = By.xpath(
+//                "//a[contains(@class,'card') and starts-with(@data-test,'product-')]" +
+//                        "[not(.//span[@data-test='out-of-stock'])]"
+//        );
+//
+//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+//
+//        // 🔹 Wait until at least one available product is present
+//        wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(availableProductsLocator,0));
+//
+//        // 🔹 Find only in-stock products directly
+//        List<WebElement> availableProducts =
+//                driver.findElements(availableProductsLocator);
+//
+//        if (availableProducts.isEmpty()) {
+//            throw new NoSuchElementException("There are no in stock products");
+//        }
+//
+//        // 🔹 Choose random index
+//        int randomIndex = new Random().nextInt(availableProducts.size());
+//
+//        // 🔹 IMPORTANT: re-fetch element before interaction (extra safety)
+//        WebElement randomElement =
+//                driver.findElements(availableProductsLocator).get(randomIndex);
+//
+//        // 🔹 Extract data BEFORE click
+//        String name = randomElement
+//                .findElement(By.cssSelector("[data-test='product-name']"))
+//                .getText();
+//
+//        String image = randomElement
+//                .findElement(By.cssSelector("img.card-img-top"))
+//                .getAttribute("src");
+//
+//        String price = randomElement
+//                .findElement(By.cssSelector("[data-test='product-price']"))
+//                .getText()
+//                .replaceAll("[^0-9.,]", "");
+//
+//        UiProduct randomUIProduct = new UiProduct(name, image, price);
+//
+//        // 🔹 Click product
+//        randomElement.click();
+//
+//        return randomUIProduct;
         String productsXpath = "//a[contains(@class,'card') and starts-with(@data-test,'product-')]";
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.xpath(productsXpath)));
@@ -373,5 +424,23 @@ public class HomePage {
 
         return randomUIProduct;
     }
-
+    public int getNumberOfPages() {
+        By pagesLocator = By.cssSelector(".page-item > .page-link[aria-label^='Page-']");
+        List<WebElement> pages = driver.findElements(pagesLocator);
+        return pages.isEmpty() ? 1 : pages.size();
+    }
+    public void goToPage(int pageIndex) {
+        if (pageIndex <= 0) {
+            return; // already on first page (e.g. after open())
+        }
+        int numberOfPages = getNumberOfPages();
+        By pageLinksBy = By.cssSelector(".page-item > .page-link[aria-label^='Page-']");
+        List<WebElement> pageLinks = driver.findElements(pageLinksBy);
+        if (pageIndex < numberOfPages) {
+            pageLinks.get(pageIndex).click();
+            String productsXpath = "//a[contains(@class,'card') and starts-with(@data-test,'product-')]";
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(productsXpath)));
+        }
+    }
 }

@@ -36,7 +36,7 @@ public class CheckoutCartPageTest extends BaseTest {
     @Tag("sprint3")
     @DisplayName("Verify if there are missed products in a cart")
     public void cart_containsAll_addedProducts() {
-        Cart expectedCart = checkoutHelper.buildCartWithRandomProducts(5, 5);
+        Cart expectedCart = checkoutHelper.addOneProductFromEachPage(5);
         CheckoutCartPage cartPage = checkoutHelper.openCart();
         List<UiCartElement> actualUiProducts = cartPage.getUIProductsInCart();
         List<UiCartElement> missedProducts = expectedCart.getItems().stream()
