@@ -23,6 +23,26 @@ public class Credentials {
         return firstNonNull(System.getenv("TEST_USER_PASSWORD"), props.getProperty("test.user.password"));
     }
 
+    public String firstName() {
+        return firstNonNull(System.getenv("TEST_USER_FIRSTNAME"), props.getProperty("test.user.firstName"));
+    }
+
+    public String lastName() {
+        return firstNonNull(System.getenv("TEST_USER_LASTNAME"), props.getProperty("test.user.lastName"));
+    }
+
+    public String street() {
+        return firstNonNull(System.getenv("TEST_USER_STREET"), props.getProperty("test.user.street"));
+    }
+
+    public String city() {
+        return firstNonNull(System.getenv("TEST_USER_CITY"), props.getProperty("test.user.city"));
+    }
+
+    public String country() {
+        return firstNonNull(System.getenv("TEST_USER_COUNTRY"), props.getProperty("test.user.country"));
+    }
+
     private static String firstNonNull(String a, String b) {
         if (a != null && !a.isBlank()) return a;
         if (b != null && !b.isBlank()) return b;
