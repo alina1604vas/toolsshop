@@ -4,10 +4,7 @@ import org.example.tools.pageobject.AccountPage;
 import org.example.tools.pageobject.LoginPage;
 import org.example.tools.pageobject.ProfilePage;
 import org.example.tools.utils.Credentials;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 
 import static org.example.tools.tests.BaseTest.driver;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,6 +26,12 @@ public class ProfileDisplayTest {
         profilePage.waitUntilPageIsLoaded();
     }
 
+    @AfterEach
+    void tearDown() {
+        loginPage = null;
+        profilePage = null;
+    }
+
     @Test
     @DisplayName("Profile displays current user info")
     public void profile_displaysCurrentUserInfo() {
@@ -39,4 +42,5 @@ public class ProfileDisplayTest {
         assertEquals(creds.city(), profilePage.getCity());
         assertEquals(creds.country(), profilePage.getCountry());
     }
+
 }
