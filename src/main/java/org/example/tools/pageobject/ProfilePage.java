@@ -57,9 +57,33 @@ public class ProfilePage {
 
     public void waitUntilPageIsLoaded() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.urlContains("/account/profile"));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//h1[@data-test='page-title']")));
+        wait.until(ExpectedConditions.urlContains("account/profile"));
+        wait.until(d -> !d.findElement(By.id("first_name"))
+                .getDomProperty("value").isBlank());
+    }
+
+    public String getFirstName() {
+        return firstName.getDomProperty("value");
+    }
+
+    public String getLastName() {
+        return lastName.getDomProperty("value");
+    }
+
+    public String getEmail() {
+        return email.getDomProperty("value");
+    }
+
+    public String getCountry() {
+        return country.getDomProperty("value");
+    }
+
+    public String getCity() {
+        return city.getDomProperty("value");
+    }
+
+    public String getStreet() {
+        return street.getDomProperty("value");
     }
 
     public void clickUpdateProfileBtn() {
