@@ -86,6 +86,45 @@ public class ProfilePage {
         return street.getDomProperty("value");
     }
 
+    private boolean isEditable(WebElement field) {
+        String readonly = field.getDomAttribute("readonly");
+        return field.isDisplayed()
+                && field.isEnabled()
+                && readonly == null;
+    }
+
+    private boolean isReadOnly(WebElement field) {
+        return field.getDomAttribute("readonly") != null;
+    }
+
+    public boolean isFirstNameEditable() {
+        return isEditable(firstName);
+    }
+
+    public boolean isLastNameEditable() {
+        return isEditable(lastName);
+    }
+
+    public boolean isPhoneEditable() {
+        return isEditable(phone);
+    }
+
+    public boolean isStreetEditable() {
+        return isEditable(street);
+    }
+
+    public boolean isCityEditable() {
+        return isEditable(city);
+    }
+
+    public boolean isCountryEditable() {
+        return isEditable(country);
+    }
+
+    public boolean isEmailNotEditable() {
+        return isReadOnly(email);
+    }
+
     public void clickUpdateProfileBtn() {
         updateProfileBtn.click();
     }
