@@ -43,4 +43,22 @@ public class ProfileDisplayTest {
         assertEquals(creds.country(), profilePage.getCountry());
     }
 
+    @Test
+    @DisplayName("Verify editable fields: first name, last name, phone and address.")
+    public void fields_areEditable() {
+        assertTrue(profilePage.isFirstNameEditable(), "First Name is not editable");
+        assertTrue(profilePage.isLastNameEditable(), "Last Name is not editable");
+        assertTrue(profilePage.isCountryEditable(), "Phone is not editable");
+        assertTrue(profilePage.isStreetEditable(), "Street is not editable");
+        assertTrue(profilePage.isCityEditable(), "City is not editable");
+        assertTrue(profilePage.isCountryEditable(), "Country is not editable");
+    }
+
+    @Test
+    @DisplayName("Verify that email is not editable")
+    public void email_isNotEditable () {
+        assertTrue(profilePage.isEmailNotEditable(), "Email is editable");
+    }
+
 }
+
