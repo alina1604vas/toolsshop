@@ -22,7 +22,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public class RegistrationPage {
 
     private final WebDriver driver;
-    private final String url = SystemConfig.getBaseUrl() + "auth/register";
+    private static final By NAV_SIGN_IN = By.cssSelector("[data-test='nav-sign-in']");
+    private static final By REGISTER_LINK = By.cssSelector("[data-test='register-link']");
+    private static final By COUNTRY_SELECT = By.cssSelector("select[data-test='country']");
 
     @FindBy(css = "input[data-test='first-name']")
     private WebElement firstName;
@@ -72,7 +74,11 @@ public class RegistrationPage {
     }
 
     public RegistrationPage open() {
-        driver.get(url);
+        driver.get(SystemConfig.getBaseUrl());
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.elementToBeClickable(NAV_SIGN_IN)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(REGISTER_LINK)).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(COUNTRY_SELECT));
         return this;
     }
 
@@ -165,7 +171,6 @@ public class RegistrationPage {
             System.out.println("\n=== REGISTRATION FAILED ===");
             System.out.println("Current URL: " + driver.getCurrentUrl());
 
-            // 1. All visible validation alerts
             List<WebElement> errors = driver.findElements(
                     By.cssSelector("[role='alert'], .alert-danger, .invalid-feedback"));
             System.out.println("Validation messages on page:");
@@ -174,7 +179,6 @@ public class RegistrationPage {
                 if (!txt.isEmpty()) System.out.println("  - " + txt);
             }
 
-            // 2. Which fields are currently invalid (Angular adds 'is-invalid' class)
             List<WebElement> invalidFields = driver.findElements(
                     By.cssSelector(".is-invalid"));
             System.out.println("Invalid fields (" + invalidFields.size() + "):");
@@ -184,14 +188,12 @@ public class RegistrationPage {
                 System.out.println("  - id=" + id + ", value='" + value + "'");
             }
 
-            // 3. Is the submit button even enabled?
             try {
                 WebElement btn = driver.findElement(
                         By.cssSelector("[data-test='register-submit']"));
                 System.out.println("Submit button enabled? " + btn.isEnabled());
             } catch (NoSuchElementException ignored) {}
 
-            // 4. Screenshot for inspection
             try {
                 File ss = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
                 Path target = Paths.get("target/register-fail-"
@@ -207,13 +209,11 @@ public class RegistrationPage {
             throw e;
         }
     }
-//    public boolean isRegistrationSuccessful() {
-//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-//        //TODO: move to constants
-//        return wait.until(ExpectedConditions.urlContains("/auth/login"));
-//    }
+
     public List<WebElement> getAvailableCountries() {
-        return new Select(country).getOptions().stream()
+        WebElement countrySelect = new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(ExpectedConditions.visibilityOfElementLocated(COUNTRY_SELECT));
+        return new Select(countrySelect).getOptions().stream()
                 .filter(o -> {
                     String v = o.getDomAttribute("value");
                     return v != null && !v.isBlank();
@@ -226,7 +226,9 @@ public class RegistrationPage {
         WebElement option = dropdownOptions.get(idx);
 
         String countryCode = option.getDomAttribute("value");
-        new Select(country).selectByValue(countryCode);
+        WebElement countrySelect = new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(ExpectedConditions.visibilityOfElementLocated(COUNTRY_SELECT));
+        new Select(countrySelect).selectByValue(countryCode);
         return countryCode;
     }
 //    public List<WebElement> getAvailableCountries() {
