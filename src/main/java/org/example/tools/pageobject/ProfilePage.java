@@ -1,6 +1,8 @@
 package org.example.tools.pageobject;
 
 import org.example.tools.SystemConfig;
+import org.example.tools.utils.Customer;
+import org.example.tools.utils.TestData;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -42,8 +44,19 @@ public class ProfilePage {
     @FindBy(id = "country")
     private WebElement country;
 
-    @FindBy(xpath = "//button[@data-test='update-profile-submit'")
+    @FindBy(xpath = "//button[@data-test='update-profile-submit']")
     private WebElement updateProfileBtn;
+    @FindBy(id = "current-password")
+    private WebElement currentPasswordField;
+
+    @FindBy(id = "new-password")
+    private WebElement newPasswordField;
+
+    @FindBy(id = "new-password-confirm")
+    private WebElement confirmNewPasswordField;
+
+    @FindBy(xpath = "//button[@data-test='change-password-submit']")
+    private WebElement changePasswordBtn;
 
     public ProfilePage(WebDriver driver) {
         this.driver = driver;
@@ -86,6 +99,18 @@ public class ProfilePage {
         return street.getDomProperty("value");
     }
 
+    public String getPhone() {
+        return phone.getDomProperty("value");
+    }
+
+    public String getPostCode() {
+        return postalCode.getDomProperty("value");
+    }
+
+    public String getState() {
+        return state.getDomProperty("value");
+    }
+
     private boolean isEditable(WebElement field) {
         String readonly = field.getDomAttribute("readonly");
         return field.isDisplayed()
@@ -125,8 +150,102 @@ public class ProfilePage {
         return isReadOnly(email);
     }
 
-    public void clickUpdateProfileBtn() {
-        updateProfileBtn.click();
+    public String getSuccessMsg() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        return wait.until(
+                        ExpectedConditions.visibilityOfElementLocated(
+                                By.cssSelector(".alert-success, [role='alert'], .toast-success")))
+                .getText();
     }
+
+    private void replaceValue(WebElement field, String value) {
+        field.clear();
+        field.sendKeys(value);
+    }
+
+    public ProfilePage clickUpdateProfileBtn() {
+        updateProfileBtn.click();
+        return this;
+    }
+
+    public ProfilePage setFirstName(String value) {
+        replaceValue(firstName, value);
+        return this;
+    }
+
+    public ProfilePage setLastName(String value) {
+        replaceValue(lastName, value);
+        return this;
+    }
+
+    public ProfilePage setPhone(String value) {
+        replaceValue(phone, value);
+        return this;
+    }
+
+    public ProfilePage setStreet(String value) {
+        replaceValue(street, value);
+        return this;
+    }
+
+    public ProfilePage setPostCode(String value) {
+        replaceValue(postalCode, value);
+        return this;
+    }
+
+    public ProfilePage setCity(String value) {
+        replaceValue(city, value);
+        return this;
+    }
+
+    public ProfilePage setState(String value) {
+        replaceValue(state, value);
+        return this;
+    }
+
+    public ProfilePage setCountry(String value) {
+        replaceValue(country, value);
+        return this;
+    }
+
+    public ProfilePage updateProfile(Customer customer) {
+        return setFirstName(customer.getFirstName())
+                .setLastName(customer.getLastName())
+                .setPhone(customer.getPhone())
+                .setStreet(customer.getBillingAddress().getStreetAddress())
+                .setPostCode(customer.getBillingAddress().getPostCode())
+                .setCity(customer.getBillingAddress().getCity())
+                .setState(customer.getBillingAddress().getState())
+                .setCountry(customer.getBillingAddress().getCountry());
+    }
+
+    public ProfilePage clickChangePasswordBtn() {
+        changePasswordBtn.click();
+        return this;
+    }
+
+    public ProfilePage setCurrentPassword(String currentPassword) {
+        currentPasswordField.sendKeys(currentPassword);
+        return this;
+    }
+
+    public ProfilePage setNewPassword(String newPassword) {
+        newPasswordField.sendKeys(newPassword);
+        return this;
+    }
+
+    public ProfilePage confirmNewPassword(String newPassword) {
+        confirmNewPasswordField.sendKeys(newPassword);
+        return this;
+    }
+
+    public ProfilePage changePassword(String currentPassword, String validNewPassword) {
+        validNewPassword = TestData.validPassword();
+        return setCurrentPassword(currentPassword)
+                .setNewPassword(validNewPassword)
+                .confirmNewPassword(validNewPassword)
+                .clickChangePasswordBtn();
+    }
+
 }
 
