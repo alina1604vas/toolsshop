@@ -162,6 +162,7 @@ public class RegistrationPage {
                 .setPassword(user.getPassword())
                 .clickRegisterButton();
     }
+
     public boolean isRegistrationSuccessful() {
         try {
             new WebDriverWait(driver, Duration.ofSeconds(10))
@@ -192,7 +193,8 @@ public class RegistrationPage {
                 WebElement btn = driver.findElement(
                         By.cssSelector("[data-test='register-submit']"));
                 System.out.println("Submit button enabled? " + btn.isEnabled());
-            } catch (NoSuchElementException ignored) {}
+            } catch (NoSuchElementException ignored) {
+            }
 
             try {
                 File ss = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
@@ -231,21 +233,6 @@ public class RegistrationPage {
         new Select(countrySelect).selectByValue(countryCode);
         return countryCode;
     }
-//    public List<WebElement> getAvailableCountries() {
-//        Select select = new Select(country);
-//        return select.getOptions()
-//                .stream()
-//                .filter(option -> !option.getText().equals("Your country *"))
-//                .toList();
-//    }
-//
-//    public String chooseRandomCountry(List<WebElement> dropdownOptions) {
-//        Random random = new Random();
-//        int randomIndex = random.nextInt(dropdownOptions.size());
-//        WebElement selectedOption = dropdownOptions.get(randomIndex);
-//        new Select(country).selectByVisibleText(selectedOption.getText());
-//        return selectedOption.getText();
-//    }
 
     public String getValidationErrorForField(String fieldKey) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -256,11 +243,12 @@ public class RegistrationPage {
     private By errorLocatorForField(String fieldKey) {
         return By.cssSelector("div[data-test='" + fieldKey + "-error']");
     }
+
     private By inputLocator(String fieldKey) {
         return By.cssSelector("input[data-test='" + fieldKey + "']");
     }
 
-    public void clearInputField (String fieldKey) {
+    public void clearInputField(String fieldKey) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         WebElement field = wait.until(ExpectedConditions.visibilityOfElementLocated(inputLocator(fieldKey)));
         field.clear();
