@@ -240,7 +240,6 @@ public class ProfilePage {
     }
 
     public ProfilePage changePassword(String currentPassword, String validNewPassword) {
-        validNewPassword = TestData.validPassword();
         return setCurrentPassword(currentPassword)
                 .setNewPassword(validNewPassword)
                 .confirmNewPassword(validNewPassword)
