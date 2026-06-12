@@ -9,6 +9,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.example.tools.utils.TestData;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
@@ -30,7 +31,7 @@ public class CheckoutNameAddressPage {
     @FindBy(id = "email")
     private WebElement email;
 
-    @FindBy(id = "address")
+    @FindBy(id = "street")
     private WebElement address;
 
     @FindBy(id = "city")
@@ -42,8 +43,11 @@ public class CheckoutNameAddressPage {
     @FindBy(id = "country")
     private WebElement country;
 
-    @FindBy(id = "postcode")
+    @FindBy(id = "postal_code")
     private WebElement postcode;
+
+    @FindBy(id = "house_number")
+    private WebElement houseNumber;
 
     @FindBy(xpath = "//button[@data-test=\"proceed-3\"]")
     private WebElement proceedToCheckoutBtn;
@@ -55,7 +59,7 @@ public class CheckoutNameAddressPage {
 
     public void waitUntilPageIsLoaded() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("address")));//was first name-> because of billing address PO
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("street")));
     }
 
     public void enterFirstName() {
@@ -71,23 +75,52 @@ public class CheckoutNameAddressPage {
     }
 
     public void enterAddress() {
+        address.clear();
         address.sendKeys(TestData.validAddress());
     }
 
     public void enterCity() {
+        city.clear();
         city.sendKeys(TestData.validCity());
     }
 
     public void enterState() {
+        state.clear();
         state.sendKeys(TestData.validState());
     }
 
     public void enterCountry() {
-        country.sendKeys(TestData.validCountry());
+        new Select(country).selectByValue(TestData.validCountry());
     }
 
     public void enterPostCode() {
+        postcode.clear();
         postcode.sendKeys(TestData.validPostCode());
+    }
+
+    public void enterHouseNumber() {
+        houseNumber.clear();
+        houseNumber.sendKeys(TestData.validHouseNumber());
+    }
+
+    public void fillAddressViaPostcodeLookup() {
+        address.clear();
+        city.clear();
+        state.clear();
+
+        new Select(country).selectByValue("US");
+        postcode.clear();
+        postcode.sendKeys("12345");
+        houseNumber.clear();
+        houseNumber.sendKeys("42");
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(d -> {
+            String streetValue = address.getAttribute("value");
+            String cityValue = city.getAttribute("value");
+            return streetValue != null && !streetValue.isBlank()
+                    && cityValue != null && !cityValue.isBlank();
+        });
     }
 
     public CheckoutPaymentPage clickProceedToCheckoutButton() {
