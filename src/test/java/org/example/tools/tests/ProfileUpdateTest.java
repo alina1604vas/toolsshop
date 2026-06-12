@@ -41,6 +41,7 @@ public class ProfileUpdateTest {
         assertTrue(registrationPage.isRegistrationSuccessful(), "Customer was not registered");
         loginPage = new LoginPage(driver);
         loginPage.openLogin();
+        assertTrue(loginPage.isLoginPageOpened());
         AccountPage accountPage = loginPage.logIn(customer.getEmail(), customer.getPassword());
         assertTrue(accountPage.isPageLoaded(), "Login failed — account page not loaded");
         profilePage = new ProfilePage(driver).openProfilePage();
@@ -48,12 +49,13 @@ public class ProfileUpdateTest {
 
     }
 
-        @AfterEach
+    @AfterEach
     void tearDown() {
         loginPage = null;
         registrationPage = null;
         profilePage = null;
     }
+
     @Test
     @DisplayName("Profile Info can be successfully updated")
     public void profile_CanBeUpdated() {
@@ -71,12 +73,15 @@ public class ProfileUpdateTest {
         assertEquals(updatedCustomer.getBillingAddress().getCountry(), profilePage.getCountry());
         assertEquals("Your profile is successfully updated!", profilePage.getSuccessMsg());
     }
+
     @Test
-    @DisplayName("Password can be successfully changed")
-    public void password_CanBeUpdated () {
+    @DisplayName("Password can be successfully changed and a user can log in with a new password")
+    public void changePassword_shouldAllowLoginWithNewPassword() {
         String newPassword = TestData.validPassword();
         profilePage.changePassword(customer.getPassword(), newPassword);
         assertEquals("Your password is successfully updated!", profilePage.getSuccessMsg());
+        assertTrue(loginPage.isLoginPageOpened());
+        AccountPage accountPage = loginPage.logIn(customer.getEmail(), newPassword);
+        assertTrue(accountPage.isPageLoaded(), "Login failed — account page not loaded");
     }
-
 }
