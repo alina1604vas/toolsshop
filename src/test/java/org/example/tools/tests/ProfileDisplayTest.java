@@ -20,6 +20,7 @@ public class ProfileDisplayTest {
     void setUp() {
         loginPage = new LoginPage(driver);
         loginPage.openLogin();
+        assertTrue(loginPage.isLoginPageOpened());
         AccountPage accountPage = loginPage.logIn(creds.email(), creds.password());
         assertTrue(accountPage.isPageLoaded(), "Login failed — account page not loaded");
         profilePage = new ProfilePage(driver).openProfilePage();
