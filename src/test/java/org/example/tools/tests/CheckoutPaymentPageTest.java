@@ -36,8 +36,6 @@ public class CheckoutPaymentPageTest extends BaseTest {
         checkoutCartPage.clickProceedToCheckout();
 
         CustomerLogin customerLogin = new CustomerLogin(driver);
-        customerLogin.openCustomerLogin();
-        //customerLogin.isCustomerLoginLoaded();
         SuccessCustomerLogin successCustomerLogin;
         if (customerLogin.isCustomerLoginLoaded()) {
             successCustomerLogin = customerLogin.logIn(
@@ -53,13 +51,7 @@ public class CheckoutPaymentPageTest extends BaseTest {
 
         nameAddressPage = new CheckoutNameAddressPage(driver);
         nameAddressPage.waitUntilPageIsLoaded();
-       // nameAddressPage.enterFirstName();
-        //nameAddressPage.enterLastName();
-        //nameAddressPage.enterEmail();nameAddressPage.enterAddress();
-        nameAddressPage.enterCity();
-        nameAddressPage.enterState();
-        nameAddressPage.enterCountry();
-        nameAddressPage.enterPostCode();
+        nameAddressPage.fillAddressViaPostcodeLookup();
         nameAddressPage.clickProceedToCheckoutButton();
 
         paymentPage = new CheckoutPaymentPage(driver);
@@ -79,8 +71,7 @@ public class CheckoutPaymentPageTest extends BaseTest {
     @DisplayName("Verify successful payment and order confirmation")
     void testPaymentConfirmation(String paymentMethod) {
         paymentPage.setPaymentMethodDropdown(paymentMethod);
-        paymentPage.enterValidAccountName();
-        paymentPage.enterValidAccountNumber();
+        paymentPage.fillPaymentDetails(paymentMethod);
         paymentPage.confirmPayment();
         paymentPage.waitConfirmationMesg();
 
@@ -92,7 +83,10 @@ public class CheckoutPaymentPageTest extends BaseTest {
 
         paymentPage.confirmOrder();
 
-        assertTrue(orderConfirmationPage.isOrderConfirmationLoaded(), "Order Confirmation page is not loaded");
+        boolean confirmationLoaded = orderConfirmationPage.isOrderConfirmationLoaded();
+        assertTrue(confirmationLoaded,
+                "Order Confirmation page is not loaded. Payment error on page: '"
+                        + paymentPage.getPaymentErrorMessage() + "'");
 
         String actualMsg = orderConfirmationPage.getOrderConfirmationMsg();
         assertTrue(actualMsg.contains("Thanks for your order! Your invoice number is"),

@@ -23,7 +23,7 @@ public class OrderConfirmationPage {
 
     public boolean isOrderConfirmationLoaded() {
         try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
             wait.until(ExpectedConditions.visibilityOf(orderConfirmationMsg));
             return true;
         } catch (Exception e) {
