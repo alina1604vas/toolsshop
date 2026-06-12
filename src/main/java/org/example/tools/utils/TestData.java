@@ -22,7 +22,7 @@ public class TestData {
     }
 
     public static String validAddress() {
-        return faker.address().fullAddress();
+        return faker.address().streetAddress();
     }
 
     public static String validCity() {
@@ -39,6 +39,10 @@ public class TestData {
 
     public static String validPostCode() {
         return faker.address().postcode();
+    }
+
+    public static String validHouseNumber() {
+        return faker.address().buildingNumber();
     }
 
     public static String validAccountName() {
