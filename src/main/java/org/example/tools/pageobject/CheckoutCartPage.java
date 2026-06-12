@@ -41,7 +41,7 @@ public class CheckoutCartPage {
 
         waitForCart(productsExist -> {
             if (!productsExist) {
-                return; // cart empty, leave list as empty
+                return;
             }
 
             By tableLocator = By.cssSelector(".table");
@@ -76,44 +76,6 @@ public class CheckoutCartPage {
         });
 
         return uiProducts;
-//        waitForCart(
-//                msg -> {
-//                    By tableLocator = By.cssSelector(".table");
-////        By rowsLocator = By.xpath("//tr[.//span[@data-test='product-title']]");
-//                    By rowsLocator = By.cssSelector(".table tbody tr");
-//
-//                    // TODO check if table will show to user. Wait for table if so
-//                    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-//                    wait.until(ExpectedConditions.visibilityOfElementLocated(tableLocator));
-//                    wait.until(ExpectedConditions.visibilityOfElementLocated(rowsLocator));
-//
-//                    List<WebElement> rows = driver.findElements(rowsLocator);
-//                    List<UiCartElement> uiProducts = new ArrayList<>();
-//                    for (WebElement row : rows) {
-//                        String title = normalizeProductName(row.findElement(By.cssSelector(".product-title")).getText());
-//                        String price = row.findElement(By.xpath(".//span[@data-test='product-price']"))
-//                                .getText()
-//                                .replace("$", "")
-//                                .trim();
-//                        int qty = Integer.parseInt(
-//                                row.findElement(By.xpath(".//input[@data-test='product-quantity']"))
-//                                        .getAttribute("value"));
-//                        double subtotal = Double.parseDouble(
-//                                row.findElement(By.cssSelector("span[data-test='line-price']"))
-//                                        .getText()
-//                                        .replace("$", "")
-//                                        .trim());
-//
-//                        // TODO: refactor avoid static functions
-//                        UiProduct uiProduct = withPrice(title, price);
-//                        UiCartElement cartElement = new UiCartElement(uiProduct, qty, subtotal);
-//                        uiProducts.add(cartElement);
-//                    }
-//
-//                }
-//        );
-//
-//        return null;
     }
 
     private static String normalizeProductName(String name) {
@@ -153,7 +115,9 @@ public class CheckoutCartPage {
     }
 
     public void clearCartIfNeeded() {
-        waitForCart(areProductsPresent -> { if (areProductsPresent) clearCart(); } );
+        waitForCart(areProductsPresent -> {
+            if (areProductsPresent) clearCart();
+        });
     }
 
     public void clearCart() {
