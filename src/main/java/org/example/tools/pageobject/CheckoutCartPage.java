@@ -117,7 +117,15 @@ public class CheckoutCartPage {
     }
 
     private static String normalizeProductName(String name) {
-        return name == null ? null : name.replace('\u00A0', ' ').trim();
+        if (name == null) {
+            return null;
+        }
+        String normalized = name.replace('\u00A0', ' ');
+        int newlineIndex = normalized.indexOf('\n');
+        if (newlineIndex != -1) {
+            normalized = normalized.substring(0, newlineIndex);
+        }
+        return normalized.trim();
     }
 
     public double getCartTotal() {
@@ -131,12 +139,17 @@ public class CheckoutCartPage {
     }
 
     public void deleteCartProduct(UiCartElement element) {
-        String productName = element.getProduct().getName().trim();
-        WebElement deleteButton = driver.findElement(By.xpath(
-                "//tr[.//span[contains(@class,'product-title') and contains(normalize-space(), '" + productName + "')]]" +
-                        "//a[contains(@class,'btn-danger')]"
-        ));
-        deleteButton.click();
+        String productName = normalizeProductName(element.getProduct().getName());
+        List<WebElement> rows = driver.findElements(By.cssSelector(".table tbody tr"));
+        for (WebElement row : rows) {
+            String title = normalizeProductName(
+                    row.findElement(By.cssSelector(".product-title")).getText());
+            if (title.equals(productName)) {
+                row.findElement(By.cssSelector("a.btn-danger")).click();
+                return;
+            }
+        }
+        throw new NoSuchElementException("No cart row found for product: " + productName);
     }
 
     public void clearCartIfNeeded() {
