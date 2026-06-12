@@ -29,12 +29,10 @@ public class CheckoutNameAddressTest extends BaseTest {
         paymentPage = new CheckoutPaymentPage(driver);
         nameAddressPage = new CheckoutNameAddressPage(driver);
 
-        checkoutHelper.addRandomProductToCart(10);     // max qty 10 (same as before)
+        checkoutHelper.addRandomProductToCart(10);
         checkoutHelper.openCart().clickProceedToCheckout();
 
         customerLogin = new CustomerLogin(driver);
-        customerLogin.openCustomerLogin();
-        customerLogin.isCustomerLoginLoaded();
 
         successCustomerLogin = customerLogin.logIn(
                 TestData.realUserCreds.email(),
@@ -49,11 +47,7 @@ public class CheckoutNameAddressTest extends BaseTest {
     @Tag("sprint3")
     @DisplayName("Verify when a form is filled with valid data, customer can proceed to checkout")
     public void testNameAddressFormSubmission() {
-        nameAddressPage.enterAddress();
-        nameAddressPage.enterCity();
-        nameAddressPage.enterState();
-        nameAddressPage.enterCountry();
-        nameAddressPage.enterPostCode();
+        nameAddressPage.fillAddressViaPostcodeLookup();
         nameAddressPage.clickProceedToCheckoutButton();
 
         assertTrue(paymentPage.isLoaded(), "Payment page has not been loaded");
