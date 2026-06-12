@@ -431,16 +431,20 @@ public class HomePage {
     }
     public void goToPage(int pageIndex) {
         if (pageIndex <= 0) {
-            return; // already on first page (e.g. after open())
+            return;
         }
         int numberOfPages = getNumberOfPages();
         By pageLinksBy = By.cssSelector(".page-item > .page-link[aria-label^='Page-']");
         List<WebElement> pageLinks = driver.findElements(pageLinksBy);
         if (pageIndex < numberOfPages) {
+            By productsBy = By.xpath("//a[contains(@class,'card') and starts-with(@data-test,'product-')]");
+            WebElement oldFirstCard = driver.findElement(productsBy);
+
             pageLinks.get(pageIndex).click();
-            String productsXpath = "//a[contains(@class,'card') and starts-with(@data-test,'product-')]";
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(productsXpath)));
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.stalenessOf(oldFirstCard));
+            wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(productsBy));
         }
     }
 }
