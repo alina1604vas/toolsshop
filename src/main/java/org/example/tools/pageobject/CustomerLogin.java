@@ -28,6 +28,7 @@ public class CustomerLogin implements LoginScreen {
 
     public CustomerLogin(WebDriver driver) {
         this.driver = driver;
+        PageFactory.initElements(driver, this);
     }
 
     public CustomerLogin openCustomerLogin() {
@@ -44,10 +45,11 @@ public class CustomerLogin implements LoginScreen {
         } catch (Exception e) {
             return false;
         }
-        //p[text()='Hello Jane Doe, you are already logged in. You can proceed to checkout.']")));
     }
 
     public SuccessCustomerLogin logIn(String email, String password) {
+        new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(ExpectedConditions.visibilityOf(emailInput));
         emailInput.clear();
         emailInput.sendKeys(email);
         passwordInput.clear();
