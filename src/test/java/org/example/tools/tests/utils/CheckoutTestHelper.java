@@ -20,6 +20,8 @@ import java.util.Random;
 
 public class CheckoutTestHelper {
 
+    private static final String SINGLE_ITEM_PRODUCT = "Thor Hammer";
+
     private final WebDriver driver;
     private final HomePage homePage;
     private final ProductPage productPage;
@@ -40,14 +42,13 @@ public class CheckoutTestHelper {
         homePage.openRandomProduct();
         productPage.waitUntilPageIsLoaded();
 
-        int quantity = random.nextInt(maxQuantity) + 1;
-        productPage.setButtonIncreaseQuantity(quantity);
-
         String name = normalizeProductName(productPage.getName());
         String price = productPage.getPrice().replace("$", "").trim();
 
+        int quantity = chooseQuantity(name, maxQuantity);
+        productPage.setButtonIncreaseQuantity(quantity);
+
         productPage.clickAddToCart();
-        // TODO: add delay to wait for result
         productPage.waitForAddToCartToast();
 
         UiProduct uiProduct = UiProduct.withPrice(name, price);
@@ -101,6 +102,9 @@ public class CheckoutTestHelper {
         } else {
             UiCartElement existing = items.get(existingIndex);
             int mergedQty = existing.getQuantity() + newElement.getQuantity();
+            if (SINGLE_ITEM_PRODUCT.equals(existing.getProduct().getName())) {
+                mergedQty = 1;
+            }
 
             double unitPrice = Double.parseDouble(existing.getProduct().getPrice().replace("$", "").trim());
             double mergedSubtotal = roundToTwoDecimals(unitPrice * mergedQty);
@@ -111,12 +115,27 @@ public class CheckoutTestHelper {
         }
     }
 
+    private int chooseQuantity(String productName, int maxQuantity) {
+        if (SINGLE_ITEM_PRODUCT.equals(productName)) {
+            return 1;
+        }
+        return random.nextInt(maxQuantity) + 1;
+    }
+
     private static double roundToTwoDecimals(double value) {
         return Math.round(value * 100.0) / 100.0;
     }
 
     private static String normalizeProductName(String name) {
-        return name == null ? null : name.replace('\u00A0', ' ').trim();
+        if (name == null) {
+            return null;
+        }
+        String normalized = name.replace('\u00A0', ' ');
+        int newlineIndex = normalized.indexOf('\n');
+        if (newlineIndex != -1) {
+            normalized = normalized.substring(0, newlineIndex);
+        }
+        return normalized.trim();
     }
 
     public CheckoutCartPage openCart() {
@@ -212,11 +231,12 @@ public class CheckoutTestHelper {
             homePage.waitUntilPageIsLoaded();
             homePage.openRandomProduct();
             productPage.waitUntilPageIsLoaded();
-            int quantity = random.nextInt(maxQuantity) + 1;
-            productPage.setButtonIncreaseQuantity(quantity);
 
             String name = normalizeProductName(productPage.getName());
             String price = productPage.getPrice().replace("$", "").trim();
+
+            int quantity = chooseQuantity(name, maxQuantity);
+            productPage.setButtonIncreaseQuantity(quantity);
 
             UiProduct uiProduct = UiProduct.withPrice(name, price);
             double unitPrice = Double.parseDouble(price);
