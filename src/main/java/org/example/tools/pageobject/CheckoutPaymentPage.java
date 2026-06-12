@@ -47,11 +47,9 @@ public class CheckoutPaymentPage {
     @FindBy(id = "card_holder_name")
     private WebElement cardHolderName;
 
-    // Buy Now Pay Later field
     @FindBy(id = "monthly_installments")
     private WebElement monthlyInstallments;
 
-    // Gift Card fields
     @FindBy(id = "gift_card_number")
     private WebElement giftCardNumber;
 
@@ -61,7 +59,6 @@ public class CheckoutPaymentPage {
     @FindBy(xpath = "//button[@data-test=\"finish\"]")
     private WebElement confirmButton;
 
-    // Scoped to the success message; errors render in a .help-block too.
     @FindBy(css = "[data-test='payment-success-message']")
     private WebElement paymentConfirmation;
 

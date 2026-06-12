@@ -46,7 +46,6 @@ public class CheckoutPaymentPageTest extends BaseTest {
         } else {
             successCustomerLogin = new SuccessCustomerLogin(driver);
         }
-        //successCustomerLogin.isSuccessCustomerLoginLoaded();
         successCustomerLogin.clickProceedToCheckout();
 
         nameAddressPage = new CheckoutNameAddressPage(driver);
