@@ -3,6 +3,7 @@ package org.example.tools.pageobject;
 import org.example.tools.SystemConfig;
 import org.example.tools.utils.LoginScreen;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -50,6 +51,15 @@ public class LoginPage implements LoginScreen {
         return this;
     }
 
+    public boolean isLoginPageOpened() {
+        try {
+            new WebDriverWait(driver, Duration.ofSeconds(10))
+                    .until(ExpectedConditions.urlContains("auth/login"));
+            return true;
+        } catch (TimeoutException e) {
+            return false;
+        }
+    }
     public AccountPage logIn(String email, String password) {
         emailInput.sendKeys(email);
         passwordInput.sendKeys(password);
