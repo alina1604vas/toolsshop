@@ -13,6 +13,9 @@ import java.util.function.Consumer;
 
 public class ChromeResponseListener {
 
+    private static final int MAX_BODY_READ_ATTEMPTS = 6;
+    private static final long BODY_READ_RETRY_DELAY_MS = 100;
+
     private final DevTools devTools;
     private final Map<String, ObserverData<?>> observers = new LinkedHashMap<>();
 
@@ -27,27 +30,53 @@ public class ChromeResponseListener {
                 Optional.empty(),
                 Optional.empty())
         );
+        devTools.send(Network.setCacheDisabled(true));
 
         devTools.addListener(Network.responseReceived(), responseReceived -> {
             Response response = responseReceived.getResponse();
-            if (response.getMimeType().contains("application/json") && response.getStatus() == HttpURLConnection.HTTP_OK) {
-                String url = response.getUrl();
+            String url = response.getUrl();
 
+            if (response.getMimeType().contains("application/json") && response.getStatus() == HttpURLConnection.HTTP_OK) {
                 for (Map.Entry<String, ObserverData<?>> entry : observers.entrySet()) {
                     String pattern = entry.getKey();
                     ObserverData<?> observerData = entry.getValue();
 
                     if (url.matches(pattern)) {
                         RequestId requestId = responseReceived.getRequestId();
-                        Network.GetResponseBodyResponse bodyResponse = devTools.send(Network.getResponseBody(requestId));
-                        String body = bodyResponse.getBody();
-
-                        Object parsed = new Gson().fromJson(body, observerData.type);
-                        observerData.call(parsed);
+                        // responseReceived only guarantees headers have arrived; the body
+                        // may not be fully buffered yet (more likely for larger payloads),
+                        // so retry a few times with a short delay instead of failing once.
+                        String body = readResponseBodyWithRetry(requestId, url);
+                        if (body != null) {
+                            Object parsed = new Gson().fromJson(body, observerData.type);
+                            observerData.call(parsed);
+                        }
                     }
                 }
             }
         });
+    }
+
+    private String readResponseBodyWithRetry(RequestId requestId, String url) {
+        for (int attempt = 1; attempt <= MAX_BODY_READ_ATTEMPTS; attempt++) {
+            try {
+                Network.GetResponseBodyResponse bodyResponse = devTools.send(Network.getResponseBody(requestId));
+                return bodyResponse.getBody();
+            } catch (Exception e) {
+                if (attempt == MAX_BODY_READ_ATTEMPTS) {
+                    System.err.println("[ChromeResponseListener] Failed to read response body for " + url
+                            + " after " + attempt + " attempts: " + e);
+                    return null;
+                }
+                try {
+                    Thread.sleep(BODY_READ_RETRY_DELAY_MS);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    return null;
+                }
+            }
+        }
+        return null;
     }
 
     public <T> void addObserver(String endpointPattern, Type type, Consumer<T> onResponse) {
