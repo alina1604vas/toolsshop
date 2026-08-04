@@ -1,6 +1,7 @@
 package org.example.tools.pageobject;
 
 import org.example.tools.SystemConfig;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -31,8 +32,8 @@ public class AccountPage {
     public boolean isPageLoaded() {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            wait.until(ExpectedConditions.urlContains("/account")); // wait for redirect
-            return wait.until(ExpectedConditions.visibilityOf(accountHeader)).isDisplayed();
+            wait.until(ExpectedConditions.urlContains("/account"));
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h1[@data-test='page-title']"))).isDisplayed();
         } catch (Exception e) {
             return false;
         }
