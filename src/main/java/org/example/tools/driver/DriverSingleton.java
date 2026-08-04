@@ -1,6 +1,5 @@
 package org.example.tools.driver;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -18,10 +17,9 @@ public class DriverSingleton {
         }
         return driver;
     }
-
     public static void initDriver() {
-        WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
+        options.setBrowserVersion("143");
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
     }

@@ -52,8 +52,6 @@ allure {
 }
 
 dependencies {
-    implementation("io.github.bonigarcia:webdrivermanager:6.3.3")
-
     implementation('org.slf4j:slf4j-simple:2.0.16')
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'net.datafaker:datafaker:2.4.3'
