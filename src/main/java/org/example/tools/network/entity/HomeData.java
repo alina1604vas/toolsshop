@@ -4,9 +4,9 @@ import java.util.List;
 
 public class HomeData {
 
-    private List<Category> categories;
-    private List<Brand> brands;
-    private ProductsPerPage productsPerPage;
+    private volatile List<Category> categories;
+    private volatile List<Brand> brands;
+    private volatile ProductsPerPage productsPerPage;
 
     public List<Category> getCategories() {
         return categories;
