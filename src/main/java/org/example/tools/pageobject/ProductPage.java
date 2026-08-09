@@ -163,15 +163,16 @@ public class ProductPage {
 
     public String getShoppingSuccessMessage() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        WebElement toast = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(text(), 'Product added to shopping cart')]")));
+        WebElement toast = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(text(), 'Product added to shopping cart.')]")));
         String message = toast.getText();
         return message;
     }
 
     public void clickShoppingCartIcon() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        WebElement cart = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@class='nav-link' and @href='#/checkout']")));
+        WebElement cart = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@data-icon='cart-shopping']")));
         cart.click();
+        wait.until(ExpectedConditions.urlContains("checkout"));
     }
 
     public int getItemsQtyInCart() {
