@@ -340,36 +340,49 @@ public class HomePage {
     public UiProduct openRandomProduct() {
         String productsXpath = "//a[contains(@class,'card') and starts-with(@data-test,'product-')]";
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.xpath(productsXpath)));
+        Random random = new Random();
 
-        List<WebElement> visibleProducts = driver.findElements(By.xpath(productsXpath));
-        List<WebElement> availableProducts = visibleProducts.stream()
-                .filter(productElement ->
-                        productElement.findElements(By.xpath(".//span[@data-test='out-of-stock']"))
-                                .isEmpty())
-                .toList();
+        int maxAttempts = 5;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.xpath(productsXpath)));
 
-        if (availableProducts.isEmpty()) {
-            throw new NoSuchElementException("There are no in stock products");
+            List<WebElement> visibleProducts = driver.findElements(By.xpath(productsXpath));
+            List<WebElement> availableProducts = visibleProducts.stream()
+                    .filter(productElement ->
+                            productElement.findElements(By.xpath(".//span[@data-test='out-of-stock']"))
+                                    .isEmpty())
+                    .toList();
+
+            if (availableProducts.isEmpty()) {
+                throw new NoSuchElementException("There are no in stock products");
+            }
+
+            int randomIndex = random.nextInt(availableProducts.size());
+            WebElement randomElement = availableProducts.get(randomIndex);
+
+            String image = randomElement.findElement(By.cssSelector("img.card-img-top"))
+                    .getAttribute("src");
+            String name = randomElement.findElement(By.cssSelector("[data-test='product-name']"))
+                    .getText();
+            String price = randomElement.findElement(By.cssSelector("[data-test='product-price']"))
+                    .getText()
+                    .replaceAll("[^0-9.,]", "");
+
+            UiProduct randomUIProduct = new UiProduct(name, image, price);
+
+            randomElement.click();
+
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("description")));
+            boolean outOfStockOnDetailPage = !driver.findElements(By.xpath("//*[contains(text(), 'Out of stock')]")).isEmpty();
+
+            if (!outOfStockOnDetailPage) {
+                return randomUIProduct;
+            }
+
+            driver.navigate().back();
         }
 
-        Random random = new Random();
-        int randomIndex = random.nextInt(availableProducts.size());
-        WebElement randomElement = availableProducts.get(randomIndex);
-
-        String image = randomElement.findElement(By.cssSelector("img.card-img-top"))
-                .getAttribute("src");
-        String name = randomElement.findElement(By.cssSelector("[data-test='product-name']"))
-                .getText();
-        String price = randomElement.findElement(By.cssSelector("[data-test='product-price']"))
-                .getText()
-                .replaceAll("[^0-9.,]", "");
-
-        UiProduct randomUIProduct = new UiProduct(name, image, price);
-
-        randomElement.click();
-
-        return randomUIProduct;
+        throw new NoSuchElementException("Could not find an in-stock product after " + maxAttempts + " attempts");
     }
 
     public int getNumberOfPages() {
