@@ -11,22 +11,23 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledForSprint(3)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ProductPageTest extends BaseTest {
 
     private HomePage homePage = new HomePage(driver);
     private ProductPage productPage = new ProductPage(driver);
 
-    private Product expectedProduct = null;
+    private volatile Product expectedProduct = null;
     private List<Product> expectedRelatedProducts = null;
 
-    @BeforeAll
+    @BeforeEach
     public void setUpProductPage() {
         synchronized (this) {
 
@@ -49,12 +50,17 @@ public class ProductPageTest extends BaseTest {
         homePage.open();
     }
 
-    @AfterAll
+    @AfterEach
     public void cleanUp() {
         responseListener.removeObserver(Endpoints.GET_PRODUCT);
         responseListener.removeObserver(Endpoints.GET_PRODUCT_RELATED);
         homePage = null;
         productPage = null;
+    }
+
+    private void waitForExpectedProduct() {
+        new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(d -> expectedProduct != null);
     }
 
     @Test
@@ -82,9 +88,11 @@ public class ProductPageTest extends BaseTest {
     @Tag("sprint3")
     @DisplayName("Check Product description")
     public void testProductDescription() {
+        expectedProduct = null;
         homePage.openRandomProduct();
 
         productPage.waitUntilPageIsLoaded();
+        waitForExpectedProduct();
 
         String actualDescription = productPage.getDescription();
         String expectedDescription = expectedProduct.getDescription();
@@ -109,9 +117,11 @@ public class ProductPageTest extends BaseTest {
     @Tag("sprint3")
     @DisplayName("Check brand labels of a product")
     public void testProductBrandLabel() {
+        expectedProduct = null;
         homePage.openRandomProduct();
 
         productPage.waitUntilPageIsLoaded();
+        waitForExpectedProduct();
 
         String expectedBrandLabel = expectedProduct.getBrand().getBrandName();
         String actualBrandLabel = productPage.getProductBrandLabel();
