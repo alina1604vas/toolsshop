@@ -8,24 +8,22 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @EnabledForSprint(3)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class HeaderTest extends BaseTest {
 
     private Header header;
     private HomePage homePage;
 
-    @BeforeAll
+    @BeforeEach
     public void setUpHeader() {
         homePage = new HomePage(driver);
         homePage.open();
         header = new Header(driver);
-
-        // TODO: open home before -done
     }
 
-    @AfterAll
+    @AfterEach
     public void cleanUp() {
         header = null;
+        homePage = null;
     }
 
     @Test
