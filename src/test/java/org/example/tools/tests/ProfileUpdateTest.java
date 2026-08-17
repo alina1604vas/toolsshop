@@ -11,17 +11,17 @@ import org.example.tools.utils.UserFactory;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.JavascriptExecutor;
 
-import static org.example.tools.tests.BaseTest.driver;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-public class ProfileUpdateTest {
-    LoginPage loginPage;
-    RegistrationPage registrationPage;
-    Customer customer;
-    UserFactory userFactory;
-    ProfilePage profilePage;
+public class ProfileUpdateTest extends BaseTest {
+
+    private LoginPage loginPage;
+    private RegistrationPage registrationPage;
+    private Customer customer;
+    private UserFactory userFactory;
+    private ProfilePage profilePage;
 
     @BeforeEach
     void setUp() {

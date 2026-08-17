@@ -6,15 +6,15 @@ import org.example.tools.pageobject.ProfilePage;
 import org.example.tools.utils.Credentials;
 import org.junit.jupiter.api.*;
 
-import static org.example.tools.tests.BaseTest.driver;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-public class ProfileDisplayTest {
-    LoginPage loginPage;
-    ProfilePage profilePage;
-    Credentials creds = new Credentials();
+public class ProfileDisplayTest extends BaseTest {
+
+    private LoginPage loginPage;
+    private ProfilePage profilePage;
+    private Credentials creds = new Credentials();
 
     @BeforeEach
     void setUp() {
