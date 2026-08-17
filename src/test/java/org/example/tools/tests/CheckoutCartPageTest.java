@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class CheckoutCartPageTest extends BaseTest {
 
-    private static CheckoutTestHelper checkoutHelper;
+    private CheckoutTestHelper checkoutHelper;
 
-    @BeforeAll
-    public static void setUp() {
+    @BeforeEach
+    public void setUp() {
         checkoutHelper = new CheckoutTestHelper(driver);
     }
 
