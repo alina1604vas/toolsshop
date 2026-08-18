@@ -29,7 +29,6 @@ public class DriverProvider {
 
     private static WebDriver createDriver() {
         ChromeOptions options = new ChromeOptions();
-        options.setBrowserVersion("143");
 
         boolean ci = isRunningInCi();
         if (ci) {
