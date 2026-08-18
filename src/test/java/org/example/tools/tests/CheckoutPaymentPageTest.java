@@ -1,6 +1,5 @@
 package org.example.tools.tests;
 
-import org.example.tools.infra.EnabledForSprint;
 import org.example.tools.pageobject.*;
 import org.example.tools.tests.utils.CheckoutTestHelper;
 import org.example.tools.utils.TestData;
@@ -13,21 +12,18 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@EnabledForSprint(4)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class CheckoutPaymentPageTest extends BaseTest {
-    private static CheckoutTestHelper checkoutHelper;
+
+    private CheckoutTestHelper checkoutHelper;
 
     private CheckoutNameAddressPage nameAddressPage;
     private CheckoutPaymentPage paymentPage;
     private OrderConfirmationPage orderConfirmationPage;
 
-    @BeforeAll
-    static void setUpAll() {
-        checkoutHelper = new CheckoutTestHelper(driver);
-    }
     @BeforeEach
     void setUpEach() {
+        checkoutHelper = new CheckoutTestHelper(driver);
         driver.manage().deleteAllCookies();
 
         checkoutHelper.addRandomProductToCart(10);
