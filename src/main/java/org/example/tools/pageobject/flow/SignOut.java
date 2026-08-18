@@ -6,7 +6,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 
 public class SignOut {
-    private final String url = SystemConfig.getBaseUrl() + "/auth/login";
+    private final String url = SystemConfig.getBaseUrl() + "auth/login";
     private WebDriver driver;
 
 
