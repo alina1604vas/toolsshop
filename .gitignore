@@ -39,3 +39,6 @@ bin/
 .DS_Store
 .env
 credentials.properties
+### Local test/dev artifacts ###
+target/
+_to_delete/
