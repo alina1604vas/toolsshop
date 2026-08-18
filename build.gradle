@@ -17,22 +17,8 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-def sprintUrls = [
-        1: project.findProperty("SPRINT_URL_1"),
-        2: project.findProperty("SPRINT_URL_2"),
-        3: project.findProperty("SPRINT_URL_3"),
-        4: project.findProperty("SPRINT_URL_4"),
-        5: project.findProperty("SPRINT_URL_5")
-]
-
-def selectedSprint = project.findProperty("SELECTED_SPRINT")?.toString()?.toInteger() ?: 1
-def baseUrl = sprintUrls.get(selectedSprint) ?: sprintUrls.get(1)
-
 test {
     useJUnitPlatform()
-
-    systemProperty "selectedSprint", selectedSprint
-    systemProperty "baseUrl", baseUrl
 }
 
 sourceSets {
