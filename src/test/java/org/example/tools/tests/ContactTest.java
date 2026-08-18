@@ -1,6 +1,5 @@
 package org.example.tools.tests;
 
-import org.example.tools.infra.EnabledForSprint;
 import org.example.tools.pageobject.ContactPage;
 import org.junit.jupiter.api.*;
 
@@ -8,23 +7,16 @@ import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnabledForSprint(4)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ContactTest extends BaseTest {
 
     private ContactPage contactPage;
 
-    @BeforeAll
-    public void setContactPage() {
+    @BeforeEach
+    public void setUpContactPage() {
         contactPage = new ContactPage(driver).open();
     }
 
     @AfterEach
-    public void refresh() {
-        contactPage.refresh();
-    }
-
-    @AfterAll
     public void cleanUp() {
         contactPage = null;
     }
