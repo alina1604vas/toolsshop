@@ -1,7 +1,6 @@
 package org.example.tools.tests;
 
 import com.google.gson.reflect.TypeToken;
-import org.example.tools.infra.EnabledForSprint;
 import org.example.tools.network.api.Endpoints;
 import org.example.tools.network.entity.Product;
 import org.example.tools.pageobject.HomePage;
@@ -18,11 +17,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnabledForSprint(3)
 public class ProductPageTest extends BaseTest {
 
-    private HomePage homePage = new HomePage(driver);
-    private ProductPage productPage = new ProductPage(driver);
+    private HomePage homePage;
+    private ProductPage productPage;
 
     private volatile Product expectedProduct = null;
     private List<Product> expectedRelatedProducts = null;
@@ -43,6 +41,7 @@ public class ProductPageTest extends BaseTest {
         }
 
         homePage = new HomePage(driver).open();
+        productPage = new ProductPage(driver);
     }
 
     @AfterEach
@@ -61,6 +60,11 @@ public class ProductPageTest extends BaseTest {
     private void waitForExpectedProduct() {
         new WebDriverWait(driver, Duration.ofSeconds(10))
                 .until(d -> expectedProduct != null);
+    }
+
+    private void waitForExpectedRelatedProducts() {
+        new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(d -> expectedRelatedProducts != null);
     }
 
     @Test
@@ -103,9 +107,11 @@ public class ProductPageTest extends BaseTest {
     @Tag("sprint3")
     @DisplayName("Check product category labels")
     public void testProductCategoryLabel() {
+        expectedProduct = null;
         homePage.openRandomProduct();
 
         productPage.waitUntilPageIsLoaded();
+        waitForExpectedProduct();
 
         String expectedCategoryLabel = expectedProduct.getCategory().getName();
         String actualCategoryLabel = productPage.getProductCategoryLabel();
@@ -133,9 +139,11 @@ public class ProductPageTest extends BaseTest {
     @Tag("sprint3")
     @DisplayName("Check related products")
     public void testRelatedProducts() {
+        expectedRelatedProducts = null;
         UiProduct uiProduct = homePage.openRandomProduct();
 
         productPage.waitUntilPageIsLoaded();
+        waitForExpectedRelatedProducts();
 
         List<UiProduct> actualRelatedProducts = productPage.getRelatedProducts();
 
