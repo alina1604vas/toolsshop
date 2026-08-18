@@ -1,13 +1,11 @@
 package org.example.tools.tests;
 
 import org.example.tools.pageobject.Header;
-import org.example.tools.infra.EnabledForSprint;
 import org.example.tools.pageobject.HomePage;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@EnabledForSprint(3)
 public class HeaderTest extends BaseTest {
 
     private Header header;
