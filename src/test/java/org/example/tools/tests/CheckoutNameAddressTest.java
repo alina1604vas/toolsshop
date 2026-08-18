@@ -1,6 +1,5 @@
 package org.example.tools.tests;
 
-import org.example.tools.infra.EnabledForSprint;
 import org.example.tools.pageobject.*;
 import org.example.tools.tests.utils.CheckoutTestHelper;
 import org.example.tools.utils.TestData;
@@ -13,7 +12,6 @@ import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@EnabledForSprint(3)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class CheckoutNameAddressTest extends BaseTest {
     private CheckoutTestHelper checkoutHelper;

@@ -2,15 +2,13 @@ package org.example.tools.tests;
 
 import net.datafaker.Faker;
 import org.example.tools.driver.DriverProvider;
-import org.example.tools.infra.SprintCondition;
 import org.example.tools.network.ChromeResponseListener;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.devtools.DevTools;
 import org.openqa.selenium.devtools.HasDevTools;
-@ExtendWith(SprintCondition.class)
+
 public abstract class BaseTest {
 
     protected WebDriver driver;

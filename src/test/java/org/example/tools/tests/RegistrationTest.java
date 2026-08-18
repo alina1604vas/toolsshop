@@ -1,6 +1,5 @@
 package org.example.tools.tests;
 
-import org.example.tools.infra.EnabledForSprint;
 import org.example.tools.pageobject.RegistrationPage;
 import org.example.tools.utils.TestData;
 import org.example.tools.utils.Customer;
@@ -12,7 +11,6 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-@EnabledForSprint(4)
 public class RegistrationTest extends BaseTest {
 
     private RegistrationPage registrationPage;

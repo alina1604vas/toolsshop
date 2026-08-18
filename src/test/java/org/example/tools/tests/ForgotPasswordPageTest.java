@@ -1,6 +1,5 @@
 package org.example.tools.tests;
 
-import org.example.tools.infra.EnabledForSprint;
 import org.example.tools.pageobject.ForgotPasswordPage;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,7 +7,6 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@EnabledForSprint(4)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class ForgotPasswordPageTest extends BaseTest {
     ForgotPasswordPage forgotPasswordPage;

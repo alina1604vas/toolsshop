@@ -1,6 +1,5 @@
 package org.example.tools.tests;
 
-import org.example.tools.infra.EnabledForSprint;
 import org.example.tools.pageobject.CheckoutCartPage;
 import org.example.tools.pageobject.entity.Cart;
 import org.example.tools.pageobject.entity.UiCartElement;
@@ -11,7 +10,6 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnabledForSprint(3)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class CheckoutCartPageTest extends BaseTest {
 

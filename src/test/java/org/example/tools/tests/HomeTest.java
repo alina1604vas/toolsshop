@@ -8,7 +8,6 @@ import org.example.tools.network.api.Endpoints;
 import org.example.tools.network.entity.*;
 import org.example.tools.pageobject.HomePage;
 import org.example.tools.pageobject.entity.UiProduct;
-import org.example.tools.infra.EnabledForSprint;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
@@ -21,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnabledForSprint(3)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class HomeTest extends BaseTest {
 
