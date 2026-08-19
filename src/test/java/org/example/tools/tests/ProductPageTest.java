@@ -1,7 +1,5 @@
 package org.example.tools.tests;
 
-import com.google.gson.reflect.TypeToken;
-import org.example.tools.network.api.Endpoints;
 import org.example.tools.network.entity.Product;
 import org.example.tools.pageobject.HomePage;
 import org.example.tools.pageobject.ProductPage;
@@ -22,24 +20,8 @@ public class ProductPageTest extends BaseTest {
     private HomePage homePage;
     private ProductPage productPage;
 
-    private volatile Product expectedProduct = null;
-    private List<Product> expectedRelatedProducts = null;
-
     @BeforeEach
     public void setUpProductPage() {
-        synchronized (this) {
-
-            responseListener.addObserver(
-                    Endpoints.GET_PRODUCT,
-                    TypeToken.get(Product.class).getType(),
-                    response -> expectedProduct = (Product) response);
-
-            responseListener.addObserver(
-                    Endpoints.GET_PRODUCT_RELATED,
-                    TypeToken.getParameterized(List.class, Product.class).getType(),
-                    response -> expectedRelatedProducts = (List<Product>) response);
-        }
-
         homePage = new HomePage(driver).open();
         productPage = new ProductPage(driver);
     }
@@ -51,20 +33,40 @@ public class ProductPageTest extends BaseTest {
 
     @AfterEach
     public void cleanUp() {
-        responseListener.removeObserver(Endpoints.GET_PRODUCT);
-        responseListener.removeObserver(Endpoints.GET_PRODUCT_RELATED);
         homePage = null;
         productPage = null;
     }
 
-    private void waitForExpectedProduct() {
-        new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(d -> expectedProduct != null);
+    private String openedProductId() {
+        String productUrl = new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(d -> {
+                    String current = d.getCurrentUrl();
+                    return current != null && current.contains("/product/") ? current : null;
+                });
+
+        String id = productUrl.substring(productUrl.indexOf("/product/") + "/product/".length());
+        int cut = id.indexOf('?');
+        if (cut >= 0) {
+            id = id.substring(0, cut);
+        }
+        cut = id.indexOf('#');
+        if (cut >= 0) {
+            id = id.substring(0, cut);
+        }
+        if (id.endsWith("/")) {
+            id = id.substring(0, id.length() - 1);
+        }
+
+        assertFalse(id.isBlank(), "Could not read a product id from URL: " + productUrl);
+        return id;
     }
 
-    private void waitForExpectedRelatedProducts() {
-        new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(d -> expectedRelatedProducts != null);
+    private Product openedProduct() {
+        return api.getProduct(openedProductId());
+    }
+
+    private List<Product> openedRelatedProducts() {
+        return api.getRelatedProducts(openedProductId());
     }
 
     @Test
@@ -92,11 +94,10 @@ public class ProductPageTest extends BaseTest {
     @Tag("sprint3")
     @DisplayName("Check Product description")
     public void testProductDescription() {
-        expectedProduct = null;
         homePage.openRandomProduct();
 
         productPage.waitUntilPageIsLoaded();
-        waitForExpectedProduct();
+        Product expectedProduct = openedProduct();
 
         String actualDescription = productPage.getDescription();
         String expectedDescription = expectedProduct.getDescription();
@@ -107,11 +108,10 @@ public class ProductPageTest extends BaseTest {
     @Tag("sprint3")
     @DisplayName("Check product category labels")
     public void testProductCategoryLabel() {
-        expectedProduct = null;
         homePage.openRandomProduct();
 
         productPage.waitUntilPageIsLoaded();
-        waitForExpectedProduct();
+        Product expectedProduct = openedProduct();
 
         String expectedCategoryLabel = expectedProduct.getCategory().getName();
         String actualCategoryLabel = productPage.getProductCategoryLabel();
@@ -123,11 +123,10 @@ public class ProductPageTest extends BaseTest {
     @Tag("sprint3")
     @DisplayName("Check brand labels of a product")
     public void testProductBrandLabel() {
-        expectedProduct = null;
         homePage.openRandomProduct();
 
         productPage.waitUntilPageIsLoaded();
-        waitForExpectedProduct();
+        Product expectedProduct = openedProduct();
 
         String expectedBrandLabel = expectedProduct.getBrand().getBrandName();
         String actualBrandLabel = productPage.getProductBrandLabel();
@@ -139,11 +138,10 @@ public class ProductPageTest extends BaseTest {
     @Tag("sprint3")
     @DisplayName("Check related products")
     public void testRelatedProducts() {
-        expectedRelatedProducts = null;
-        UiProduct uiProduct = homePage.openRandomProduct();
+        homePage.openRandomProduct();
 
         productPage.waitUntilPageIsLoaded();
-        waitForExpectedRelatedProducts();
+        List<Product> expectedRelatedProducts = openedRelatedProducts();
 
         List<UiProduct> actualRelatedProducts = productPage.getRelatedProducts();
 
