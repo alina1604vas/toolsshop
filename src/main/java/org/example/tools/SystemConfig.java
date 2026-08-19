@@ -6,4 +6,8 @@ public class SystemConfig {
         return "https://practicesoftwaretesting.com/";
     }
 
+    public static String getApiBaseUrl() {
+        return "https://api.practicesoftwaretesting.com";
+    }
+
 }

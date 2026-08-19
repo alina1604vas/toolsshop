@@ -1,10 +1,7 @@
 package org.example.tools.tests;
 
-import com.google.gson.reflect.TypeToken;
-import org.awaitility.Awaitility;
 import org.example.tools.SystemConfig;
 import org.example.tools.extensions.ScreenshotOnFailureExtension;
-import org.example.tools.network.api.Endpoints;
 import org.example.tools.network.entity.*;
 import org.example.tools.pageobject.HomePage;
 import org.example.tools.pageobject.entity.UiProduct;
@@ -16,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,46 +28,16 @@ public class HomeTest extends BaseTest {
 
     @BeforeEach
     public void setUpHomePage() {
-        synchronized (this) {
-            responseListener.addObserver(
-                    Endpoints.GET_BRANDS,
-                    TypeToken.getParameterized(List.class, Brand.class).getType(),
-                    response -> {
-                        homeData.setBrands((List<Brand>) response);
-                    });
+        homeData.setBrands(api.getBrands());
+        homeData.setCategories(api.getCategoryTree());
+        homeData.setProductsPerPage(api.getProducts());
 
-            responseListener.addObserver(
-                    Endpoints.GET_CATEGORIES,
-                    TypeToken.getParameterized(List.class, Category.class).getType(),
-                    response -> {
-                        homeData.setCategories((List<Category>) response);
-                    });
-
-            responseListener.addObserver(
-                    Endpoints.GET_PRODUCTS,
-                    TypeToken.get(ProductsPerPage.class).getType(),
-                    response -> {
-                        homeData.setProductsPerPage((ProductsPerPage) response);
-                    });
-        }
         homePage = new HomePage(driver).open();
         homePage.waitUntilPageIsLoaded();
-
-        Awaitility.await()
-                .atMost(15, TimeUnit.SECONDS)
-                .until(() ->
-                        homeData.getBrands() != null &&
-                                homeData.getCategories() != null &&
-                                homeData.getProductsPerPage() != null
-                );
     }
 
     @AfterEach
     public void cleanUp() {
-        responseListener.removeObserver(Endpoints.GET_BRANDS);
-        responseListener.removeObserver(Endpoints.GET_CATEGORIES);
-        responseListener.removeObserver(Endpoints.GET_PRODUCTS);
-
         homePage = null;
     }
 
