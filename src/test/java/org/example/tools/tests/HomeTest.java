@@ -1,12 +1,10 @@
 package org.example.tools.tests;
 
 import org.example.tools.SystemConfig;
-import org.example.tools.extensions.ScreenshotOnFailureExtension;
 import org.example.tools.network.entity.*;
 import org.example.tools.pageobject.HomePage;
 import org.example.tools.pageobject.entity.UiProduct;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +20,6 @@ public class HomeTest extends BaseTest {
     private static final Logger log = LoggerFactory.getLogger(HomeTest.class);
     private HomePage homePage;
     private HomeData homeData = new HomeData();
-
-    @RegisterExtension
-    ScreenshotOnFailureExtension screenshot = new ScreenshotOnFailureExtension(() -> driver);
 
     @BeforeEach
     public void setUpHomePage() {

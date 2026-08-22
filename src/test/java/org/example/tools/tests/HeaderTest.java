@@ -15,6 +15,7 @@ public class HeaderTest extends BaseTest {
     public void setUpHeader() {
         homePage = new HomePage(driver);
         homePage.open();
+        homePage.waitUntilPageIsLoaded();
         header = new Header(driver);
     }
 
