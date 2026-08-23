@@ -45,6 +45,9 @@ public class LoginPage implements LoginScreen {
 //    TODO: separate wait method
     public LoginPage openLogin() {
         driver.get(url);
+        System.out.println("CURRENT URL: " + driver.getCurrentUrl());
+        System.out.println("PAGE TITLE: " + driver.getTitle());
+        System.out.println("PAGE SOURCE LENGTH: " + driver.getPageSource().length());
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email")));
         PageFactory.initElements(driver, this);
