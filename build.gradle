@@ -17,8 +17,18 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
+//test {
+//    useJUnitPlatform()
+//}
 test {
-    useJUnitPlatform()
+    exclude '**/TestSuite1.class'
+
+    useJUnitPlatform {
+        def tags = project.findProperty('includeTags')
+        if (tags) {
+            includeTags(*tags.toString().split(',')*.trim())
+        }
+    }
 }
 
 sourceSets {
