@@ -2,9 +2,9 @@ package org.example.tools.network;
 
 import com.google.gson.Gson;
 import org.openqa.selenium.devtools.DevTools;
-import org.openqa.selenium.devtools.v143.network.Network;
-import org.openqa.selenium.devtools.v143.network.model.RequestId;
-import org.openqa.selenium.devtools.v143.network.model.Response;
+import org.openqa.selenium.devtools.v151.network.Network;
+import org.openqa.selenium.devtools.v151.network.model.RequestId;
+import org.openqa.selenium.devtools.v151.network.model.Response;
 
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
