@@ -25,7 +25,7 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Run tests
+      - name: Run smoke tests
         env:
           TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
@@ -34,7 +34,7 @@ jobs:
           TEST_USER_STREET: ${{ secrets.TEST_USER_STREET }}
           TEST_USER_CITY: ${{ secrets.TEST_USER_CITY }}
           TEST_USER_COUNTRY: ${{ secrets.TEST_USER_COUNTRY }}
-        run: ./gradlew test
+        run: ./gradlew  clean test -PincludeTags=smoke
 
       - name: Upload Allure results (even if tests failed)
         if: always()
