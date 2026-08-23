@@ -17,7 +17,7 @@ public class LoginTest extends BaseTest {
     @BeforeEach
     public void setUpLoginPage() {
         driver.manage().deleteAllCookies();
-        driver.navigate().refresh();
+//        driver.navigate().refresh();
         loginPage = new LoginPage(driver);
         loginPage.openLogin();
     }
