@@ -214,7 +214,7 @@ public class HomeTest extends BaseTest {
 
     @Test
     @Tag("smoke")
-    @DisplayName("Check sorting of products by price from Low to High")
+    @DisplayName("Check sorting of products by price from Low to High  Test")
     public void sortingByPriceLowToHigh_shouldOrderProductsByAscendingPrice() {
         homePage.sortByPriceLowToHigh();
 
