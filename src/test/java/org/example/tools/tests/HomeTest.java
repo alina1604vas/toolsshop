@@ -76,7 +76,7 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint1")
+    @Tag("smoke")
     @DisplayName("Check Home page title")
     public void homePageTitle_shouldMatchExpected() {
         String expectedTitle = "Practice Software Testing - Toolshop";
@@ -85,7 +85,7 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint1")
+    @Tag("smoke")
     @DisplayName("Check Home Page url")
     public void homePageUrl_shouldMatchBaseUrl() {
         String expectedUrl = SystemConfig.getBaseUrl();
@@ -94,7 +94,7 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint1")
+    @Tag("smoke")
     @DisplayName("Check number of products on Home page")
     public void homePage_shouldShowAllProductsFromApi() {
         int expectedNumberOfProducts = homeData.getProductsPerPage().getTotalProducts();
@@ -104,7 +104,7 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint1")
+    @Tag("smoke")
     @DisplayName("Check name, image and price of cards")
     public void productCards_shouldHaveNameImageAndPrice() {
         ArrayList<UiProduct> products = homePage.getAllProducts();
@@ -154,7 +154,6 @@ public class HomeTest extends BaseTest {
         }
     }
     @Test
-    @Tag("sprint2")
     @DisplayName("Check sorting of products by alphabet A-Z")
     public void sortingByNameAZ_shouldOrderProductsAlphabetically() {
         homePage.sortAZ();
@@ -174,7 +173,6 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint2")
     @DisplayName("Check sorting of products by alphabet Z-A in reverse order")
     public void sortingByNameZA_shouldOrderProductsReverseAlphabetically() {
         homePage.sortZA();
@@ -194,7 +192,7 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint2")
+    @Tag("smoke")
     @DisplayName("Check sorting of products by price from High to Low")
     public void sortingByPriceHighToLow_shouldOrderProductsByDescendingPrice() {
         homePage.sortByPriceHighToLow();
@@ -215,7 +213,7 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint2")
+    @Tag("smoke")
     @DisplayName("Check sorting of products by price from Low to High")
     public void sortingByPriceLowToHigh_shouldOrderProductsByAscendingPrice() {
         homePage.sortByPriceLowToHigh();
