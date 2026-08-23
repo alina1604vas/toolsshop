@@ -27,23 +27,40 @@ public class DriverProvider {
         }
     }
 
-    private static WebDriver createDriver() {
-        ChromeOptions options = new ChromeOptions();
+//    private static WebDriver createDriver() {
+//        ChromeOptions options = new ChromeOptions();
+//
+//        boolean ci = isRunningInCi();
+//        if (ci) {
+//            options.addArguments("--headless=new");
+//            options.addArguments("--window-size=1920,1080");
+//            options.addArguments("--no-sandbox");
+//            options.addArguments("--disable-dev-shm-usage");
+//        }
+//
+//        WebDriver driver = new ChromeDriver(options);
+//        if (!ci) {
+//            driver.manage().window().maximize();
+//        }
+//        return driver;
+//    }
+private static WebDriver createDriver() {
+    ChromeOptions options = new ChromeOptions();
 
-        boolean ci = isRunningInCi();
-        if (ci) {
-            options.addArguments("--headless=new");
-            options.addArguments("--window-size=1920,1080");
-            options.addArguments("--no-sandbox");
-            options.addArguments("--disable-dev-shm-usage");
-        }
+    boolean ci = isRunningInCi();
+    boolean headless = Boolean.parseBoolean(System.getProperty("headless"));
 
-        WebDriver driver = new ChromeDriver(options);
-        if (!ci) {
-            driver.manage().window().maximize();
-        }
-        return driver;
+    if (ci || headless) {
+        options.addArguments("--headless=new");
+        options.addArguments("--window-size=1920,1080");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+    } else {
+        options.addArguments("--start-maximized");
     }
+
+    return new ChromeDriver(options);
+}
 
     private static boolean isRunningInCi() {
         return Boolean.parseBoolean(System.getenv("CI"));
