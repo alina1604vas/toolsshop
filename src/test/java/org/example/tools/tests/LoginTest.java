@@ -28,7 +28,7 @@ public class LoginTest extends BaseTest {
     }
 
     @Test
-    @Tag("smoke")
+//    @Tag("smoke")
     @DisplayName("Logging with registered user")
     public void testLoginWithRegisteredUser() {
         AccountPage accountPage = loginPage.logIn(TestData.realUserCreds.email(), TestData.realUserCreds.password());
