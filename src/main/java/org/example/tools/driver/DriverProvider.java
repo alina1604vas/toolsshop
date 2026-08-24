@@ -45,10 +45,16 @@ public class DriverProvider {
 //        return driver;
 //    }
 private static WebDriver createDriver() {
-    ChromeOptions options = new ChromeOptions();
-
     boolean ci = isRunningInCi();
     boolean headless = Boolean.parseBoolean(System.getProperty("headless"));
+
+    System.out.println("===== DRIVER DEBUG =====");
+    System.out.println("CI = " + ci);
+    System.out.println("headless property = " + System.getProperty("headless"));
+    System.out.println("headless boolean = " + headless);
+    System.out.println("=======================");
+
+    ChromeOptions options = new ChromeOptions();
 
     if (ci || headless) {
         options.addArguments("--headless=new");
