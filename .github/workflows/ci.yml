@@ -34,7 +34,7 @@ jobs:
           TEST_USER_STREET: ${{ secrets.TEST_USER_STREET }}
           TEST_USER_CITY: ${{ secrets.TEST_USER_CITY }}
           TEST_USER_COUNTRY: ${{ secrets.TEST_USER_COUNTRY }}
-        run: ./gradlew  clean test -PincludeTags=smoke --stacktrace
+        run: ./gradlew clean test -PincludeTags=smoke -Dheadless=true --stacktrace
 
       - name: Upload Allure results (even if tests failed)
         if: always()
