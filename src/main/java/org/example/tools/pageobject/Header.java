@@ -30,6 +30,7 @@ private final WebDriver driver;
 //        PageFactory.initElements(driver, this);
 //    }
 public Header(WebDriver driver) {
+    this.driver = driver;
     PageFactory.initElements(driver, this);
 }
 
