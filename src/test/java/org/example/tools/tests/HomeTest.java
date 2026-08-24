@@ -94,8 +94,8 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-    @Tag("smoke")
-//    @DisplayName("Check number of products on Home page")
+//    @Tag("smoke")
+    @DisplayName("Check number of products on Home page")
     public void homePage_shouldShowAllProductsFromApi() {
         int expectedNumberOfProducts = homeData.getProductsPerPage().getTotalProducts();
         int actualNumberOfProducts = homePage.getTotalNumberOfProducts();
