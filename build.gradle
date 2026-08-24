@@ -29,6 +29,10 @@ test {
             includeTags(*tags.toString().split(',')*.trim())
         }
     }
+
+    testLogging {
+        showStandardStreams = true
+    }
 }
 
 sourceSets {
