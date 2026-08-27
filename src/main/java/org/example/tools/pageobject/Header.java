@@ -1,3 +1,5 @@
+package org.example.tools.pageobject;
+
 import org.example.tools.SystemConfig;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -70,5 +72,5 @@ public class Header {
         openHamburgerMenuIfCollapsed();
         return contactNavigationItem.isDisplayed();
     }
-
+//Testing CI
 }
