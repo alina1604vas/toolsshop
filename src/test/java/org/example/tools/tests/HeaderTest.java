@@ -26,7 +26,7 @@ public class HeaderTest extends BaseTest {
     }
 
     @Test
-    @Tag("smoke")
+//    @Tag("smoke")
     @DisplayName("Home is visible in the header")
     public void testIfHomeIsVisible() {
         assertTrue(header.isHomeVisible(), "Home should be visible in the header");
