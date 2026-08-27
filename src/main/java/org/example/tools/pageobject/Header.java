@@ -51,7 +51,7 @@ public class Header {
 
         WebElement toggler = togglers.get(0);
         if ("false".equals(toggler.getAttribute("aria-expanded"))) {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
             wait.until(ExpectedConditions.elementToBeClickable(toggler)).click();
             wait.until(d -> "true".equals(toggler.getAttribute("aria-expanded")));
         }
