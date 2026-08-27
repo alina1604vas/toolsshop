@@ -27,18 +27,18 @@ public class ProductPageTest extends BaseTest {
 
     @BeforeEach
     public void setUpProductPage() {
-        synchronized (this) {
-
-            responseListener.addObserver(
-                    Endpoints.GET_PRODUCT,
-                    TypeToken.get(Product.class).getType(),
-                    response -> expectedProduct = (Product) response);
-
-            responseListener.addObserver(
-                    Endpoints.GET_PRODUCT_RELATED,
-                    TypeToken.getParameterized(List.class, Product.class).getType(),
-                    response -> expectedRelatedProducts = (List<Product>) response);
-        }
+//        synchronized (this) {
+//
+//            responseListener.addObserver(
+//                    Endpoints.GET_PRODUCT,
+//                    TypeToken.get(Product.class).getType(),
+//                    response -> expectedProduct = (Product) response);
+//
+//            responseListener.addObserver(
+//                    Endpoints.GET_PRODUCT_RELATED,
+//                    TypeToken.getParameterized(List.class, Product.class).getType(),
+//                    response -> expectedRelatedProducts = (List<Product>) response);
+//        }
 
         homePage = new HomePage(driver).open();
         productPage = new ProductPage(driver);
@@ -51,8 +51,8 @@ public class ProductPageTest extends BaseTest {
 
     @AfterEach
     public void cleanUp() {
-        responseListener.removeObserver(Endpoints.GET_PRODUCT);
-        responseListener.removeObserver(Endpoints.GET_PRODUCT_RELATED);
+//        responseListener.removeObserver(Endpoints.GET_PRODUCT);
+//        responseListener.removeObserver(Endpoints.GET_PRODUCT_RELATED);
         homePage = null;
         productPage = null;
     }

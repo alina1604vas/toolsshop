@@ -12,27 +12,27 @@ import org.openqa.selenium.devtools.HasDevTools;
 public abstract class BaseTest {
 
     protected WebDriver driver;
-    private DevTools devTools;
+//    private DevTools devTools;
 
-    protected ChromeResponseListener responseListener;
+//    protected ChromeResponseListener responseListener;
     protected final Faker faker = new Faker();
 
     @BeforeEach
     void initDriver() {
         driver = DriverProvider.get();
-        devTools = ((HasDevTools) driver).getDevTools();
-        responseListener = new ChromeResponseListener(devTools);
+//        devTools = ((HasDevTools) driver).getDevTools();
+//        responseListener = new ChromeResponseListener(devTools);
     }
 
     @AfterEach
     void tearDownDriver() {
-        if (responseListener != null) {
-            responseListener.destroy();
-        }
+//        if (responseListener != null) {
+//            responseListener.destroy();
+//        }
         DriverProvider.remove();
         driver = null;
-        devTools = null;
-        responseListener = null;
+//        devTools = null;
+//        responseListener = null;
     }
 
 }
