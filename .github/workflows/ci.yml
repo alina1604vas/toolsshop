@@ -61,16 +61,21 @@ jobs:
         working-directory: app-under-test
         run: |
           API=$(docker compose ps -q laravel-api)
+          echo "== artisan version / migrate status BEFORE =="
+          docker exec "$API" php artisan --version || true
+          docker exec "$API" php artisan migrate:status || true
           for i in $(seq 1 5); do
             if docker exec "$API" php artisan migrate:fresh --seed --force; then
               echo "Database migrated and seeded."
+              echo "== migrate status AFTER =="
+              docker exec "$API" php artisan migrate:status || true
               exit 0
             fi
             echo "Seed attempt $i failed, retrying in 10s..."
             sleep 10
           done
-          echo "Seeding failed."
-          docker compose logs --tail=150 laravel-api
+          echo "Seeding failed. Laravel log:"
+          docker exec "$API" sh -c 'tail -n 120 storage/logs/laravel.log 2>/dev/null || echo "(no laravel.log)"'
           exit 1
 
       - name: Verify the API serves seeded data
@@ -85,8 +90,14 @@ jobs:
             fi
             sleep 5
           done
-          echo "Seeded data was not served in time. Diagnostics:"
-          (cd app-under-test && docker compose logs --tail=150 laravel-api)
+          echo "Seeded data was not served in time. Diagnostics below."
+          echo "== verbose curl of GET :8091/brands =="
+          curl -s -i http://localhost:8091/brands | head -n 40 || true
+          echo "== Laravel application log (real exception) =="
+          (cd app-under-test && API=$(docker compose ps -q laravel-api) \
+            && docker exec "$API" sh -c 'tail -n 150 storage/logs/laravel.log 2>/dev/null || echo "(no laravel.log found)"')
+          echo "== laravel-api container logs =="
+          (cd app-under-test && docker compose logs --tail=100 laravel-api)
           exit 1
 
       - name: Wait for UI to be ready
