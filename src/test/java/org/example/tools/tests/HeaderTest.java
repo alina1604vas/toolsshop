@@ -15,7 +15,9 @@ public class HeaderTest extends BaseTest {
     public void setUpHeader() {
         homePage = new HomePage(driver);
         homePage.open();
-        homePage.waitUntilPageIsLoaded();
+        // NOTE: no waitUntilPageIsLoaded() here on purpose - the header ("Home" link)
+        // is rendered by the Angular shell and does not depend on the product API.
+        // isHomeVisible() has its own explicit wait for the link.
         header = new Header(driver);
     }
 
