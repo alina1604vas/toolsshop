@@ -25,8 +25,54 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      # ---- Stand up the application under test locally, so tests do not hit the
+      # ---- public demo site (which is behind Cloudflare and blocks CI IPs). ----
+      - name: Check out application under test
+        uses: actions/checkout@v4
+        with:
+          repository: testsmith-io/practice-software-testing
+          path: app-under-test
+
+      - name: Start application under test (Docker)
+        working-directory: app-under-test
+        run: |
+          if [ -f .env.example ]; then cp -n .env.example .env || true; fi
+          docker compose up -d
+
+      - name: Wait for API and seed the database
+        working-directory: app-under-test
+        run: |
+          for i in $(seq 1 60); do
+            API=$(docker compose ps -q laravel-api)
+            if [ -n "$API" ] && docker exec "$API" php artisan migrate:fresh --seed --force; then
+              echo "Database migrated and seeded."
+              exit 0
+            fi
+            echo "Waiting for API/DB to be ready... attempt $i"
+            sleep 10
+          done
+          echo "API/DB did not become ready in time. Diagnostics:"
+          docker compose ps
+          docker compose logs --tail=80
+          exit 1
+
+      - name: Wait for UI to be ready
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf -o /dev/null http://localhost:4200; then
+              echo "UI is up at http://localhost:4200"
+              exit 0
+            fi
+            echo "Waiting for UI to be ready... attempt $i"
+            sleep 10
+          done
+          echo "UI did not become ready in time."
+          (cd app-under-test && docker compose logs --tail=80 angular-ui)
+          exit 1
+
       - name: Run smoke tests
         env:
+          BASE_URL: http://localhost:4200/
           TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
           TEST_USER_FIRSTNAME: ${{ secrets.TEST_USER_FIRSTNAME }}
@@ -35,6 +81,11 @@ jobs:
           TEST_USER_CITY: ${{ secrets.TEST_USER_CITY }}
           TEST_USER_COUNTRY: ${{ secrets.TEST_USER_COUNTRY }}
         run: ./gradlew clean test -PincludeTags=smoke -Dheadless=true --stacktrace
+
+      - name: Dump app logs on failure
+        if: failure()
+        working-directory: app-under-test
+        run: docker compose logs --tail=120
 
       - name: Upload Allure results (even if tests failed)
         if: always()
