@@ -57,25 +57,28 @@ jobs:
           (cd app-under-test && docker compose ps && docker compose logs --tail=150)
           exit 1
 
-      - name: Seed the database
+      - name: Prepare the database (non-destructive, seed only if empty)
         working-directory: app-under-test
         run: |
           API=$(docker compose ps -q laravel-api)
-          echo "== artisan version / migrate status BEFORE =="
-          docker exec "$API" php artisan --version || true
-          docker exec "$API" php artisan migrate:status || true
+          # If the API already serves seeded data, leave it completely alone.
+          if curl -s http://localhost:8091/brands | grep -q "{"; then
+            echo "API already serves seeded data - nothing to do."
+            exit 0
+          fi
+          echo "No data yet - running NON-destructive migrate + seed (never migrate:fresh,"
+          echo "because dropping tables collides with the running cron/queue worker)."
+          docker exec "$API" php artisan migrate --force || true
           for i in $(seq 1 5); do
-            if docker exec "$API" php artisan migrate:fresh --seed --force; then
-              echo "Database migrated and seeded."
-              echo "== migrate status AFTER =="
-              docker exec "$API" php artisan migrate:status || true
+            if docker exec "$API" php artisan db:seed --force; then
+              echo "Seeding done."
               exit 0
             fi
             echo "Seed attempt $i failed, retrying in 10s..."
             sleep 10
           done
-          echo "Seeding failed. Laravel log:"
-          docker exec "$API" sh -c 'tail -n 120 storage/logs/laravel.log 2>/dev/null || echo "(no laravel.log)"'
+          echo "Seeding failed. Laravel log (excluding invoice-PDF queue noise):"
+          docker exec "$API" sh -c 'grep -a -v -i invoice storage/logs/laravel.log 2>/dev/null | tail -n 120 || echo "(no laravel.log)"'
           exit 1
 
       - name: Verify the API serves seeded data
