@@ -39,21 +39,54 @@ jobs:
           if [ -f .env.example ]; then cp -n .env.example .env || true; fi
           docker compose up -d
 
-      - name: Wait for API and seed the database
+      - name: Wait for the API backend to serve HTTP 200
+        run: |
+          # Waits until the API actually answers over HTTP (not just until the container is up).
+          # This also waits out "composer install" - until vendor/ is complete the app 500s.
+          echo "Waiting for the API to serve HTTP 200 on /brands ..."
+          for i in $(seq 1 90); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8091/brands || echo 000)
+            echo "attempt $i: GET :8091/brands -> $code"
+            if [ "$code" = "200" ]; then
+              echo "API is serving."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "API did not start serving in time. Diagnostics:"
+          (cd app-under-test && docker compose ps && docker compose logs --tail=150)
+          exit 1
+
+      - name: Seed the database
         working-directory: app-under-test
         run: |
-          for i in $(seq 1 60); do
-            API=$(docker compose ps -q laravel-api)
-            if [ -n "$API" ] && docker exec "$API" php artisan migrate:fresh --seed --force; then
+          API=$(docker compose ps -q laravel-api)
+          for i in $(seq 1 5); do
+            if docker exec "$API" php artisan migrate:fresh --seed --force; then
               echo "Database migrated and seeded."
               exit 0
             fi
-            echo "Waiting for API/DB to be ready... attempt $i"
+            echo "Seed attempt $i failed, retrying in 10s..."
             sleep 10
           done
-          echo "API/DB did not become ready in time. Diagnostics:"
-          docker compose ps
-          docker compose logs --tail=80
+          echo "Seeding failed."
+          docker compose logs --tail=150 laravel-api
+          exit 1
+
+      - name: Verify the API serves seeded data
+        run: |
+          for i in $(seq 1 18); do
+            body=$(curl -s http://localhost:8091/brands || true)
+            echo "attempt $i: /brands -> ${body:0:160}"
+            # A seeded response is a JSON array of objects, so it contains "{".
+            if echo "$body" | grep -q "{"; then
+              echo "Seeded data is being served."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Seeded data was not served in time. Diagnostics:"
+          (cd app-under-test && docker compose logs --tail=150 laravel-api)
           exit 1
 
       - name: Wait for UI to be ready
