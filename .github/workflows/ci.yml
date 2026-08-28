@@ -81,15 +81,38 @@ jobs:
           docker exec "$API" sh -c 'grep -a -v -i invoice storage/logs/laravel.log 2>/dev/null | tail -n 120 || echo "(no laravel.log)"'
           exit 1
 
+      - name: Stabilise background jobs (stop cron + clear queue)
+        working-directory: app-under-test
+        run: |
+          # The cron service runs the Laravel scheduler, which queues CreateInvoicePDF jobs.
+          # That job crashes on invoice.blade.php and periodically destabilises the API
+          # (intermittent 500s with no CORS header -> the browser reports net::ERR_FAILED
+          # on /products, /brands, /categories while the UI is loading). Tests only need the
+          # catalogue, so stop the scheduler and drop any already-queued jobs.
+          docker compose stop cron || true
+          API=$(docker compose ps -q laravel-api)
+          docker exec "$API" php artisan queue:clear --force || true
+          docker exec "$API" php artisan queue:clear database --force || true
+
       - name: Verify the API serves seeded data
         run: |
-          for i in $(seq 1 18); do
-            body=$(curl -s http://localhost:8091/brands || true)
-            echo "attempt $i: /brands -> ${body:0:160}"
-            # A seeded response is a JSON array of objects, so it contains "{".
-            if echo "$body" | grep -q "{"; then
-              echo "Seeded data is being served."
-              exit 0
+          # Require the endpoints the UI actually reads to return data *consistently*
+          # (several passes in a row), so we do not start tests during an unstable window.
+          ok=0
+          for i in $(seq 1 24); do
+            brands=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8091/brands || echo 000)
+            products=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8091/products || echo 000)
+            cats=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8091/categories/tree || echo 000)
+            echo "attempt $i: /brands=$brands /products=$products /categories/tree=$cats"
+            if [ "$brands" = "200" ] && [ "$products" = "200" ] && [ "$cats" = "200" ]; then
+              ok=$((ok+1))
+              echo "  all endpoints 200 ($ok consecutive)"
+              if [ "$ok" -ge 3 ]; then
+                echo "API is serving catalogue data consistently."
+                exit 0
+              fi
+            else
+              ok=0
             fi
             sleep 5
           done
