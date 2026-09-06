@@ -39,6 +39,26 @@ jobs:
           if [ -f .env.example ]; then cp -n .env.example .env || true; fi
           docker compose up -d
 
+      - name: Fix API .env for Docker (DB host + disable queue) and clear caches
+        working-directory: app-under-test
+        run: |
+          # The app's committed .env has DB_HOST=127.0.0.1, which inside the laravel-api
+          # container points at itself, not at the separate "mariadb" container. If a config
+          # cache bakes that in, every DB query fails at the PHP level (empty 500, no Laravel
+          # log). Also switch the queue to "null" so the buggy CreateInvoicePDF job is never
+          # queued/processed. Then clear all caches so the app reads the corrected values.
+          API=$(docker compose ps -q laravel-api)
+          # wait until the container's php is up enough to run artisan (composer install may still run)
+          for i in $(seq 1 60); do
+            if docker exec "$API" php -v >/dev/null 2>&1; then break; fi
+            echo "waiting for php in laravel-api... $i"; sleep 5
+          done
+          docker exec "$API" sh -c "sed -i 's/^DB_HOST=.*/DB_HOST=mariadb/' .env && sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=null/' .env"
+          echo "== effective .env DB/queue after fix =="
+          docker exec "$API" sh -c 'grep -aE "^(DB_HOST|QUEUE_CONNECTION)=" .env'
+          docker exec "$API" php artisan optimize:clear || true
+          docker compose restart laravel-api web || true
+
       - name: Wait for the API backend to serve HTTP 200
         run: |
           # Waits until the API actually answers over HTTP (not just until the container is up).
