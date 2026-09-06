@@ -32,38 +32,38 @@ public class HomeTest extends BaseTest {
 
     @BeforeEach
     public void setUpHomePage() {
-//        synchronized (this) {
-//            responseListener.addObserver(
-//                    Endpoints.GET_BRANDS,
-//                    TypeToken.getParameterized(List.class, Brand.class).getType(),
-//                    response -> {
-//                        homeData.setBrands((List<Brand>) response);
-//                    });
-//
-//            responseListener.addObserver(
-//                    Endpoints.GET_CATEGORIES,
-//                    TypeToken.getParameterized(List.class, Category.class).getType(),
-//                    response -> {
-//                        homeData.setCategories((List<Category>) response);
-//                    });
-//
-//            responseListener.addObserver(
-//                    Endpoints.GET_PRODUCTS,
-//                    TypeToken.get(ProductsPerPage.class).getType(),
-//                    response -> {
-//                        homeData.setProductsPerPage((ProductsPerPage) response);
-//                    });
-//        }
+        synchronized (this) {
+            responseListener.addObserver(
+                    Endpoints.GET_BRANDS,
+                    TypeToken.getParameterized(List.class, Brand.class).getType(),
+                    response -> {
+                        homeData.setBrands((List<Brand>) response);
+                    });
+
+            responseListener.addObserver(
+                    Endpoints.GET_CATEGORIES,
+                    TypeToken.getParameterized(List.class, Category.class).getType(),
+                    response -> {
+                        homeData.setCategories((List<Category>) response);
+                    });
+
+            responseListener.addObserver(
+                    Endpoints.GET_PRODUCTS,
+                    TypeToken.get(ProductsPerPage.class).getType(),
+                    response -> {
+                        homeData.setProductsPerPage((ProductsPerPage) response);
+                    });
+        }
         homePage = new HomePage(driver).open();
         homePage.waitUntilPageIsLoaded();
-//
-//        Awaitility.await()
-//                .atMost(15, TimeUnit.SECONDS)
-//                .until(() ->
-//                        homeData.getBrands() != null &&
-//                                homeData.getCategories() != null &&
-//                                homeData.getProductsPerPage() != null
-//                );
+
+        Awaitility.await()
+                .atMost(15, TimeUnit.SECONDS)
+                .until(() ->
+                        homeData.getBrands() != null &&
+                                homeData.getCategories() != null &&
+                                homeData.getProductsPerPage() != null
+                );
     }
 
     @AfterEach

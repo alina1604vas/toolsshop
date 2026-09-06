@@ -13,9 +13,9 @@ import org.openqa.selenium.devtools.HasDevTools;
 public abstract class BaseTest {
 
     protected WebDriver driver;
-//    private DevTools devTools;
+    private DevTools devTools;
 
-//    protected ChromeResponseListener responseListener;
+    protected ChromeResponseListener responseListener;
 
     // TEMP diagnostic: logs the browser's real network traffic to the console. Remove when done.
     private NetworkDiagnosticsLogger networkLogger;
@@ -25,8 +25,8 @@ public abstract class BaseTest {
     @BeforeEach
     void initDriver() {
         driver = DriverProvider.get();
-//        devTools = ((HasDevTools) driver).getDevTools();
-//        responseListener = new ChromeResponseListener(devTools);
+        devTools = ((HasDevTools) driver).getDevTools();
+        responseListener = new ChromeResponseListener(devTools);
 
         DevTools devTools = ((HasDevTools) driver).getDevTools();
         networkLogger = new NetworkDiagnosticsLogger(devTools);
@@ -35,16 +35,16 @@ public abstract class BaseTest {
 
     @AfterEach
     void tearDownDriver() {
-//        if (responseListener != null) {
-//            responseListener.destroy();
-//        }
+        if (responseListener != null) {
+            responseListener.destroy();
+        }
         if (networkLogger != null) {
             networkLogger.stop();
         }
         DriverProvider.remove();
         driver = null;
-//        devTools = null;
-//        responseListener = null;
+        devTools = null;
+        responseListener = null;
         networkLogger = null;
     }
 
