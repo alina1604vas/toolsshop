@@ -39,28 +39,40 @@ jobs:
           if [ -f .env.example ]; then cp -n .env.example .env || true; fi
           docker compose up -d
 
-      - name: Wait for composer install to finish (vendor/autoload.php)
+      - name: Wait for composer install to finish (composer container exits)
         working-directory: app-under-test
         run: |
-          # The REAL readiness gate. The composer service installs dependencies into the shared
-          # volume; until vendor/autoload.php exists, public/index.php fatals ("Failed opening
-          # required vendor/autoload.php") and every request is a 500 with no Laravel log.
-          # HTTP 200 alone is misleading during a partial install, so gate on vendor first.
-          API=$(docker compose ps -q laravel-api)
-          echo "Waiting for vendor/autoload.php inside laravel-api ..."
-          for i in $(seq 1 120); do
-            if docker exec "$API" test -f vendor/autoload.php 2>/dev/null; then
-              echo "vendor/autoload.php present (composer install finished)."
-              break
+          # The REAL readiness gate. vendor/autoload.php appears EARLY in the install while
+          # composer keeps extracting packages for minutes afterwards, so waiting for that file
+          # lets downstream steps run against a half-installed vendor/ (missing classes -> 500).
+          # The composer service runs "composer install && chown && chmod" then EXITS, so wait
+          # for that container to finish (exit 0) - only then is vendor/ complete.
+          echo "Waiting for the composer service to finish (this can take ~10 min on CI)..."
+          done=0
+          for i in $(seq 1 200); do
+            CID=$(docker compose ps -aq composer)
+            if [ -n "$CID" ]; then
+              status=$(docker inspect -f '{{.State.Status}}' "$CID" 2>/dev/null || echo unknown)
+              code=$(docker inspect -f '{{.State.ExitCode}}' "$CID" 2>/dev/null || echo -)
+              echo "attempt $i: composer status=$status exit=$code"
+              if [ "$status" = "exited" ]; then
+                if [ "$code" = "0" ]; then echo "composer finished OK."; done=1; break; fi
+                echo "composer FAILED (exit $code):"; docker compose logs --tail=120 composer; exit 1
+              fi
+            else
+              echo "attempt $i: composer container not created yet"
             fi
-            echo "attempt $i: composer still installing..."
             sleep 5
           done
-          if ! docker exec "$API" test -f vendor/autoload.php 2>/dev/null; then
-            echo "composer install never finished. Diagnostics:"
-            docker compose logs --tail=120 composer laravel-api
-            exit 1
+          if [ "$done" != "1" ]; then
+            echo "composer did not finish in time."; docker compose logs --tail=120 composer; exit 1
           fi
+          # sanity check
+          API=$(docker compose ps -q laravel-api)
+          if ! docker exec "$API" test -f vendor/autoload.php 2>/dev/null; then
+            echo "vendor/autoload.php still missing after composer exit"; exit 1
+          fi
+          echo "vendor/ is complete."
 
       - name: Stop cron (halt the scheduler/queue worker before migrating)
         working-directory: app-under-test
