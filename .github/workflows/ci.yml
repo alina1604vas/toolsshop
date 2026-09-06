@@ -39,32 +39,33 @@ jobs:
           if [ -f .env.example ]; then cp -n .env.example .env || true; fi
           docker compose up -d
 
-      - name: Fix API .env for Docker (DB host + disable queue) and clear caches
+      - name: Wait for composer install to finish (vendor/autoload.php)
         working-directory: app-under-test
         run: |
-          # The app's committed .env has DB_HOST=127.0.0.1, which inside the laravel-api
-          # container points at itself, not at the separate "mariadb" container. If a config
-          # cache bakes that in, every DB query fails at the PHP level (empty 500, no Laravel
-          # log). Also switch the queue to "null" so the buggy CreateInvoicePDF job is never
-          # queued/processed. Then clear all caches so the app reads the corrected values.
+          # The REAL readiness gate. The composer service installs dependencies into the shared
+          # volume; until vendor/autoload.php exists, public/index.php fatals ("Failed opening
+          # required vendor/autoload.php") and every request is a 500 with no Laravel log.
+          # HTTP 200 alone is misleading during a partial install, so gate on vendor first.
           API=$(docker compose ps -q laravel-api)
-          # wait until the container's php is up enough to run artisan (composer install may still run)
-          for i in $(seq 1 60); do
-            if docker exec "$API" php -v >/dev/null 2>&1; then break; fi
-            echo "waiting for php in laravel-api... $i"; sleep 5
+          echo "Waiting for vendor/autoload.php inside laravel-api ..."
+          for i in $(seq 1 120); do
+            if docker exec "$API" test -f vendor/autoload.php 2>/dev/null; then
+              echo "vendor/autoload.php present (composer install finished)."
+              break
+            fi
+            echo "attempt $i: composer still installing..."
+            sleep 5
           done
-          docker exec "$API" sh -c "sed -i 's/^DB_HOST=.*/DB_HOST=mariadb/' .env && sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=null/' .env"
-          echo "== effective .env DB/queue after fix =="
-          docker exec "$API" sh -c 'grep -aE "^(DB_HOST|QUEUE_CONNECTION)=" .env'
-          docker exec "$API" php artisan optimize:clear || true
-          docker compose restart laravel-api web || true
+          if ! docker exec "$API" test -f vendor/autoload.php 2>/dev/null; then
+            echo "composer install never finished. Diagnostics:"
+            docker compose logs --tail=120 composer laravel-api
+            exit 1
+          fi
 
       - name: Wait for the API backend to serve HTTP 200
         run: |
-          # Waits until the API actually answers over HTTP (not just until the container is up).
-          # This also waits out "composer install" - until vendor/ is complete the app 500s.
           echo "Waiting for the API to serve HTTP 200 on /brands ..."
-          for i in $(seq 1 90); do
+          for i in $(seq 1 60); do
             code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8091/brands || echo 000)
             echo "attempt $i: GET :8091/brands -> $code"
             if [ "$code" = "200" ]; then
@@ -101,29 +102,13 @@ jobs:
           docker exec "$API" sh -c 'grep -a -v -i invoice storage/logs/laravel.log 2>/dev/null | tail -n 120 || echo "(no laravel.log)"'
           exit 1
 
-      - name: Stop cron and restart the app for a clean, stable state
+      - name: Stop cron (prevents the buggy invoice PDF job from being scheduled)
         working-directory: app-under-test
         run: |
-          # The cron service runs the Laravel scheduler + a queue worker that keeps crashing on
-          # the CreateInvoicePDF / invoice.blade.php bug. Left running, it eventually wedges the
-          # API into permanent 500s (exhausted DB connections). Stop cron, then restart the app
-          # process so it comes up clean against the already-seeded database (mariadb is a
-          # separate container and is NOT restarted, so the seeded data is preserved).
+          # Belt-and-suspenders: the cron service schedules CreateInvoicePDF jobs that crash on
+          # invoice.blade.php. Tests only need the catalogue, so stop the scheduler. (Not the
+          # cause of the earlier 500s - that was a missing vendor/ - but keeps logs clean.)
           docker compose stop cron || true
-          docker compose restart laravel-api web || true
-          echo "Waiting for the API to serve HTTP 200 again after restart..."
-          for i in $(seq 1 60); do
-            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8091/brands || echo 000)
-            echo "post-restart attempt $i: GET :8091/brands -> $code"
-            if [ "$code" = "200" ]; then
-              echo "API healthy after restart."
-              exit 0
-            fi
-            sleep 5
-          done
-          echo "::warning::API did not stay healthy after restart (known invoice/queue self-wedge)."
-          echo "::warning::Smoke tests do not depend on it, so continuing."
-          exit 0
 
       - name: Verify the API serves seeded data
         run: |
