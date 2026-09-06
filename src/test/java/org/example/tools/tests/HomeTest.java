@@ -54,8 +54,8 @@ public class HomeTest extends BaseTest {
 //                        homeData.setProductsPerPage((ProductsPerPage) response);
 //                    });
 //        }
-//        homePage = new HomePage(driver).open();
-//        homePage.waitUntilPageIsLoaded();
+        homePage = new HomePage(driver).open();
+        homePage.waitUntilPageIsLoaded();
 //
 //        Awaitility.await()
 //                .atMost(15, TimeUnit.SECONDS)
