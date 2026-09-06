@@ -39,40 +39,35 @@ jobs:
           if [ -f .env.example ]; then cp -n .env.example .env || true; fi
           docker compose up -d
 
-      - name: Wait for composer install to finish (composer container exits)
+      - name: Wait for composer install to finish (docker compose wait)
         working-directory: app-under-test
         run: |
-          # The REAL readiness gate. vendor/autoload.php appears EARLY in the install while
-          # composer keeps extracting packages for minutes afterwards, so waiting for that file
-          # lets downstream steps run against a half-installed vendor/ (missing classes -> 500).
-          # The composer service runs "composer install && chown && chmod" then EXITS, so wait
-          # for that container to finish (exit 0) - only then is vendor/ complete.
-          echo "Waiting for the composer service to finish (this can take ~10 min on CI)..."
-          done=0
-          for i in $(seq 1 200); do
-            CID=$(docker compose ps -aq composer)
-            if [ -n "$CID" ]; then
-              status=$(docker inspect -f '{{.State.Status}}' "$CID" 2>/dev/null || echo unknown)
-              code=$(docker inspect -f '{{.State.ExitCode}}' "$CID" 2>/dev/null || echo -)
-              echo "attempt $i: composer status=$status exit=$code"
-              if [ "$status" = "exited" ]; then
-                if [ "$code" = "0" ]; then echo "composer finished OK."; done=1; break; fi
-                echo "composer FAILED (exit $code):"; docker compose logs --tail=120 composer; exit 1
-              fi
-            else
-              echo "attempt $i: composer container not created yet"
+          # The composer service runs "composer install && chown && chmod" then exits. Use the
+          # built-in blocking primitive: 'docker compose wait composer' blocks until that
+          # container terminates and returns its exit code. (A hand-rolled docker-inspect poll
+          # raced the container's startup and passed before composer had even begun.)
+          echo "Blocking until the composer service finishes (up to 20 min)..."
+          if timeout 1200 docker compose wait composer; then
+            echo "composer service has exited."
+          else
+            echo "timed out (or 'compose wait' unsupported) waiting for composer:"
+            docker compose logs --tail=120 composer
+            exit 1
+          fi
+          # Definitive proof the install completed: installed.json is written at the end.
+          API=$(docker compose ps -q laravel-api)
+          for i in $(seq 1 60); do
+            if docker exec "$API" test -f vendor/composer/installed.json \
+               && docker exec "$API" test -f vendor/autoload.php; then
+              echo "vendor/ is complete."
+              exit 0
             fi
+            echo "waiting for vendor to be fully written... $i"
             sleep 5
           done
-          if [ "$done" != "1" ]; then
-            echo "composer did not finish in time."; docker compose logs --tail=120 composer; exit 1
-          fi
-          # sanity check
-          API=$(docker compose ps -q laravel-api)
-          if ! docker exec "$API" test -f vendor/autoload.php 2>/dev/null; then
-            echo "vendor/autoload.php still missing after composer exit"; exit 1
-          fi
-          echo "vendor/ is complete."
+          echo "vendor never became complete."
+          docker compose logs --tail=120 composer
+          exit 1
 
       - name: Stop cron (halt the scheduler/queue worker before migrating)
         working-directory: app-under-test
