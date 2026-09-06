@@ -133,6 +133,38 @@ jobs:
           echo "::warning::backend is made stable for API-dependent tests."
           exit 0
 
+      - name: Diagnose the API 500 (real cause)
+        if: always()
+        working-directory: app-under-test
+        run: |
+          set +e
+          API=$(docker compose ps -q laravel-api)
+          echo "===================== FULL 500 BODY (/brands) ====================="
+          curl -s http://localhost:8091/brands | head -c 6000; echo
+          echo "===================== FULL 500 BODY (/products) ==================="
+          curl -s http://localhost:8091/products | head -c 3000; echo
+          echo "===================== app .env (DB / debug / queue) ==============="
+          docker exec "$API" sh -c 'grep -aE "^(DB_|APP_DEBUG|APP_ENV|QUEUE_|LOG_)" .env 2>/dev/null'
+          echo "===================== storage/logs ================================"
+          docker exec "$API" sh -c 'ls -la storage/logs/ 2>/dev/null; echo ----; cat storage/logs/*.log 2>/dev/null | tail -n 200 || echo "(no *.log)"'
+          echo "===================== docker logs: laravel-api ===================="
+          docker compose logs --tail=60 laravel-api
+          echo "===================== processes: laravel-api ======================"
+          docker exec "$API" sh -c 'ps -ef 2>/dev/null || ps aux 2>/dev/null' | head -50
+          echo "===================== processes: cron (if any) ===================="
+          CRON=$(docker compose ps -q cron); if [ -n "$CRON" ]; then docker exec "$CRON" sh -c 'ps -ef 2>/dev/null || ps aux' | head -50; else echo "(cron container not running)"; fi
+          echo "===================== MariaDB connection state ===================="
+          DBUSER=$(docker exec "$API" sh -c 'grep -aE "^DB_USERNAME" .env | head -1 | cut -d= -f2' | tr -d "\r\"'"'"'")
+          DBPASS=$(docker exec "$API" sh -c 'grep -aE "^DB_PASSWORD" .env | head -1 | cut -d= -f2' | tr -d "\r\"'"'"'")
+          echo "DB_USERNAME=$DBUSER"
+          docker compose exec -T mariadb sh -c "mysql -u\"$DBUSER\" -p\"$DBPASS\" -e 'SHOW VARIABLES LIKE \"max_connections\"; SHOW STATUS LIKE \"Threads_connected\"; SHOW STATUS LIKE \"Max_used_connections\"; SHOW STATUS LIKE \"Aborted_connects\";'" 2>&1 | head -40
+          echo "===================== MariaDB processlist ========================="
+          docker compose exec -T mariadb sh -c "mysql -u\"$DBUSER\" -p\"$DBPASS\" -e 'SHOW FULL PROCESSLIST;'" 2>&1 | head -60
+          echo "===================== jobs / failed_jobs counts =================="
+          docker compose exec -T mariadb sh -c "mysql -u\"$DBUSER\" -p\"$DBPASS\" toolshop -e 'SELECT COUNT(*) AS jobs FROM jobs; SELECT COUNT(*) AS failed FROM failed_jobs;'" 2>&1 | head -20
+          echo "===================== end diagnostics ============================="
+          exit 0
+
       - name: Wait for UI to be ready
         run: |
           for i in $(seq 1 60); do
