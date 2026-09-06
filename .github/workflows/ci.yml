@@ -62,6 +62,46 @@ jobs:
             exit 1
           fi
 
+      - name: Stop cron (halt the scheduler/queue worker before migrating)
+        working-directory: app-under-test
+        run: |
+          # The cron container runs schedule:run + queue:work every minute; with an empty DB
+          # they spam "table doesn't exist" errors. Stop it before we migrate. Tests do not
+          # need the invoice generator anyway.
+          docker compose stop cron || true
+
+      - name: Prepare the database (migrate + seed)
+        working-directory: app-under-test
+        run: |
+          # Must run BEFORE waiting for HTTP 200: the API cannot serve /brands until its tables
+          # exist, and the tables only exist after we migrate. (This app does not auto-migrate.)
+          API=$(docker compose ps -q laravel-api)
+          echo "Running migrations (retry until the DB is reachable)..."
+          migrated=0
+          for i in $(seq 1 12); do
+            if docker exec "$API" php artisan migrate --force; then
+              echo "Migrations applied."; migrated=1; break
+            fi
+            echo "migrate attempt $i failed (DB not ready yet?), retrying in 10s..."
+            sleep 10
+          done
+          if [ "$migrated" != "1" ]; then
+            echo "Migrations never succeeded."
+            docker exec "$API" sh -c 'tail -n 120 storage/logs/laravel.log 2>/dev/null || true'
+            exit 1
+          fi
+          echo "Seeding..."
+          for i in $(seq 1 5); do
+            if docker exec "$API" php artisan db:seed --force; then
+              echo "Seeding done."; exit 0
+            fi
+            echo "seed attempt $i failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "Seeding failed."
+          docker exec "$API" sh -c 'tail -n 120 storage/logs/laravel.log 2>/dev/null || true'
+          exit 1
+
       - name: Wait for the API backend to serve HTTP 200
         run: |
           echo "Waiting for the API to serve HTTP 200 on /brands ..."
@@ -77,38 +117,6 @@ jobs:
           echo "API did not start serving in time. Diagnostics:"
           (cd app-under-test && docker compose ps && docker compose logs --tail=150)
           exit 1
-
-      - name: Prepare the database (non-destructive, seed only if empty)
-        working-directory: app-under-test
-        run: |
-          API=$(docker compose ps -q laravel-api)
-          # If the API already serves seeded data, leave it completely alone.
-          if curl -s http://localhost:8091/brands | grep -q "{"; then
-            echo "API already serves seeded data - nothing to do."
-            exit 0
-          fi
-          echo "No data yet - running NON-destructive migrate + seed (never migrate:fresh,"
-          echo "because dropping tables collides with the running cron/queue worker)."
-          docker exec "$API" php artisan migrate --force || true
-          for i in $(seq 1 5); do
-            if docker exec "$API" php artisan db:seed --force; then
-              echo "Seeding done."
-              exit 0
-            fi
-            echo "Seed attempt $i failed, retrying in 10s..."
-            sleep 10
-          done
-          echo "Seeding failed. Laravel log (excluding invoice-PDF queue noise):"
-          docker exec "$API" sh -c 'grep -a -v -i invoice storage/logs/laravel.log 2>/dev/null | tail -n 120 || echo "(no laravel.log)"'
-          exit 1
-
-      - name: Stop cron (prevents the buggy invoice PDF job from being scheduled)
-        working-directory: app-under-test
-        run: |
-          # Belt-and-suspenders: the cron service schedules CreateInvoicePDF jobs that crash on
-          # invoice.blade.php. Tests only need the catalogue, so stop the scheduler. (Not the
-          # cause of the earlier 500s - that was a missing vendor/ - but keeps logs clean.)
-          docker compose stop cron || true
 
       - name: Verify the API serves seeded data
         run: |
@@ -158,15 +166,6 @@ jobs:
           docker exec "$API" sh -c 'ps -ef 2>/dev/null || ps aux 2>/dev/null' | head -50
           echo "===================== processes: cron (if any) ===================="
           CRON=$(docker compose ps -q cron); if [ -n "$CRON" ]; then docker exec "$CRON" sh -c 'ps -ef 2>/dev/null || ps aux' | head -50; else echo "(cron container not running)"; fi
-          echo "===================== MariaDB connection state ===================="
-          DBUSER=$(docker exec "$API" sh -c 'grep -aE "^DB_USERNAME" .env | head -1 | cut -d= -f2' | tr -d "\r\"'"'"'")
-          DBPASS=$(docker exec "$API" sh -c 'grep -aE "^DB_PASSWORD" .env | head -1 | cut -d= -f2' | tr -d "\r\"'"'"'")
-          echo "DB_USERNAME=$DBUSER"
-          docker compose exec -T mariadb sh -c "mysql -u\"$DBUSER\" -p\"$DBPASS\" -e 'SHOW VARIABLES LIKE \"max_connections\"; SHOW STATUS LIKE \"Threads_connected\"; SHOW STATUS LIKE \"Max_used_connections\"; SHOW STATUS LIKE \"Aborted_connects\";'" 2>&1 | head -40
-          echo "===================== MariaDB processlist ========================="
-          docker compose exec -T mariadb sh -c "mysql -u\"$DBUSER\" -p\"$DBPASS\" -e 'SHOW FULL PROCESSLIST;'" 2>&1 | head -60
-          echo "===================== jobs / failed_jobs counts =================="
-          docker compose exec -T mariadb sh -c "mysql -u\"$DBUSER\" -p\"$DBPASS\" toolshop -e 'SELECT COUNT(*) AS jobs FROM jobs; SELECT COUNT(*) AS failed FROM failed_jobs;'" 2>&1 | head -20
           echo "===================== end diagnostics ============================="
           exit 0
 
