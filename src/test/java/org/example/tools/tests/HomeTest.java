@@ -76,7 +76,7 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-//    @Tag("smoke")
+    @Tag("smoke")
     @DisplayName("Check Home page title")
     public void homePageTitle_shouldMatchExpected() {
         String expectedTitle = "Practice Software Testing - Toolshop";
