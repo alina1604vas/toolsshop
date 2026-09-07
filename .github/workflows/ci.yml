@@ -8,6 +8,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      # Every "docker compose" call below uses the documented prod compose (PREBUILT images).
+      COMPOSE_FILE: docker-compose.prod.yml
 
     steps:
       - name: Check out the code
@@ -25,93 +28,69 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # ---- Stand up the application under test locally, so tests do not hit the
-      # ---- public demo site (which is behind Cloudflare and blocks CI IPs). ----
+      # ---- Application under test, self-hosted so the tests never touch the public demo
+      # ---- site (which sits behind Cloudflare and blocks CI IP ranges). ----
       - name: Check out application under test
         uses: actions/checkout@v4
         with:
           repository: testsmith-io/practice-software-testing
           path: app-under-test
 
-      - name: Start application under test (Docker)
+      - name: Start application under test (prebuilt images)
         working-directory: app-under-test
         run: |
-          if [ -f .env.example ]; then cp -n .env.example .env || true; fi
+          # Follows the project's documented quick start, but with docker-compose.prod.yml,
+          # which uses PREBUILT images. That removes the "composer" service entirely - the
+          # ~10 minute source install was the thing every previous readiness gate raced
+          # against and lost to.
+          printf 'SPRINT=sprint5\nDISABLE_LOGGING=false\n' > .env
+          cat .env
+          docker compose pull --quiet
           docker compose up -d
+          docker compose ps
 
-      - name: Wait for composer install to finish (docker compose wait)
+      - name: Wait until Laravel can boot
         working-directory: app-under-test
         run: |
-          # The composer service runs "composer install && chown && chmod" then exits. Use the
-          # built-in blocking primitive: 'docker compose wait composer' blocks until that
-          # container terminates and returns its exit code. (A hand-rolled docker-inspect poll
-          # raced the container's startup and passed before composer had even begun.)
-          echo "Blocking until the composer service finishes (up to 20 min)..."
-          if timeout 1200 docker compose wait composer; then
-            echo "composer service has exited."
-          else
-            echo "timed out (or 'compose wait' unsupported) waiting for composer:"
-            docker compose logs --tail=120 composer
-            exit 1
-          fi
-          # Definitive proof the install completed: installed.json is written at the end.
+          # Capability probe: "php artisan --version" boots the whole framework, so it proves
+          # the app is usable - and it needs no DB tables, so it is the right precondition
+          # for the migrate step below.
           API=$(docker compose ps -q laravel-api)
           for i in $(seq 1 60); do
-            if docker exec "$API" test -f vendor/composer/installed.json \
-               && docker exec "$API" test -f vendor/autoload.php; then
-              echo "vendor/ is complete."
+            if out=$(docker exec "$API" php artisan --version 2>&1); then
+              echo "Laravel booted: $out"
               exit 0
             fi
-            echo "waiting for vendor to be fully written... $i"
+            echo "attempt $i: artisan not ready yet"
             sleep 5
           done
-          echo "vendor never became complete."
-          docker compose logs --tail=120 composer
+          echo "Laravel never booted. Diagnostics:"
+          docker compose logs --tail=120 laravel-api
           exit 1
 
-      - name: Stop cron (halt the scheduler/queue worker before migrating)
+      - name: Stop cron (its invoice job crashes and only adds noise)
         working-directory: app-under-test
-        run: |
-          # The cron container runs schedule:run + queue:work every minute; with an empty DB
-          # they spam "table doesn't exist" errors. Stop it before we migrate. Tests do not
-          # need the invoice generator anyway.
-          docker compose stop cron || true
+        run: docker compose stop cron || true
 
-      - name: Prepare the database (migrate + seed)
+      - name: Prepare the database (documented migrate:fresh --seed)
         working-directory: app-under-test
         run: |
-          # Must run BEFORE waiting for HTTP 200: the API cannot serve /brands until its tables
-          # exist, and the tables only exist after we migrate. (This app does not auto-migrate.)
           API=$(docker compose ps -q laravel-api)
-          echo "Running migrations (retry until the DB is reachable)..."
-          migrated=0
           for i in $(seq 1 12); do
-            if docker exec "$API" php artisan migrate --force; then
-              echo "Migrations applied."; migrated=1; break
+            if docker exec "$API" php artisan migrate:fresh --seed --force; then
+              echo "Database migrated and seeded."
+              exit 0
             fi
-            echo "migrate attempt $i failed (DB not ready yet?), retrying in 10s..."
+            echo "attempt $i failed (MariaDB may still be starting), retrying in 10s..."
             sleep 10
           done
-          if [ "$migrated" != "1" ]; then
-            echo "Migrations never succeeded."
-            docker exec "$API" sh -c 'tail -n 120 storage/logs/laravel.log 2>/dev/null || true'
-            exit 1
-          fi
-          echo "Seeding..."
-          for i in $(seq 1 5); do
-            if docker exec "$API" php artisan db:seed --force; then
-              echo "Seeding done."; exit 0
-            fi
-            echo "seed attempt $i failed, retrying in 10s..."
-            sleep 10
-          done
-          echo "Seeding failed."
+          echo "migrate:fresh --seed never succeeded. Diagnostics:"
           docker exec "$API" sh -c 'tail -n 120 storage/logs/laravel.log 2>/dev/null || true'
+          docker compose logs --tail=120 mariadb laravel-api
           exit 1
 
-      - name: Wait for the API backend to serve HTTP 200
+      - name: Wait for the API to serve catalogue data
         run: |
-          echo "Waiting for the API to serve HTTP 200 on /brands ..."
           for i in $(seq 1 60); do
             code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8091/brands || echo 000)
             echo "attempt $i: GET :8091/brands -> $code"
@@ -119,62 +98,11 @@ jobs:
               echo "API is serving."
               exit 0
             fi
-            sleep 10
-          done
-          echo "API did not start serving in time. Diagnostics:"
-          (cd app-under-test && docker compose ps && docker compose logs --tail=150)
-          exit 1
-
-      - name: Verify the API serves seeded data
-        run: |
-          # Require the endpoints the UI actually reads to return data *consistently*
-          # (several passes in a row), so we do not start tests during an unstable window.
-          ok=0
-          for i in $(seq 1 24); do
-            brands=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8091/brands || echo 000)
-            products=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8091/products || echo 000)
-            cats=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8091/categories/tree || echo 000)
-            echo "attempt $i: /brands=$brands /products=$products /categories/tree=$cats"
-            if [ "$brands" = "200" ] && [ "$products" = "200" ] && [ "$cats" = "200" ]; then
-              ok=$((ok+1))
-              echo "  all endpoints 200 ($ok consecutive)"
-              if [ "$ok" -ge 3 ]; then
-                echo "API is serving catalogue data consistently."
-                exit 0
-              fi
-            else
-              ok=0
-            fi
             sleep 5
           done
-          echo "::warning::The product API never stabilised (the app self-wedges on its"
-          echo "::warning::built-in invoice/queue bug). Smoke tests (HeaderTest) do not read the"
-          echo "::warning::product API, so continuing anyway. Re-enable a hard check here once the"
-          echo "::warning::backend is made stable for API-dependent tests."
-          exit 0
-
-      - name: Diagnose the API 500 (real cause)
-        if: always()
-        working-directory: app-under-test
-        run: |
-          set +e
-          API=$(docker compose ps -q laravel-api)
-          echo "===================== FULL 500 BODY (/brands) ====================="
-          curl -s http://localhost:8091/brands | head -c 6000; echo
-          echo "===================== FULL 500 BODY (/products) ==================="
-          curl -s http://localhost:8091/products | head -c 3000; echo
-          echo "===================== app .env (DB / debug / queue) ==============="
-          docker exec "$API" sh -c 'grep -aE "^(DB_|APP_DEBUG|APP_ENV|QUEUE_|LOG_)" .env 2>/dev/null'
-          echo "===================== storage/logs ================================"
-          docker exec "$API" sh -c 'ls -la storage/logs/ 2>/dev/null; echo ----; cat storage/logs/*.log 2>/dev/null | tail -n 200 || echo "(no *.log)"'
-          echo "===================== docker logs: laravel-api ===================="
-          docker compose logs --tail=60 laravel-api
-          echo "===================== processes: laravel-api ======================"
-          docker exec "$API" sh -c 'ps -ef 2>/dev/null || ps aux 2>/dev/null' | head -50
-          echo "===================== processes: cron (if any) ===================="
-          CRON=$(docker compose ps -q cron); if [ -n "$CRON" ]; then docker exec "$CRON" sh -c 'ps -ef 2>/dev/null || ps aux' | head -50; else echo "(cron container not running)"; fi
-          echo "===================== end diagnostics ============================="
-          exit 0
+          echo "API never served 200. Diagnostics:"
+          (cd app-under-test && docker compose ps && docker compose logs --tail=150 laravel-api web)
+          exit 1
 
       - name: Wait for UI to be ready
         run: |
@@ -183,10 +111,10 @@ jobs:
               echo "UI is up at http://localhost:4200"
               exit 0
             fi
-            echo "Waiting for UI to be ready... attempt $i"
+            echo "attempt $i: waiting for the Angular dev server"
             sleep 10
           done
-          echo "UI did not become ready in time."
+          echo "UI never became ready. Diagnostics:"
           (cd app-under-test && docker compose logs --tail=80 angular-ui)
           exit 1
 
@@ -202,10 +130,20 @@ jobs:
           TEST_USER_COUNTRY: ${{ secrets.TEST_USER_COUNTRY }}
         run: ./gradlew clean test -PincludeTags=smoke -Dheadless=true --stacktrace
 
-      - name: Dump app logs on failure
+      - name: Dump app diagnostics on failure
         if: failure()
         working-directory: app-under-test
-        run: docker compose logs --tail=120
+        run: |
+          set +e
+          docker compose ps
+          echo "== GET :8091/brands =="
+          curl -s -i http://localhost:8091/brands | head -n 30
+          echo "== laravel.log =="
+          API=$(docker compose ps -q laravel-api)
+          docker exec "$API" sh -c 'tail -n 150 storage/logs/laravel.log 2>/dev/null || echo "(no laravel.log)"'
+          echo "== container logs =="
+          docker compose logs --tail=120 laravel-api web mariadb
+          exit 0
 
       - name: Upload Allure results (even if tests failed)
         if: always()
