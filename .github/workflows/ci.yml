@@ -9,14 +9,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    permissions:
-      # peaceiris/actions-gh-pages pushes the report to the gh-pages branch with GITHUB_TOKEN.
-      contents: write
-    concurrency:
-      # Two runs publishing to gh-pages at once would force-push over each other and lose a
-      # report, so runs queue instead of racing.
-      group: allure-gh-pages
-      cancel-in-progress: false
     env:
       # docker-compose.prod.yml uses PREBUILT images, so there is no "composer" service and
       # no ~10 minute source install for the readiness gates to race against.
@@ -107,34 +99,6 @@ jobs:
           TEST_USER_COUNTRY: ${{ secrets.TEST_USER_COUNTRY }}
         run: ./gradlew clean test -PincludeTags=smoke --stacktrace
 
-      # ---- Publish the Allure report to GitHub Pages, keeping past runs so the trend,
-      # ---- retry and duration graphs have history to draw. ----
-      - name: Load previous Allure history
-        if: always()
-        continue-on-error: true   # no gh-pages branch yet on the very first run
-        uses: actions/checkout@v4
-        with:
-          ref: gh-pages
-          path: gh-pages
-
-      - name: Build Allure report
-        if: always()
-        uses: simple-elf/allure-report-action@v1.15
-        with:
-          allure_results: build/allure-results
-          gh_pages: gh-pages
-          allure_report: allure-report
-          allure_history: allure-history
-          keep_reports: 60        # browsable past runs kept on the branch
-
-      - name: Publish Allure report to GitHub Pages
-        if: always()
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: allure-history
-
       - name: Dump app diagnostics on failure
         if: failure()
         working-directory: app-under-test
@@ -156,7 +120,7 @@ jobs:
         with:
           name: allure-results
           path: build/allure-results
-          retention-days: 30
+          retention-days: 14
 
       - name: Upload plain test report (even if tests failed)
         if: always()
