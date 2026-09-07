@@ -68,9 +68,9 @@ public class HomeTest extends BaseTest {
 
     @AfterEach
     public void cleanUp() {
-//        responseListener.removeObserver(Endpoints.GET_BRANDS);
-//        responseListener.removeObserver(Endpoints.GET_CATEGORIES);
-//        responseListener.removeObserver(Endpoints.GET_PRODUCTS);
+        responseListener.removeObserver(Endpoints.GET_BRANDS);
+        responseListener.removeObserver(Endpoints.GET_CATEGORIES);
+        responseListener.removeObserver(Endpoints.GET_PRODUCTS);
 
         homePage = null;
     }
