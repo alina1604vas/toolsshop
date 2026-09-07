@@ -8,9 +8,12 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
-      # Documented prod compose (PREBUILT images) + a tiny CI override that rebuilds only the
-      # "web" service, whose published image is not available for linux/amd64.
+      # docker-compose.prod.yml uses PREBUILT images, so there is no "composer" service and
+      # no ~10 minute source install for the readiness gates to race against.
+      # The CI override rebuilds only "web": its published image has no linux/amd64 variant
+      # and dies with "exec format error" on a GitHub runner. It is just nginx.
       COMPOSE_FILE: docker-compose.prod.yml:docker-compose.ci.yml
 
     steps:
@@ -29,26 +32,18 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # ---- Application under test, self-hosted so the tests never touch the public demo
-      # ---- site (which sits behind Cloudflare and blocks CI IP ranges). ----
+      # The public demo site sits behind Cloudflare, which blocks GitHub runner IP ranges,
+      # so the tests run against a self-hosted copy of the application instead.
       - name: Check out application under test
         uses: actions/checkout@v4
         with:
           repository: testsmith-io/practice-software-testing
           path: app-under-test
 
-      - name: Start application under test (prebuilt images, web built locally)
+      - name: Start application under test
         working-directory: app-under-test
         run: |
-          # Documented quick start, but with docker-compose.prod.yml (PREBUILT images), which
-          # has no "composer" service - removing the ~10 minute source install that every
-          # earlier readiness gate raced against and lost to.
-          #
-          # Exception: testsmith/practice-software-testing-web has no linux/amd64 variant, so on
-          # a GitHub runner it dies with "exec format error" and nothing listens on 8091. It is
-          # just nginx, so build that one service from source; the api/ui/db images are fine.
           printf 'SPRINT=sprint5\nDISABLE_LOGGING=false\n' > .env
-          cat .env
           cat > docker-compose.ci.yml <<'OVERRIDE'
           services:
             web:
@@ -57,79 +52,39 @@ jobs:
                 dockerfile: web.docker
               image: pst-web-ci:local
           OVERRIDE
-          sed -i 's/^          //' docker-compose.ci.yml
-          echo "--- docker-compose.ci.yml ---"; cat docker-compose.ci.yml
           docker compose build web
           docker compose up -d
-          docker compose ps
+          # Its invoice job crashes on an empty DB and only adds noise.
+          docker compose stop cron || true
 
-      - name: Wait until Laravel can boot
+      - name: Prepare the database
         working-directory: app-under-test
         run: |
-          # Capability probe: "php artisan --version" boots the whole framework, so it proves
-          # the app is usable - and it needs no DB tables, so it is the right precondition
-          # for the migrate step below.
+          # migrate:fresh boots the whole framework, so this doubles as the "is Laravel up?"
+          # gate. The retries cover MariaDB still starting.
           API=$(docker compose ps -q laravel-api)
-          for i in $(seq 1 60); do
-            if out=$(docker exec "$API" php artisan --version 2>&1); then
-              echo "Laravel booted: $out"
-              exit 0
-            fi
-            echo "attempt $i: artisan not ready yet"
-            sleep 5
-          done
-          echo "Laravel never booted. Diagnostics:"
-          docker compose logs --tail=120 laravel-api
-          exit 1
-
-      - name: Stop cron (its invoice job crashes and only adds noise)
-        working-directory: app-under-test
-        run: docker compose stop cron || true
-
-      - name: Prepare the database (documented migrate:fresh --seed)
-        working-directory: app-under-test
-        run: |
-          API=$(docker compose ps -q laravel-api)
-          for i in $(seq 1 12); do
+          for i in $(seq 1 30); do
             if docker exec "$API" php artisan migrate:fresh --seed --force; then
               echo "Database migrated and seeded."
               exit 0
             fi
-            echo "attempt $i failed (MariaDB may still be starting), retrying in 10s..."
+            echo "attempt $i failed, retrying in 10s..."
             sleep 10
           done
-          echo "migrate:fresh --seed never succeeded. Diagnostics:"
-          docker exec "$API" sh -c 'tail -n 120 storage/logs/laravel.log 2>/dev/null || true'
-          docker compose logs --tail=120 mariadb laravel-api
           exit 1
 
-      - name: Wait for the API to serve catalogue data
+      - name: Wait for the app to serve
         run: |
-          for i in $(seq 1 60); do
-            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8091/brands || echo 000)
-            echo "attempt $i: GET :8091/brands -> $code"
-            if [ "$code" = "200" ]; then
-              echo "API is serving."
+          for i in $(seq 1 30); do
+            api=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8091/brands || echo 000)
+            ui=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4200 || echo 000)
+            echo "attempt $i: api=$api ui=$ui"
+            if [ "$api" = "200" ] && [ "$ui" = "200" ]; then
+              echo "Application is serving."
               exit 0
             fi
-            sleep 5
-          done
-          echo "API never served 200. Diagnostics:"
-          (cd app-under-test && docker compose ps && docker compose logs --tail=150 laravel-api web)
-          exit 1
-
-      - name: Wait for UI to be ready
-        run: |
-          for i in $(seq 1 60); do
-            if curl -sf -o /dev/null http://localhost:4200; then
-              echo "UI is up at http://localhost:4200"
-              exit 0
-            fi
-            echo "attempt $i: waiting for the Angular dev server"
             sleep 10
           done
-          echo "UI never became ready. Diagnostics:"
-          (cd app-under-test && docker compose logs --tail=80 angular-ui)
           exit 1
 
       - name: Run smoke tests
@@ -142,7 +97,7 @@ jobs:
           TEST_USER_STREET: ${{ secrets.TEST_USER_STREET }}
           TEST_USER_CITY: ${{ secrets.TEST_USER_CITY }}
           TEST_USER_COUNTRY: ${{ secrets.TEST_USER_COUNTRY }}
-        run: ./gradlew clean test -PincludeTags=smoke -Dheadless=true --stacktrace
+        run: ./gradlew clean test -PincludeTags=smoke --stacktrace
 
       - name: Dump app diagnostics on failure
         if: failure()
@@ -153,10 +108,10 @@ jobs:
           echo "== GET :8091/brands =="
           curl -s -i http://localhost:8091/brands | head -n 30
           echo "== laravel.log =="
-          API=$(docker compose ps -q laravel-api)
-          docker exec "$API" sh -c 'tail -n 150 storage/logs/laravel.log 2>/dev/null || echo "(no laravel.log)"'
+          docker exec "$(docker compose ps -q laravel-api)" \
+            sh -c 'tail -n 150 storage/logs/laravel.log 2>/dev/null || echo "(no laravel.log)"'
           echo "== container logs =="
-          docker compose logs --tail=120 laravel-api web mariadb
+          docker compose logs --tail=120 laravel-api web mariadb angular-ui
           exit 0
 
       - name: Upload Allure results (even if tests failed)
