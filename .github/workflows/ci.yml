@@ -9,8 +9,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      # Every "docker compose" call below uses the documented prod compose (PREBUILT images).
-      COMPOSE_FILE: docker-compose.prod.yml
+      # Documented prod compose (PREBUILT images) + a tiny CI override that rebuilds only the
+      # "web" service, whose published image is not available for linux/amd64.
+      COMPOSE_FILE: docker-compose.prod.yml:docker-compose.ci.yml
 
     steps:
       - name: Check out the code
@@ -36,16 +37,29 @@ jobs:
           repository: testsmith-io/practice-software-testing
           path: app-under-test
 
-      - name: Start application under test (prebuilt images)
+      - name: Start application under test (prebuilt images, web built locally)
         working-directory: app-under-test
         run: |
-          # Follows the project's documented quick start, but with docker-compose.prod.yml,
-          # which uses PREBUILT images. That removes the "composer" service entirely - the
-          # ~10 minute source install was the thing every previous readiness gate raced
-          # against and lost to.
+          # Documented quick start, but with docker-compose.prod.yml (PREBUILT images), which
+          # has no "composer" service - removing the ~10 minute source install that every
+          # earlier readiness gate raced against and lost to.
+          #
+          # Exception: testsmith/practice-software-testing-web has no linux/amd64 variant, so on
+          # a GitHub runner it dies with "exec format error" and nothing listens on 8091. It is
+          # just nginx, so build that one service from source; the api/ui/db images are fine.
           printf 'SPRINT=sprint5\nDISABLE_LOGGING=false\n' > .env
           cat .env
-          docker compose pull --quiet
+          cat > docker-compose.ci.yml <<'OVERRIDE'
+          services:
+            web:
+              build:
+                context: ./_docker
+                dockerfile: web.docker
+              image: pst-web-ci:local
+          OVERRIDE
+          sed -i 's/^          //' docker-compose.ci.yml
+          echo "--- docker-compose.ci.yml ---"; cat docker-compose.ci.yml
+          docker compose build web
           docker compose up -d
           docker compose ps
 
