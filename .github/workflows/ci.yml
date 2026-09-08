@@ -130,6 +130,18 @@ jobs:
           ref: gh-pages
           path: gh-pages
 
+      - name: Drop the history checkout's .git
+        if: always() && steps.allure_check.outputs.found == 'true'
+        run: |
+          # actions/checkout creates gh-pages/.git BEFORE it fetches, so a failed checkout (no
+          # branch yet) still leaves a stub repo whose HEAD points at refs/heads/master.
+          # The Allure action then runs "cp -r ./gh-pages/. ./allure-history" - dotfiles
+          # included - as root, and peaceiris cannot delete the root-owned copy (EACCES). It
+          # copies that stub over its own .git, HEAD reverts to master, the commit lands on
+          # master and "git push origin gh-pages" fails with "src refspec does not match any".
+          # Deleting it here, while it is still runner-owned, breaks that chain.
+          rm -rf gh-pages/.git
+
       - name: Build Allure report
         if: always() && steps.allure_check.outputs.found == 'true'
         uses: simple-elf/allure-report-action@v1.15
