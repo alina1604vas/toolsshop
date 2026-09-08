@@ -10,10 +10,10 @@ public class TestTest {
     @Test
     @Tag("smoke")
     void add_shouldReturnFour() {
-        int result = 2 + 2;
+        int result = 3 + 2;
 
         System.out.println("2 + 2 = " + result);
 
-        assertEquals(4, result);
+        assertEquals(5, result);
     }
 }
