@@ -14,6 +14,6 @@ public class TestTest {
 
         System.out.println("2 + 2 = " + result);
 
-        assertEquals(5, result);
+        assertEquals(4, result);
     }
 }
