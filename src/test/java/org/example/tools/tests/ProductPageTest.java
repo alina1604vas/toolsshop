@@ -68,7 +68,6 @@ public class ProductPageTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint3")
     @DisplayName("Check that Image, Name and Price coincide")
     public void testProductImageNamePrice() {
         UiProduct uiProduct = homePage.openRandomProduct();
@@ -89,7 +88,6 @@ public class ProductPageTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint3")
     @DisplayName("Check Product description")
     public void testProductDescription() {
         expectedProduct = null;
@@ -104,7 +102,6 @@ public class ProductPageTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint3")
     @DisplayName("Check product category labels")
     public void testProductCategoryLabel() {
         expectedProduct = null;
@@ -120,7 +117,6 @@ public class ProductPageTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint3")
     @DisplayName("Check brand labels of a product")
     public void testProductBrandLabel() {
         expectedProduct = null;
@@ -136,7 +132,6 @@ public class ProductPageTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint3")
     @DisplayName("Check related products")
     public void testRelatedProducts() {
         expectedRelatedProducts = null;
@@ -167,7 +162,7 @@ public class ProductPageTest extends BaseTest {
         }
     }
 
-    @Tag("sprint3")
+    @Tag("smoke")
     @ParameterizedTest(name = "Run {index}: qtyToAdd = {0}")
     @ValueSource(ints = {1, 3, 5})
     @DisplayName("Check that a product can be added to a shopping cart and success message is shown")
@@ -195,7 +190,7 @@ public class ProductPageTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint3")
+    @Tag("smoke")
     @DisplayName("Check redirection to checkout")
     public void testRedirectionToCheckout() {
         homePage.openRandomProduct();
