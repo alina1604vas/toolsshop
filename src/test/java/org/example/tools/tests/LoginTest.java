@@ -55,7 +55,6 @@ public class LoginTest extends BaseTest {
             numLinesToSkip = 1,
             emptyValue = "''"
     )
-    @Tag("sprint4")
     @DisplayName("Logging with invalid or empty password")
     public void testLoginWithInvalidPassword(String password, String expectedPasswordError) {
         loginPage.setPasswordInput(password)
