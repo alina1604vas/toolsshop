@@ -1,0 +1,5 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","7106","Home is visible in the header","","2026-09-09","passed","2026-09-09","","org.example.tools.tests.HeaderTest","org.example.tools.tests.HeaderTest","testIfHomeIsVisible"
+"","3450","Logging with registered user","","2026-09-09","passed","2026-09-09","","org.example.tools.tests.LoginTest","org.example.tools.tests.LoginTest","testLoginWithRegisteredUser"
+"","1333","Check Home page title","","2026-09-09","passed","2026-09-09","","org.example.tools.tests.HomeTest","org.example.tools.tests.HomeTest","homePageTitle_shouldMatchExpected"
+"","12","add_shouldReturnFour()","","2026-09-09","failed","2026-09-09","","org.example.tools.tests.TestTest","org.example.tools.tests.TestTest","add_shouldReturnFour"
