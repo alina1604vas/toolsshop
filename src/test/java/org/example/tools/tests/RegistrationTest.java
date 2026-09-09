@@ -29,7 +29,7 @@ public class RegistrationTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint4")
+    @Tag("smoke")
     @DisplayName("Customer registration with valid data")
     public void testUserRegistration() {
         registrationPage.open();
