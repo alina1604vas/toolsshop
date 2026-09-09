@@ -94,7 +94,7 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-//    @Tag("smoke")
+    @Tag("smoke")
     @DisplayName("Check number of products on Home page")
     public void homePage_shouldShowAllProductsFromApi() {
         int expectedNumberOfProducts = homeData.getProductsPerPage().getTotalProducts();
@@ -104,7 +104,7 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-//    @Tag("smoke")
+    @Tag("smoke")
     @DisplayName("Check name, image and price of cards")
     public void productCards_shouldHaveNameImageAndPrice() {
         ArrayList<UiProduct> products = homePage.getAllProducts();
@@ -120,7 +120,6 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint2")
     @DisplayName("Check if a given category name is present on Home page")
     public void filters_shouldContainAllApiCategoriesAndSubcategories() {
         List<Category> categories = homeData.getCategories();
@@ -142,7 +141,6 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint2")
     @DisplayName("Check if a given brand name is present on Home page")
     public void filters_shouldContainAllApiBrands() {
         List<Brand> brands = homeData.getBrands();
