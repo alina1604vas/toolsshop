@@ -23,7 +23,7 @@ public class ContactTest extends BaseTest {
 
     //add param tests
     @Test
-    @Tag("sprint1")
+    @Tag("smoke")
     @DisplayName("Contact form can be submitted successfully")
     public void testSuccessfulContactFormSubmission() {
         contactPage
@@ -41,7 +41,6 @@ public class ContactTest extends BaseTest {
     }
     //add param tests
     @Test
-    @Tag("sprint1")
     @DisplayName("Message field length should be more than 50")
     public void testMessageFieldLengthErrorMessage() {
         contactPage.setMessage(faker.lorem().characters(49));
@@ -56,7 +55,6 @@ public class ContactTest extends BaseTest {
     }
     //add param tests
     @Test
-    @Tag("sprint1")
     @DisplayName("Subject should be required")
     public void testSubjectIsRequiredErrorMessage() {
         String expectedErrorMessage = "Subject is required";
@@ -70,7 +68,6 @@ public class ContactTest extends BaseTest {
     }
     //add param tests
     @Test
-    @Tag("sprint1")
     @DisplayName("Message should be required")
     public void testMessageIsRequiredErrorMessage() {
         String expectedMessage = "Message is required";
@@ -84,7 +81,6 @@ public class ContactTest extends BaseTest {
     }
     //add param tests
     @Test
-    @Tag("sprint1")
     @DisplayName("Error is displayed for invalid email format")
     public void testEmailFormatValidation() {
         String expectedMessage = "Email format is invalid";
