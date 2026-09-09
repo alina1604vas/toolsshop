@@ -1,0 +1,7 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","1804","Logging with registered user","","2026-09-09","passed","2026-09-09","","org.example.tools.tests.LoginTest","org.example.tools.tests.LoginTest","testLoginWithRegisteredUser"
+"","8191","Home is visible in the header","","2026-09-09","passed","2026-09-09","","org.example.tools.tests.HeaderTest","org.example.tools.tests.HeaderTest","testIfHomeIsVisible"
+"","2449","Check number of products on Home page","","2026-09-09","passed","2026-09-09","","org.example.tools.tests.HomeTest","org.example.tools.tests.HomeTest","homePage_shouldShowAllProductsFromApi"
+"","1190","Check Home page title","","2026-09-09","passed","2026-09-09","","org.example.tools.tests.HomeTest","org.example.tools.tests.HomeTest","homePageTitle_shouldMatchExpected"
+"","6","add_shouldReturnFour()","","2026-09-09","failed","2026-09-09","","org.example.tools.tests.TestTest","org.example.tools.tests.TestTest","add_shouldReturnFour"
+"","3408","Check name, image and price of cards","","2026-09-09","passed","2026-09-09","","org.example.tools.tests.HomeTest","org.example.tools.tests.HomeTest","productCards_shouldHaveNameImageAndPrice"
