@@ -12,8 +12,8 @@ public class TestTest {
     void add_shouldReturnFour() {
         int result = 3 + 3;
 
-        System.out.println("2 + 2 = " + result);
+        System.out.println("3 + 3 = " + result);
 
-        assertEquals(5, result);
+        assertEquals(6, result);
     }
 }
