@@ -85,7 +85,6 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-//    @Tag("smoke")
     @DisplayName("Check Home Page url")
     public void homePageUrl_shouldMatchBaseUrl() {
         String expectedUrl = SystemConfig.getBaseUrl();
@@ -152,6 +151,7 @@ public class HomeTest extends BaseTest {
         }
     }
     @Test
+    @Tag("smoke")
     @DisplayName("Check sorting of products by alphabet A-Z")
     public void sortingByNameAZ_shouldOrderProductsAlphabetically() {
         homePage.sortAZ();
@@ -190,7 +190,7 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-//    @Tag("smoke")
+    @Tag("smoke")
     @DisplayName("Check sorting of products by price from High to Low")
     public void sortingByPriceHighToLow_shouldOrderProductsByDescendingPrice() {
         homePage.sortByPriceHighToLow();
@@ -211,7 +211,7 @@ public class HomeTest extends BaseTest {
     }
 
     @Test
-//    @Tag("smoke")
+    @Tag("smoke")
     @DisplayName("Check sorting of products by price from Low to High")
     public void sortingByPriceLowToHigh_shouldOrderProductsByAscendingPrice() {
         homePage.sortByPriceLowToHigh();
