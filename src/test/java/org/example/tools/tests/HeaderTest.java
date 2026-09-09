@@ -33,14 +33,14 @@ public class HeaderTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint1")
+    @Tag("smoke")
     @DisplayName("Categories is visible in the header")
     public void testIfCategoriesIsVisible() {
         assertTrue(header.isCategoriesVisible(), "Categories should be visible in the header");
     }
 
     @Test
-    @Tag("sprint1")
+    @Tag("smoke")
     @DisplayName("Contact is visible in the header")
     public void testIfContactIsVisible() {
         assertTrue(header.isContactVisible(), "Contact should be visible in the header");
