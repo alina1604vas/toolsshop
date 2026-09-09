@@ -34,6 +34,7 @@ public class ProfileDisplayTest extends BaseTest {
     }
 
     @Test
+    @Tag("smoke")
     @DisplayName("Profile displays current user info")
     public void profile_displaysCurrentUserInfo() {
         assertEquals(creds.firstName(), profilePage.getFirstName());
