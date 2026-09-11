@@ -7,8 +7,6 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.Random;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -62,7 +60,7 @@ public class CheckoutPaymentPageTest extends BaseTest {
             "Buy Now Pay Later",
             "Gift Card"
     })
-    @Tag("sprint3")
+    @Tag("smoke")
     @DisplayName("Verify successful payment and order confirmation")
     void testPaymentConfirmation(String paymentMethod) {
         paymentPage.setPaymentMethodDropdown(paymentMethod);

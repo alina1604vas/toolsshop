@@ -42,7 +42,7 @@ public class CheckoutNameAddressTest extends BaseTest {
         nameAddressPage.waitUntilPageIsLoaded();
     }
     @Test
-    @Tag("sprint3")
+    @Tag("smoke")
     @DisplayName("Verify when a form is filled with valid data, customer can proceed to checkout")
     public void testNameAddressFormSubmission() {
         nameAddressPage.fillAddressViaPostcodeLookup();
