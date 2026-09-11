@@ -21,7 +21,7 @@ public class CheckoutCartPageTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint3")
+    @Tag("smoke")
     @DisplayName("Verify products in the cart and their subtotal")
     public void cart_contains_products_with_correct_subtotals() {
         Cart expectedCart = checkoutHelper.buildCartWithRandomProducts(5, 5);
@@ -31,7 +31,6 @@ public class CheckoutCartPageTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint3")
     @DisplayName("Verify if there are missed products in a cart")
     public void cart_containsAll_addedProducts() {
         Cart expectedCart = checkoutHelper.addOneProductFromEachPage(5);
@@ -45,7 +44,7 @@ public class CheckoutCartPageTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint3")
+    @Tag("smoke")
     @DisplayName("Verify total price per cart")
     public void cartTotal_matchesSumOfItems() {
         Cart expectedCart = checkoutHelper.buildCartWithRandomProducts(5, 5);
@@ -58,7 +57,7 @@ public class CheckoutCartPageTest extends BaseTest {
     }
 
     @Test
-    @Tag("sprint3")
+    @Tag("smoke")
     @DisplayName("Verify that after product is deleted, list of products in the cart is updated")
     public void cart_updatesList_afterProductDeletion() {
         CheckoutCartPage cartPage = checkoutHelper.openCart();
